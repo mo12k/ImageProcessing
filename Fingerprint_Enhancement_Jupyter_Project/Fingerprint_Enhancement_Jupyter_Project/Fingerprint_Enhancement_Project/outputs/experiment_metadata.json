@@ -1,0 +1,13 @@
+{
+  "dataset_mode": "SOCOFing_real_controlled_degradation",
+  "number_of_reference_images": 24,
+  "image_size": [
+    256,
+    256
+  ],
+  "random_seed": 42,
+  "member1_final_method": "Wiener + CLAHE + Unsharp",
+  "best_balanced_enhancement_method": "Global HE",
+  "svm_controlled_test_accuracy": 1.0,
+  "warning": ""
+}
