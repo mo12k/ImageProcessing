@@ -1,0 +1,189 @@
+{
+  "created_at": "2026-09-02T14:43:31.346169+08:00",
+  "development_mode_required": true,
+  "export_final_results_required": false,
+  "formal_500_rerun": false,
+  "advanced_dev_outputs_overwritten": false,
+  "quality_audit_sample_size_per_split": 500,
+  "quality_audit_counts": {
+    "Real": 500,
+    "Altered Easy": 500,
+    "Altered Medium": 500,
+    "Altered Hard": 500
+  },
+  "screening24_sample_size": 24,
+  "screening24_selection_rule": "500-image Real quality audit; select 8 higher, 8 medium, 8 lower diagnostic-quality images by fixed quantile bands; no technique-score selection.",
+  "screening24_selected_images": [
+    "75__F_Left_middle_finger.BMP",
+    "422__M_Left_index_finger.BMP",
+    "184__M_Right_index_finger.BMP",
+    "445__M_Left_ring_finger.BMP",
+    "576__M_Right_middle_finger.BMP",
+    "533__M_Right_ring_finger.BMP",
+    "158__M_Right_middle_finger.BMP",
+    "148__M_Right_ring_finger.BMP",
+    "112__M_Left_middle_finger.BMP",
+    "412__M_Left_middle_finger.BMP",
+    "480__M_Right_thumb_finger.BMP",
+    "514__F_Left_middle_finger.BMP",
+    "457__M_Right_index_finger.BMP",
+    "195__M_Right_index_finger.BMP",
+    "183__M_Left_ring_finger.BMP",
+    "494__F_Left_thumb_finger.BMP",
+    "159__M_Right_thumb_finger.BMP",
+    "493__M_Left_little_finger.BMP",
+    "543__M_Right_middle_finger.BMP",
+    "471__M_Left_little_finger.BMP",
+    "516__M_Right_little_finger.BMP",
+    "455__M_Left_little_finger.BMP",
+    "466__F_Left_little_finger.BMP",
+    "371__M_Right_index_finger.BMP"
+  ],
+  "screening24_selected_relative_paths": [
+    "data\\SOCOFing\\Real\\75__F_Left_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\422__M_Left_index_finger.BMP",
+    "data\\SOCOFing\\Real\\184__M_Right_index_finger.BMP",
+    "data\\SOCOFing\\Real\\445__M_Left_ring_finger.BMP",
+    "data\\SOCOFing\\Real\\576__M_Right_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\533__M_Right_ring_finger.BMP",
+    "data\\SOCOFing\\Real\\158__M_Right_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\148__M_Right_ring_finger.BMP",
+    "data\\SOCOFing\\Real\\112__M_Left_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\412__M_Left_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\480__M_Right_thumb_finger.BMP",
+    "data\\SOCOFing\\Real\\514__F_Left_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\457__M_Right_index_finger.BMP",
+    "data\\SOCOFing\\Real\\195__M_Right_index_finger.BMP",
+    "data\\SOCOFing\\Real\\183__M_Left_ring_finger.BMP",
+    "data\\SOCOFing\\Real\\494__F_Left_thumb_finger.BMP",
+    "data\\SOCOFing\\Real\\159__M_Right_thumb_finger.BMP",
+    "data\\SOCOFing\\Real\\493__M_Left_little_finger.BMP",
+    "data\\SOCOFing\\Real\\543__M_Right_middle_finger.BMP",
+    "data\\SOCOFing\\Real\\471__M_Left_little_finger.BMP",
+    "data\\SOCOFing\\Real\\516__M_Right_little_finger.BMP",
+    "data\\SOCOFing\\Real\\455__M_Left_little_finger.BMP",
+    "data\\SOCOFing\\Real\\466__F_Left_little_finger.BMP",
+    "data\\SOCOFing\\Real\\371__M_Right_index_finger.BMP"
+  ],
+  "severity_schedule": [
+    0.35,
+    0.55,
+    0.75
+  ],
+  "seed_rule": "RANDOM_SEED + screening_image_index",
+  "selected_common_preprocessing": "P0: grayscale + resize + float [0,1] only",
+  "metric_integrity": {
+    "mse_psnr_ssim_domain": "aligned greyscale outputs only",
+    "data_range": 1.0,
+    "candidate_metric_normalisation": "clip only; no independent contrast normalisation before metrics",
+    "binary_outputs": "structural metrics only"
+  },
+  "reference_leakage": {
+    "clean_real_used_for_enhancement": false,
+    "per_image_parameter_tuning": false,
+    "svm_enabled": false,
+    "deep_learning_used": false
+  },
+  "literature_context": {
+    "project_literature_pdf": "specification\\fingerprint enhancement.pdf",
+    "article_url": "https://fjpas.fuoye.edu.ng/index.php/fjpas/article/view/79",
+    "article_pdf_url": "https://fjpas.fuoye.edu.ng/index.php/fjpas/article/download/79/71",
+    "reported_modified_gabor_psnr_db": 28.17,
+    "reported_modified_gabor_mse": 22.27,
+    "reported_dataset": "Not confirmed from the locally extractable project-literature context",
+    "reported_image_count": "Not confirmed from the locally extractable project-literature context",
+    "web_access_note": "The article/PDF URLs returned a captcha/interstitial during this audit, so missing article details are not invented.",
+    "exact_reproduction_possible": false,
+    "reason_exact_reproduction_not_possible": "The local project literature gives the reported score and broad algorithm family, but not enough exact Modified Gabor parameter details for a verified replication.",
+    "extracted_context": "rint Images Using Gabor Filter . https://iopscience.iop.or g/article/10.1088/1742-6596/1 196/1/012045/pdf S t u d y 2 \u2013 P e r f o r m a n c e E v a l u a t i o n o f F i n g e r p r i n t E n h a n c e m e n t A l g o r i t h m s \u25cf Compared Modified Gabor Filter , High Boost Gaussian Filter , and Fuzzy-Based Filter . \u25cf Evaluated the techniques based on noise reduction and fingerprint ridge clarity . \u25cf The Modified Gabor Filter achieved a PSNR of 28.17 dB and MSE of 22.27 . \u25cf The results show that the selection of enhancement filters af fects fingerprint image quality . \u25cf Suitable as a reference for selecting an appropriate enhancement technique. \u25cf Limitation: enhancement filtering alone does not perform segmentation, thinning, or fingerprint feature extraction. Article: Mukaila et al. (2019), Performance Evaluation of Fingerprint Image Enhancement Algorithms . https://fjpas.fuoye.edu.ng/index.php/fjpas/article/view/79/71 P l a n n i n g Member Pr epr ocessing Image Pr ocessing T echnique Member 1: Image Pr epr ocessing Module Convert images to grayscale, resize them, normalise intens"
+  },
+  "protected_outputs_before": {
+    "batch_metrics.csv": {
+      "exists": true,
+      "length": 493313,
+      "mtime": 1788256121.670103,
+      "sha256": "b90d78c54428df33734de3bff1a6cafff68b8952ed6e30c1aea6080751e01ca3"
+    },
+    "summary_metrics.csv": {
+      "exists": true,
+      "length": 1601,
+      "mtime": 1788256121.671108,
+      "sha256": "897d5f51bede3ab7a47f09864815e7efbc2b97fd99eda3956102e0d664d3d318"
+    },
+    "experiment_metadata.json": {
+      "exists": true,
+      "length": 1813,
+      "mtime": 1788256123.8933487,
+      "sha256": "a1a661cecccc0a2cc33a83976149519683b87eaa6cffeaac7399357b7f0e0e04"
+    },
+    "fingerprint_enhancement_report.pdf": {
+      "exists": true,
+      "length": 492301,
+      "mtime": 1788256123.5623612,
+      "sha256": "ae84765dfb79783d5c984c611e9fe0f03fc424a4c5d78bfa2e9b8768d2d9459b"
+    },
+    "example_minutiae_overlay.png": {
+      "exists": true,
+      "length": 98275,
+      "mtime": 1788256123.8903477,
+      "sha256": "0f151a01d74d0b80e259a9ce634dba22644afeed86aa94d33408a1c576cfc8d7"
+    }
+  },
+  "protected_outputs_after": {
+    "batch_metrics.csv": {
+      "exists": true,
+      "length": 493313,
+      "mtime": 1788256121.670103,
+      "sha256": "b90d78c54428df33734de3bff1a6cafff68b8952ed6e30c1aea6080751e01ca3"
+    },
+    "summary_metrics.csv": {
+      "exists": true,
+      "length": 1601,
+      "mtime": 1788256121.671108,
+      "sha256": "897d5f51bede3ab7a47f09864815e7efbc2b97fd99eda3956102e0d664d3d318"
+    },
+    "experiment_metadata.json": {
+      "exists": true,
+      "length": 1813,
+      "mtime": 1788256123.8933487,
+      "sha256": "a1a661cecccc0a2cc33a83976149519683b87eaa6cffeaac7399357b7f0e0e04"
+    },
+    "fingerprint_enhancement_report.pdf": {
+      "exists": true,
+      "length": 492301,
+      "mtime": 1788256123.5623612,
+      "sha256": "ae84765dfb79783d5c984c611e9fe0f03fc424a4c5d78bfa2e9b8768d2d9459b"
+    },
+    "example_minutiae_overlay.png": {
+      "exists": true,
+      "length": 98275,
+      "mtime": 1788256123.8903477,
+      "sha256": "0f151a01d74d0b80e259a9ce634dba22644afeed86aa94d33408a1c576cfc8d7"
+    }
+  },
+  "protected_outputs_unchanged": true,
+  "created_or_updated_files": [
+    "outputs\\screening24_dataset_quality.csv",
+    "outputs\\screening24_preprocessing.csv",
+    "outputs\\screening24_degradation_ablation.csv",
+    "outputs\\screening24_single_techniques.csv",
+    "outputs\\screening24_family_summary.csv",
+    "outputs\\screening24_member_results.csv",
+    "outputs\\screening24_combinations.csv",
+    "outputs\\screening24_stage_metrics.csv",
+    "outputs\\screening24_minutiae.csv",
+    "outputs\\screening24_metadata.json",
+    "outputs\\screening24_report.md",
+    "outputs\\screening24_figure_A_dataset_quality.png",
+    "outputs\\screening24_figure_B_preprocessing.png",
+    "outputs\\screening24_figure_C_m1_screening.png",
+    "outputs\\screening24_figure_D_m2_ridge_enhancement.png",
+    "outputs\\screening24_figure_E_m3_results.png",
+    "outputs\\screening24_figure_F_m4_results.png",
+    "outputs\\screening24_figure_G_team_hybrid.png",
+    "outputs\\screening24_figure_H_tutor_benchmark.png"
+  ],
+  "runtime_seconds": 707.0737059999956,
+  "stop_gate": "Completed 24-image screening only; did not run 50/100/250/500-image experiments.",
+  "report_regenerated_at": "2026-09-02T14:46:08.314262+08:00"
+}

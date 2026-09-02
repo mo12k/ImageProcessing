@@ -1,0 +1,9 @@
+Member,Role,Recommended technique,Evidence metric
+M1,Baseline,CLAHE,contrast baseline; see PSNR/SSIM trade-off
+M1,Proposed,Wiener deconvolution,PSNR mean 16.1707 dB
+M2,Baseline,Ordinary Gabor filter,fixed-orientation/frequency baseline
+M2,Literature technique,Literature-inspired Modified Gabor,our PSNR mean 15.7256 dB; literature reported 28.17 dB
+M2,Proposed,Coherence-guided directional diffusion,coherence mean 0.4978
+M3,Proposed,Closing,fragmentation 4.6558
+M4,Proposed,Morphological skeleton / medial axis,small components 30.5833
+Team,Hybrid,R1->G7->fusion,PSNR mean 16.1493 dB

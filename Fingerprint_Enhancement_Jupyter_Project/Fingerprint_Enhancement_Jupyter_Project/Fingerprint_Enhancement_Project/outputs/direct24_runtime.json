@@ -1,0 +1,459 @@
+{
+  "created_at": "2026-09-02T16:29:54.082334+08:00",
+  "runtime_seconds": 148.54535929998383,
+  "main_experiment_used_synthetic_degradation": false,
+  "full_500_image_experiment_run": false,
+  "bruteforce_hybrids_run": false,
+  "selection_counts": {
+    "Easy": 8,
+    "Hard": 8,
+    "Medium": 8
+  },
+  "selection_rule": "For each Altered category, sort filenames and choose 8 evenly spaced images.",
+  "neutral_preprocessing": "P0: grayscale, resize to 256x256, float [0,1] only",
+  "real_pair_candidates_verified_by_filename": {
+    "Easy": 8,
+    "Hard": 8,
+    "Medium": 8
+  },
+  "pairing_used_for_full_reference_metrics": false,
+  "psnr_mse_ssim_primary_metrics": false,
+  "technique_runtime_totals_seconds": {
+    "CLAHE": 0.1590560000622645,
+    "Contrast Stretching": 0.023399900179356337,
+    "Global Histogram Equalization": 0.05821329983882606,
+    "Ordinary Gabor": 21.901156100037042,
+    "Literature-Inspired Modified Gabor": 46.00241629994707,
+    "Coherence-Guided Directional Diffusion": 7.4468264997703955,
+    "Directional Oriented Filter-Bank": 2.385735400021076,
+    "Wiener Deconvolution": 0.059294399921782315,
+    "Wavelet Denoising": 0.06536939990473911,
+    "Total Variation Restoration": 0.24436249997233972
+  },
+  "hybrid_definition": {
+    "Hybrid ID": "DIRECT24-H1",
+    "M1": "CLAHE",
+    "M2": "Ordinary Gabor",
+    "M3": "Closing",
+    "M4": "Medial Axis",
+    "M4 role": "downstream analysis/output branch, not part of greyscale enhancement"
+  },
+  "protected_existing_outputs_unchanged": true,
+  "protected_before": {
+    "advanced_dev_batch_metrics.csv": {
+      "exists": true,
+      "length": 127569,
+      "mtime": 1788274832.540685,
+      "sha256": "621837b4aeec1864266990d3c552c81407bc80655af055455bcbb0ffe2da11f6"
+    },
+    "advanced_dev_metadata.json": {
+      "exists": true,
+      "length": 1096,
+      "mtime": 1788275128.4336956,
+      "sha256": "ee399b86237ac49e185a70e9b70a8a9fa09253c8adad7971b497d1d030274ad6"
+    },
+    "advanced_dev_minutiae_counts.csv": {
+      "exists": true,
+      "length": 4084,
+      "mtime": 1788274832.56145,
+      "sha256": "be2e485113ca269efaa6831408361691150682010949f40afa7dac52b2e6cbdc"
+    },
+    "advanced_dev_parameter_search.csv": {
+      "exists": true,
+      "length": 9147,
+      "mtime": 1788275128.432616,
+      "sha256": "64273a560b0eb376618fb222e69910fa89597fdbda7fd473f24ccd9688981309"
+    },
+    "advanced_dev_run.log": {
+      "exists": true,
+      "length": 24600,
+      "mtime": 1788274834.2773693,
+      "sha256": "3168bffa1d09b2118c8a7da58d60c5d959d9764c58b6c2279b92807e64c217a2"
+    },
+    "advanced_dev_stage_metrics.csv": {
+      "exists": true,
+      "length": 264889,
+      "mtime": 1788274832.554417,
+      "sha256": "924318b3f6a19e8a4d0c70b3cbf1b7ee199069cb8c783502981c1e96a3714a78"
+    },
+    "advanced_dev_summary_metrics.csv": {
+      "exists": true,
+      "length": 3227,
+      "mtime": 1788275128.4306157,
+      "sha256": "bad694ceb2194f06bb0d0a07ed430ced01e774155b161916d0b1918d14adb24a"
+    },
+    "advanced_development_report.md": {
+      "exists": true,
+      "length": 15885,
+      "mtime": 1788275128.4817135,
+      "sha256": "0ae7066167604c209bc2ae470c0ce24fce8a99e9282490dd9e709e5325349a86"
+    },
+    "batch_metrics.csv": {
+      "exists": true,
+      "length": 493313,
+      "mtime": 1788256121.670103,
+      "sha256": "b90d78c54428df33734de3bff1a6cafff68b8952ed6e30c1aea6080751e01ca3"
+    },
+    "example_minutiae_overlay.png": {
+      "exists": true,
+      "length": 98275,
+      "mtime": 1788256123.8903477,
+      "sha256": "0f151a01d74d0b80e259a9ce634dba22644afeed86aa94d33408a1c576cfc8d7"
+    },
+    "experiment_metadata.json": {
+      "exists": true,
+      "length": 1813,
+      "mtime": 1788256123.8933487,
+      "sha256": "a1a661cecccc0a2cc33a83976149519683b87eaa6cffeaac7399357b7f0e0e04"
+    },
+    "fingerprint_enhancement_report.pdf": {
+      "exists": true,
+      "length": 492301,
+      "mtime": 1788256123.5623612,
+      "sha256": "ae84765dfb79783d5c984c611e9fe0f03fc424a4c5d78bfa2e9b8768d2d9459b"
+    },
+    "screening24_combinations.csv": {
+      "exists": true,
+      "length": 4332,
+      "mtime": 1788331411.5340066,
+      "sha256": "c5a23456e550f7b154f4478c43808b3841e252d3071f3d3b220b7a69c5027766"
+    },
+    "screening24_dataset_quality.csv": {
+      "exists": true,
+      "length": 816651,
+      "mtime": 1788331411.482239,
+      "sha256": "cb0c7c8ae8fc7fa44099f4cf635dc7762c970fc8c82de864c54d81bf82f76039"
+    },
+    "screening24_degradation_ablation.csv": {
+      "exists": true,
+      "length": 73329,
+      "mtime": 1788331411.4932413,
+      "sha256": "a4ace23400ef741a4fbe5c7053e2c7b64ecd1994fee74f1f0482021b93de4219"
+    },
+    "screening24_family_summary.csv": {
+      "exists": true,
+      "length": 22971,
+      "mtime": 1788331411.5299997,
+      "sha256": "8ddc7436e96e2e01da8922e6ef4a68a321d982321dd40f59ed4d0bc2e2ba2696"
+    },
+    "screening24_figure_A_dataset_quality.png": {
+      "exists": true,
+      "length": 44078,
+      "mtime": 1788331408.8191316,
+      "sha256": "5131b899bed6b7486c05b408c0da561ee62cd17eacba291d83dc67629cc1ea33"
+    },
+    "screening24_figure_B_preprocessing.png": {
+      "exists": true,
+      "length": 30221,
+      "mtime": 1788331409.0333898,
+      "sha256": "2a7d2ae0508d0e5d5dec13d4a162ca9e0e7669e76f364724018bf02c1a218fdc"
+    },
+    "screening24_figure_C_m1_screening.png": {
+      "exists": true,
+      "length": 80737,
+      "mtime": 1788331409.3408656,
+      "sha256": "d5a35659a456bbe76d89cfc1e98b2cea21fd796d0c770e17107c24b9e3bb3bc0"
+    },
+    "screening24_figure_D_m2_ridge_enhancement.png": {
+      "exists": true,
+      "length": 52586,
+      "mtime": 1788331409.6842043,
+      "sha256": "0eb6ef93d420813428039b374f2f087481bffc3dc9e7490552a92b151e8db333"
+    },
+    "screening24_figure_E_m3_results.png": {
+      "exists": true,
+      "length": 109370,
+      "mtime": 1788331410.105295,
+      "sha256": "8466e7900cf1a733a5a89473955f43c4cdcb8871d5e2bcde7f5a5324ef94450e"
+    },
+    "screening24_figure_F_m4_results.png": {
+      "exists": true,
+      "length": 71141,
+      "mtime": 1788331410.5007238,
+      "sha256": "a198fd3da9f8f1c31070253481cd61723ed9e654a6a1d48cb504db12733a7849"
+    },
+    "screening24_figure_G_team_hybrid.png": {
+      "exists": true,
+      "length": 61343,
+      "mtime": 1788331410.8190618,
+      "sha256": "5d079108879a316a19f082fdfd211eb76851c3bffc529cf49f1b454a2e1dd7e1"
+    },
+    "screening24_figure_H_tutor_benchmark.png": {
+      "exists": true,
+      "length": 86265,
+      "mtime": 1788331411.1952503,
+      "sha256": "4a1b7fd612a0670460305678885fd13470501184b966abc46f784a775d082ca5"
+    },
+    "screening24_member_results.csv": {
+      "exists": true,
+      "length": 595,
+      "mtime": 1788331411.5320003,
+      "sha256": "4cba89683f67e640cec832b0e86b300316d030edc0740c51c51163ae3064bcf9"
+    },
+    "screening24_metadata.json": {
+      "exists": true,
+      "length": 9256,
+      "mtime": 1788331568.3153324,
+      "sha256": "b933f703f9300a5062fd3dcf3bd05966e44b1e26930c7ff407b6a2f6bc8fcad2"
+    },
+    "screening24_minutiae.csv": {
+      "exists": true,
+      "length": 10385,
+      "mtime": 1788331411.552173,
+      "sha256": "6da261498bac68d307d6082aa461b5fbf11b9e86a595a4dc4b1ebd9ed4e475d8"
+    },
+    "screening24_preprocessing.csv": {
+      "exists": true,
+      "length": 23459,
+      "mtime": 1788331411.4867368,
+      "sha256": "03386e433321db7df2a93ee4f850b7ed8df388893d34b1f1ea99b09a7fc1701b"
+    },
+    "screening24_report.md": {
+      "exists": true,
+      "length": 105919,
+      "mtime": 1788331568.449194,
+      "sha256": "2da2b93175ab71b01d590797523f66558cfae795ec6b3b69d46c3fd36207c07c"
+    },
+    "screening24_run.log": {
+      "exists": true,
+      "length": 1368,
+      "mtime": 1788331411.7615495,
+      "sha256": "abdadc97cf4da45b8d3122593d11af71349b6e0650f11c5ac544501ecc24e76b"
+    },
+    "screening24_single_techniques.csv": {
+      "exists": true,
+      "length": 363434,
+      "mtime": 1788331411.5164385,
+      "sha256": "00185df9d249f83b525f0c8c69b6e4a8b205ecaf84d54d079298acac4d52025f"
+    },
+    "screening24_stage_metrics.csv": {
+      "exists": true,
+      "length": 305320,
+      "mtime": 1788331411.5500326,
+      "sha256": "3879304b9226db8896243a1df49687ef630957856d3df0336e3e5c6e406cd1f8"
+    },
+    "summary_metrics.csv": {
+      "exists": true,
+      "length": 1601,
+      "mtime": 1788256121.671108,
+      "sha256": "897d5f51bede3ab7a47f09864815e7efbc2b97fd99eda3956102e0d664d3d318"
+    },
+    "svm_quality_model.joblib": {
+      "exists": true,
+      "length": 4611,
+      "mtime": 1788253199.3102777,
+      "sha256": "0b37de852822fc012eb9555ebabfc45a33304f1d54beac44e51507688aa1a5e8"
+    }
+  },
+  "protected_after": {
+    "advanced_dev_batch_metrics.csv": {
+      "exists": true,
+      "length": 127569,
+      "mtime": 1788274832.540685,
+      "sha256": "621837b4aeec1864266990d3c552c81407bc80655af055455bcbb0ffe2da11f6"
+    },
+    "advanced_dev_metadata.json": {
+      "exists": true,
+      "length": 1096,
+      "mtime": 1788275128.4336956,
+      "sha256": "ee399b86237ac49e185a70e9b70a8a9fa09253c8adad7971b497d1d030274ad6"
+    },
+    "advanced_dev_minutiae_counts.csv": {
+      "exists": true,
+      "length": 4084,
+      "mtime": 1788274832.56145,
+      "sha256": "be2e485113ca269efaa6831408361691150682010949f40afa7dac52b2e6cbdc"
+    },
+    "advanced_dev_parameter_search.csv": {
+      "exists": true,
+      "length": 9147,
+      "mtime": 1788275128.432616,
+      "sha256": "64273a560b0eb376618fb222e69910fa89597fdbda7fd473f24ccd9688981309"
+    },
+    "advanced_dev_run.log": {
+      "exists": true,
+      "length": 24600,
+      "mtime": 1788274834.2773693,
+      "sha256": "3168bffa1d09b2118c8a7da58d60c5d959d9764c58b6c2279b92807e64c217a2"
+    },
+    "advanced_dev_stage_metrics.csv": {
+      "exists": true,
+      "length": 264889,
+      "mtime": 1788274832.554417,
+      "sha256": "924318b3f6a19e8a4d0c70b3cbf1b7ee199069cb8c783502981c1e96a3714a78"
+    },
+    "advanced_dev_summary_metrics.csv": {
+      "exists": true,
+      "length": 3227,
+      "mtime": 1788275128.4306157,
+      "sha256": "bad694ceb2194f06bb0d0a07ed430ced01e774155b161916d0b1918d14adb24a"
+    },
+    "advanced_development_report.md": {
+      "exists": true,
+      "length": 15885,
+      "mtime": 1788275128.4817135,
+      "sha256": "0ae7066167604c209bc2ae470c0ce24fce8a99e9282490dd9e709e5325349a86"
+    },
+    "batch_metrics.csv": {
+      "exists": true,
+      "length": 493313,
+      "mtime": 1788256121.670103,
+      "sha256": "b90d78c54428df33734de3bff1a6cafff68b8952ed6e30c1aea6080751e01ca3"
+    },
+    "example_minutiae_overlay.png": {
+      "exists": true,
+      "length": 98275,
+      "mtime": 1788256123.8903477,
+      "sha256": "0f151a01d74d0b80e259a9ce634dba22644afeed86aa94d33408a1c576cfc8d7"
+    },
+    "experiment_metadata.json": {
+      "exists": true,
+      "length": 1813,
+      "mtime": 1788256123.8933487,
+      "sha256": "a1a661cecccc0a2cc33a83976149519683b87eaa6cffeaac7399357b7f0e0e04"
+    },
+    "fingerprint_enhancement_report.pdf": {
+      "exists": true,
+      "length": 492301,
+      "mtime": 1788256123.5623612,
+      "sha256": "ae84765dfb79783d5c984c611e9fe0f03fc424a4c5d78bfa2e9b8768d2d9459b"
+    },
+    "screening24_combinations.csv": {
+      "exists": true,
+      "length": 4332,
+      "mtime": 1788331411.5340066,
+      "sha256": "c5a23456e550f7b154f4478c43808b3841e252d3071f3d3b220b7a69c5027766"
+    },
+    "screening24_dataset_quality.csv": {
+      "exists": true,
+      "length": 816651,
+      "mtime": 1788331411.482239,
+      "sha256": "cb0c7c8ae8fc7fa44099f4cf635dc7762c970fc8c82de864c54d81bf82f76039"
+    },
+    "screening24_degradation_ablation.csv": {
+      "exists": true,
+      "length": 73329,
+      "mtime": 1788331411.4932413,
+      "sha256": "a4ace23400ef741a4fbe5c7053e2c7b64ecd1994fee74f1f0482021b93de4219"
+    },
+    "screening24_family_summary.csv": {
+      "exists": true,
+      "length": 22971,
+      "mtime": 1788331411.5299997,
+      "sha256": "8ddc7436e96e2e01da8922e6ef4a68a321d982321dd40f59ed4d0bc2e2ba2696"
+    },
+    "screening24_figure_A_dataset_quality.png": {
+      "exists": true,
+      "length": 44078,
+      "mtime": 1788331408.8191316,
+      "sha256": "5131b899bed6b7486c05b408c0da561ee62cd17eacba291d83dc67629cc1ea33"
+    },
+    "screening24_figure_B_preprocessing.png": {
+      "exists": true,
+      "length": 30221,
+      "mtime": 1788331409.0333898,
+      "sha256": "2a7d2ae0508d0e5d5dec13d4a162ca9e0e7669e76f364724018bf02c1a218fdc"
+    },
+    "screening24_figure_C_m1_screening.png": {
+      "exists": true,
+      "length": 80737,
+      "mtime": 1788331409.3408656,
+      "sha256": "d5a35659a456bbe76d89cfc1e98b2cea21fd796d0c770e17107c24b9e3bb3bc0"
+    },
+    "screening24_figure_D_m2_ridge_enhancement.png": {
+      "exists": true,
+      "length": 52586,
+      "mtime": 1788331409.6842043,
+      "sha256": "0eb6ef93d420813428039b374f2f087481bffc3dc9e7490552a92b151e8db333"
+    },
+    "screening24_figure_E_m3_results.png": {
+      "exists": true,
+      "length": 109370,
+      "mtime": 1788331410.105295,
+      "sha256": "8466e7900cf1a733a5a89473955f43c4cdcb8871d5e2bcde7f5a5324ef94450e"
+    },
+    "screening24_figure_F_m4_results.png": {
+      "exists": true,
+      "length": 71141,
+      "mtime": 1788331410.5007238,
+      "sha256": "a198fd3da9f8f1c31070253481cd61723ed9e654a6a1d48cb504db12733a7849"
+    },
+    "screening24_figure_G_team_hybrid.png": {
+      "exists": true,
+      "length": 61343,
+      "mtime": 1788331410.8190618,
+      "sha256": "5d079108879a316a19f082fdfd211eb76851c3bffc529cf49f1b454a2e1dd7e1"
+    },
+    "screening24_figure_H_tutor_benchmark.png": {
+      "exists": true,
+      "length": 86265,
+      "mtime": 1788331411.1952503,
+      "sha256": "4a1b7fd612a0670460305678885fd13470501184b966abc46f784a775d082ca5"
+    },
+    "screening24_member_results.csv": {
+      "exists": true,
+      "length": 595,
+      "mtime": 1788331411.5320003,
+      "sha256": "4cba89683f67e640cec832b0e86b300316d030edc0740c51c51163ae3064bcf9"
+    },
+    "screening24_metadata.json": {
+      "exists": true,
+      "length": 9256,
+      "mtime": 1788331568.3153324,
+      "sha256": "b933f703f9300a5062fd3dcf3bd05966e44b1e26930c7ff407b6a2f6bc8fcad2"
+    },
+    "screening24_minutiae.csv": {
+      "exists": true,
+      "length": 10385,
+      "mtime": 1788331411.552173,
+      "sha256": "6da261498bac68d307d6082aa461b5fbf11b9e86a595a4dc4b1ebd9ed4e475d8"
+    },
+    "screening24_preprocessing.csv": {
+      "exists": true,
+      "length": 23459,
+      "mtime": 1788331411.4867368,
+      "sha256": "03386e433321db7df2a93ee4f850b7ed8df388893d34b1f1ea99b09a7fc1701b"
+    },
+    "screening24_report.md": {
+      "exists": true,
+      "length": 105919,
+      "mtime": 1788331568.449194,
+      "sha256": "2da2b93175ab71b01d590797523f66558cfae795ec6b3b69d46c3fd36207c07c"
+    },
+    "screening24_run.log": {
+      "exists": true,
+      "length": 1368,
+      "mtime": 1788331411.7615495,
+      "sha256": "abdadc97cf4da45b8d3122593d11af71349b6e0650f11c5ac544501ecc24e76b"
+    },
+    "screening24_single_techniques.csv": {
+      "exists": true,
+      "length": 363434,
+      "mtime": 1788331411.5164385,
+      "sha256": "00185df9d249f83b525f0c8c69b6e4a8b205ecaf84d54d079298acac4d52025f"
+    },
+    "screening24_stage_metrics.csv": {
+      "exists": true,
+      "length": 305320,
+      "mtime": 1788331411.5500326,
+      "sha256": "3879304b9226db8896243a1df49687ef630957856d3df0336e3e5c6e406cd1f8"
+    },
+    "summary_metrics.csv": {
+      "exists": true,
+      "length": 1601,
+      "mtime": 1788256121.671108,
+      "sha256": "897d5f51bede3ab7a47f09864815e7efbc2b97fd99eda3956102e0d664d3d318"
+    },
+    "svm_quality_model.joblib": {
+      "exists": true,
+      "length": 4611,
+      "mtime": 1788253199.3102777,
+      "sha256": "0b37de852822fc012eb9555ebabfc45a33304f1d54beac44e51507688aa1a5e8"
+    }
+  },
+  "visual_files": [
+    "outputs\\direct24_visual_easy_comparison.png",
+    "outputs\\direct24_visual_medium_comparison.png",
+    "outputs\\direct24_visual_hard_comparison.png"
+  ]
+}

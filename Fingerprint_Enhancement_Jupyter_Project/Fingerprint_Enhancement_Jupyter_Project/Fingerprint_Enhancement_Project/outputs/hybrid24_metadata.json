@@ -1,0 +1,743 @@
+{
+  "direct_selection": [
+    {
+      "Category": "Easy",
+      "Category order": 0,
+      "Image": "100__M_Left_index_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\100__M_Left_index_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\100__M_Left_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 1,
+      "Image": "179__M_Left_little_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\179__M_Left_little_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\179__M_Left_little_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 2,
+      "Image": "255__M_Right_middle_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\255__M_Right_middle_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\255__M_Right_middle_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 3,
+      "Image": "332__M_Left_thumb_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\332__M_Left_thumb_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\332__M_Left_thumb_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 4,
+      "Image": "40__F_Left_index_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\40__F_Left_index_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\40__F_Left_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 5,
+      "Image": "487__M_Right_index_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\487__M_Right_index_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\487__M_Right_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 6,
+      "Image": "564__M_Left_ring_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\564__M_Left_ring_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\564__M_Left_ring_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Easy",
+      "Category order": 7,
+      "Image": "9__M_Right_thumb_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Easy\\9__M_Right_thumb_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\9__M_Right_thumb_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 0,
+      "Image": "100__M_Left_index_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\100__M_Left_index_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\100__M_Left_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 1,
+      "Image": "178__M_Right_thumb_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\178__M_Right_thumb_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\178__M_Right_thumb_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 2,
+      "Image": "256__M_Right_little_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\256__M_Right_little_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\256__M_Right_little_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 3,
+      "Image": "333__M_Left_little_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\333__M_Left_little_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\333__M_Left_little_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 4,
+      "Image": "40__F_Left_little_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\40__F_Left_little_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\40__F_Left_little_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 5,
+      "Image": "489__M_Left_index_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\489__M_Left_index_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\489__M_Left_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 6,
+      "Image": "565__M_Right_middle_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\565__M_Right_middle_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\565__M_Right_middle_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Medium",
+      "Category order": 7,
+      "Image": "9__M_Right_thumb_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Medium\\9__M_Right_thumb_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\9__M_Right_thumb_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 0,
+      "Image": "100__M_Left_index_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\100__M_Left_index_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\100__M_Left_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 1,
+      "Image": "179__M_Right_little_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\179__M_Right_little_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\179__M_Right_little_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 2,
+      "Image": "25__F_Left_ring_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\25__F_Left_ring_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\25__F_Left_ring_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 3,
+      "Image": "335__M_Left_middle_finger_CR.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\335__M_Left_middle_finger_CR.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\335__M_Left_middle_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 4,
+      "Image": "40__F_Right_little_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\40__F_Right_little_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\40__F_Right_little_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 5,
+      "Image": "48__F_Left_index_finger_Obl.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\48__F_Left_index_finger_Obl.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\48__F_Left_index_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 6,
+      "Image": "566__M_Left_middle_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\566__M_Left_middle_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\566__M_Left_middle_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    },
+    {
+      "Category": "Hard",
+      "Category order": 7,
+      "Image": "9__M_Right_thumb_finger_Zcut.BMP",
+      "Path": "data\\SOCOFing\\Altered\\Altered-Hard\\9__M_Right_thumb_finger_Zcut.BMP",
+      "Real pair candidate path": "data\\SOCOFing\\Real\\9__M_Right_thumb_finger.BMP",
+      "Real pair candidate exists": true,
+      "Pairing used for metrics": false,
+      "Selection rule": "sorted category file list, 8 evenly spaced indexes"
+    }
+  ],
+  "controlled_selection": [
+    {
+      "Controlled index": 0,
+      "Image": "75__F_Left_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\75__F_Left_middle_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 42,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 1,
+      "Image": "422__M_Left_index_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\422__M_Left_index_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 43,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 2,
+      "Image": "184__M_Right_index_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\184__M_Right_index_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 44,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 3,
+      "Image": "445__M_Left_ring_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\445__M_Left_ring_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 45,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 4,
+      "Image": "576__M_Right_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\576__M_Right_middle_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 46,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 5,
+      "Image": "533__M_Right_ring_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\533__M_Right_ring_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 47,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 6,
+      "Image": "158__M_Right_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\158__M_Right_middle_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 48,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 7,
+      "Image": "148__M_Right_ring_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\148__M_Right_ring_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 49,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 8,
+      "Image": "112__M_Left_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\112__M_Left_middle_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 50,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 9,
+      "Image": "412__M_Left_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\412__M_Left_middle_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 51,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 10,
+      "Image": "480__M_Right_thumb_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\480__M_Right_thumb_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 52,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 11,
+      "Image": "514__F_Left_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\514__F_Left_middle_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 53,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 12,
+      "Image": "457__M_Right_index_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\457__M_Right_index_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 54,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 13,
+      "Image": "195__M_Right_index_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\195__M_Right_index_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 55,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 14,
+      "Image": "183__M_Left_ring_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\183__M_Left_ring_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 56,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 15,
+      "Image": "494__F_Left_thumb_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\494__F_Left_thumb_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 57,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 16,
+      "Image": "159__M_Right_thumb_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\159__M_Right_thumb_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 58,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 17,
+      "Image": "493__M_Left_little_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\493__M_Left_little_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 59,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 18,
+      "Image": "543__M_Right_middle_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\543__M_Right_middle_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 60,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 19,
+      "Image": "471__M_Left_little_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\471__M_Left_little_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 61,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 20,
+      "Image": "516__M_Right_little_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\516__M_Right_little_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 62,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 21,
+      "Image": "455__M_Left_little_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\455__M_Left_little_finger.BMP",
+      "Severity": 0.35,
+      "Seed": 63,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 22,
+      "Image": "466__F_Left_little_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\466__F_Left_little_finger.BMP",
+      "Severity": 0.55,
+      "Seed": 64,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    },
+    {
+      "Controlled index": 23,
+      "Image": "371__M_Right_index_finger.BMP",
+      "Path": "data\\SOCOFing\\Real\\371__M_Right_index_finger.BMP",
+      "Severity": 0.75,
+      "Seed": 65,
+      "Protocol source": "screening24_metadata.json selected_relative_paths; same severity cycle and seed rule"
+    }
+  ],
+  "compatibility_table": [
+    {
+      "Pipeline ID": "B0",
+      "Pipeline": "P0 only",
+      "Final output domain": "grayscale",
+      "Is grayscale finalist candidate": false,
+      "Coherence improves/competitive": false,
+      "Contrast preserved vs CLAHE": false,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": false,
+      "Compatibility interpretation": "control baseline",
+      "Overall coherence": 0.6533486396074295,
+      "Overall contrast": 0.19152213198443255,
+      "Overall fragmentation": 3.215413666190462,
+      "Delta coherence vs P0": 0.0,
+      "Delta contrast vs P0": 0.0,
+      "Delta fragmentation vs P0": 0.0,
+      "Delta coherence vs CLAHE": -0.04515659064054489,
+      "Delta contrast vs CLAHE": -0.031772430365284286,
+      "Delta fragmentation vs CLAHE": 0.40219628840908134,
+      "Worst category fragmentation delta vs CLAHE": 0.6607671661582523,
+      "Worst category contrast delta vs CLAHE": -0.034694598987698555
+    },
+    {
+      "Pipeline ID": "B1",
+      "Pipeline": "P0 -> CLAHE",
+      "Final output domain": "grayscale",
+      "Is grayscale finalist candidate": true,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": true,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": true,
+      "Compatibility interpretation": "compatible",
+      "Overall coherence": 0.6985052302479744,
+      "Overall contrast": 0.2232945623497168,
+      "Overall fragmentation": 2.8132173777813807,
+      "Delta coherence vs P0": 0.04515659064054489,
+      "Delta contrast vs P0": 0.031772430365284286,
+      "Delta fragmentation vs P0": -0.40219628840908134,
+      "Delta coherence vs CLAHE": 0.0,
+      "Delta contrast vs CLAHE": 0.0,
+      "Delta fragmentation vs CLAHE": 0.0,
+      "Worst category fragmentation delta vs CLAHE": 0.0,
+      "Worst category contrast delta vs CLAHE": 0.0
+    },
+    {
+      "Pipeline ID": "C1",
+      "Pipeline": "P0 -> CLAHE -> Ordinary Gabor",
+      "Final output domain": "grayscale",
+      "Is grayscale finalist candidate": true,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": false,
+      "Fragmentation acceptable vs CLAHE": false,
+      "Consistent across Easy/Medium/Hard": false,
+      "Strong compatible candidate": false,
+      "Compatibility interpretation": "contrast damaged; fragmentation worsens; category-specific damage",
+      "Overall coherence": 0.7260972807804743,
+      "Overall contrast": 0.16443690533439317,
+      "Overall fragmentation": 3.999140106479293,
+      "Delta coherence vs P0": 0.07274864117304485,
+      "Delta contrast vs P0": -0.027085226650039356,
+      "Delta fragmentation vs P0": 0.7837264402888304,
+      "Delta coherence vs CLAHE": 0.02759205053249995,
+      "Delta contrast vs CLAHE": -0.05885765701532364,
+      "Delta fragmentation vs CLAHE": 1.1859227286979117,
+      "Worst category fragmentation delta vs CLAHE": 1.5539017782785647,
+      "Worst category contrast delta vs CLAHE": -0.061187539249658585
+    },
+    {
+      "Pipeline ID": "C2",
+      "Pipeline": "P0 -> CLAHE -> Coherence-Guided Directional Diffusion",
+      "Final output domain": "grayscale",
+      "Is grayscale finalist candidate": true,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": true,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": true,
+      "Compatibility interpretation": "compatible",
+      "Overall coherence": 0.7061660413940748,
+      "Overall contrast": 0.20759538374841213,
+      "Overall fragmentation": 2.894931049860126,
+      "Delta coherence vs P0": 0.052817401786645256,
+      "Delta contrast vs P0": 0.016073251763979595,
+      "Delta fragmentation vs P0": -0.32048261633033626,
+      "Delta coherence vs CLAHE": 0.007660811146100362,
+      "Delta contrast vs CLAHE": -0.01569917860130469,
+      "Delta fragmentation vs CLAHE": 0.0817136720787451,
+      "Worst category fragmentation delta vs CLAHE": 0.1617544405114042,
+      "Worst category contrast delta vs CLAHE": -0.01605605147778988
+    },
+    {
+      "Pipeline ID": "C3",
+      "Pipeline": "P0 -> CLAHE -> Total Variation Restoration",
+      "Final output domain": "grayscale",
+      "Is grayscale finalist candidate": true,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": true,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": true,
+      "Compatibility interpretation": "compatible",
+      "Overall coherence": 0.7255392149090767,
+      "Overall contrast": 0.2037259228527546,
+      "Overall fragmentation": 2.9321017125906788,
+      "Delta coherence vs P0": 0.07219057530164719,
+      "Delta contrast vs P0": 0.012203790868322054,
+      "Delta fragmentation vs P0": -0.2833119535997835,
+      "Delta coherence vs CLAHE": 0.027033984661102295,
+      "Delta contrast vs CLAHE": -0.01956863949696223,
+      "Delta fragmentation vs CLAHE": 0.11888433480929787,
+      "Worst category fragmentation delta vs CLAHE": 0.20532170948246903,
+      "Worst category contrast delta vs CLAHE": -0.02001282013952732
+    },
+    {
+      "Pipeline ID": "C4",
+      "Pipeline": "P0 -> Total Variation Restoration -> CLAHE",
+      "Final output domain": "grayscale",
+      "Is grayscale finalist candidate": true,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": true,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": true,
+      "Compatibility interpretation": "compatible",
+      "Overall coherence": 0.7475145608186722,
+      "Overall contrast": 0.21358207302788892,
+      "Overall fragmentation": 2.8435063101043982,
+      "Delta coherence vs P0": 0.09416592121124268,
+      "Delta contrast vs P0": 0.022059941043456394,
+      "Delta fragmentation vs P0": -0.3719073560860642,
+      "Delta coherence vs CLAHE": 0.049009330570697784,
+      "Delta contrast vs CLAHE": -0.009712489321827888,
+      "Delta fragmentation vs CLAHE": 0.0302889323230172,
+      "Worst category fragmentation delta vs CLAHE": 0.07486372554649402,
+      "Worst category contrast delta vs CLAHE": -0.009981250390410423
+    },
+    {
+      "Pipeline ID": "C5",
+      "Pipeline": "P0 -> CLAHE -> Coherence-Guided Directional Diffusion -> Closing",
+      "Final output domain": "morphology-assisted structural output",
+      "Is grayscale finalist candidate": false,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": true,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": true,
+      "Compatibility interpretation": "compatible",
+      "Overall coherence": 0.7061660413940748,
+      "Overall contrast": 0.20759538374841213,
+      "Overall fragmentation": 1.7180021500804328,
+      "Delta coherence vs P0": 0.052817401786645256,
+      "Delta contrast vs P0": 0.016073251763979595,
+      "Delta fragmentation vs P0": -1.4974115161100292,
+      "Delta coherence vs CLAHE": 0.007660811146100362,
+      "Delta contrast vs CLAHE": -0.01569917860130469,
+      "Delta fragmentation vs CLAHE": -1.0952152277009481,
+      "Worst category fragmentation delta vs CLAHE": -0.7530710916563549,
+      "Worst category contrast delta vs CLAHE": -0.01605605147778988
+    },
+    {
+      "Pipeline ID": "C6",
+      "Pipeline": "P0 -> CLAHE -> Total Variation Restoration -> Closing",
+      "Final output domain": "morphology-assisted structural output",
+      "Is grayscale finalist candidate": false,
+      "Coherence improves/competitive": true,
+      "Contrast preserved vs CLAHE": true,
+      "Fragmentation acceptable vs CLAHE": true,
+      "Consistent across Easy/Medium/Hard": true,
+      "Strong compatible candidate": true,
+      "Compatibility interpretation": "compatible",
+      "Overall coherence": 0.7255392149090767,
+      "Overall contrast": 0.2037259228527546,
+      "Overall fragmentation": 1.9165419016285317,
+      "Delta coherence vs P0": 0.07219057530164719,
+      "Delta contrast vs P0": 0.012203790868322054,
+      "Delta fragmentation vs P0": -1.2988717645619305,
+      "Delta coherence vs CLAHE": 0.027033984661102295,
+      "Delta contrast vs CLAHE": -0.01956863949696223,
+      "Delta fragmentation vs CLAHE": -0.8966754761528493,
+      "Worst category fragmentation delta vs CLAHE": -0.5831560676886618,
+      "Worst category contrast delta vs CLAHE": -0.02001282013952732
+    }
+  ],
+  "category_best": [
+    {
+      "Category": "Easy",
+      "Best Pipeline ID": "C4",
+      "Best Pipeline": "P0 -> Total Variation Restoration -> CLAHE",
+      "Selection reason": "highest coherence among candidates passing non-damage compatibility guards",
+      "Coherence": 0.745199978351593,
+      "Contrast": 0.22140906192362309,
+      "Fragmentation": 3.2106692302470226,
+      "Delta coherence vs CLAHE": 0.04643562436103821,
+      "Delta contrast vs CLAHE": -0.009474564343690872,
+      "Delta fragmentation vs CLAHE": -0.02277327090509018
+    },
+    {
+      "Category": "Medium",
+      "Best Pipeline ID": "C4",
+      "Best Pipeline": "P0 -> Total Variation Restoration -> CLAHE",
+      "Selection reason": "highest coherence among candidates passing non-damage compatibility guards",
+      "Coherence": 0.7583048567175865,
+      "Contrast": 0.20982628501951694,
+      "Fragmentation": 2.134781923799084,
+      "Delta coherence vs CLAHE": 0.05570046603679657,
+      "Delta contrast vs CLAHE": -0.009981250390410423,
+      "Delta fragmentation vs CLAHE": 0.07486372554649402
+    },
+    {
+      "Category": "Hard",
+      "Best Pipeline ID": "C4",
+      "Best Pipeline": "P0 -> Total Variation Restoration -> CLAHE",
+      "Selection reason": "highest coherence among candidates passing non-damage compatibility guards",
+      "Coherence": 0.739038847386837,
+      "Contrast": 0.20951087214052677,
+      "Fragmentation": 3.1850677762670876,
+      "Delta coherence vs CLAHE": 0.044891901314258575,
+      "Delta contrast vs CLAHE": -0.00968165323138237,
+      "Delta fragmentation vs CLAHE": 0.03877634232764776
+    },
+    {
+      "Category": "Overall",
+      "Best Pipeline ID": "C4",
+      "Best Pipeline": "P0 -> Total Variation Restoration -> CLAHE",
+      "Selection reason": "highest coherence among candidates passing non-damage compatibility guards",
+      "Coherence": 0.7475145608186722,
+      "Contrast": 0.21358207302788892,
+      "Fragmentation": 2.8435063101043982,
+      "Delta coherence vs CLAHE": 0.049009330570697784,
+      "Delta contrast vs CLAHE": -0.009712489321827888,
+      "Delta fragmentation vs CLAHE": 0.0302889323230172
+    }
+  ],
+  "previous_comparable_quantitative": [
+    {
+      "Comparable source": "screening24 Contrast Stretching",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.023010817724715,
+      "PSNR_mean": 17.111871512767234,
+      "SSIM_mean": 0.5540773241533956
+    },
+    {
+      "Comparable source": "screening24 CLAHE",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0936142299712216,
+      "PSNR_mean": 10.454648555593684,
+      "SSIM_mean": 0.4603401788437706
+    },
+    {
+      "Comparable source": "screening24 Wiener Deconvolution",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0276152032236431,
+      "PSNR_mean": 16.17071484500286,
+      "SSIM_mean": 0.5436438730260577
+    },
+    {
+      "Comparable source": "screening24 Wavelet Denoising",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0289946361485865,
+      "PSNR_mean": 15.923194625551028,
+      "SSIM_mean": 0.5393750794667505
+    },
+    {
+      "Comparable source": "screening24 Total Variation Restoration",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0308326885343322,
+      "PSNR_mean": 15.563449893792432,
+      "SSIM_mean": 0.5718593652716767
+    },
+    {
+      "Comparable source": "screening24 Ordinary Gabor",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0448205080672521,
+      "PSNR_mean": 13.677734820789729,
+      "SSIM_mean": 0.4408601672750404
+    },
+    {
+      "Comparable source": "screening24 Literature-Inspired Modified Gabor",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0297508955084379,
+      "PSNR_mean": 15.725551681949948,
+      "SSIM_mean": 0.5097066144575394
+    },
+    {
+      "Comparable source": "screening24 previous team hybrid R1->G7->fusion",
+      "Protocol": "same screening24 controlled 24 Real/degradation protocol",
+      "MSE_mean": 0.0276959697480672,
+      "PSNR_mean": 16.149275869600462,
+      "SSIM_mean": 0.5426969809877601
+    }
+  ],
+  "outputs": {
+    "direct_metrics": "outputs\\hybrid24_direct_metrics.csv",
+    "direct_summary": "outputs\\hybrid24_direct_summary.csv",
+    "controlled_metrics": "outputs\\hybrid24_controlled_metrics.csv",
+    "controlled_summary": "outputs\\hybrid24_controlled_summary.csv",
+    "stage_metrics": "outputs\\hybrid24_stage_metrics.csv",
+    "finalists": "outputs\\hybrid24_finalists.csv",
+    "runtime": "outputs\\hybrid24_runtime.json",
+    "report": "outputs\\hybrid24_report.md",
+    "metadata": "outputs\\hybrid24_metadata.json"
+  }
+}

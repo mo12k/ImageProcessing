@@ -24,11 +24,11 @@
 # |---|---|
 # | Shared team preprocessing | Loading, grayscale conversion, common resize, controlled degradation/reference preparation, dtype/intensity handling and reproducible random seed |
 # | Team baseline | Simple Global Histogram Equalisation baseline |
-# | Member 1 | Image Restoration and Local Contrast Enhancement using Wiener Filtering and CLAHE |
-# | Member 2 | Multi-orientation Gabor ridge enhancement |
-# | Member 3 | Fingerprint segmentation, Sauvola thresholding and morphology |
-# | Member 4 | Skeletonisation, crossing-number minutiae extraction and evaluation |
-# | Team | Hybrid pipeline, batch dashboard, optional SVM quality assessment and reporting |
+# | Member 1 | M1 - Wiener + CLAHE Enhancement |
+# | Member 2 | M2 - Gabor / Modified Gabor Ridge Enhancement |
+# | Member 3 | M3 - Morphological Ridge Restoration |
+# | Member 4 | M4 - Thinning & Minutiae Extraction |
+# | Team | Team Hybrid Pipeline, batch dashboard, optional SVM quality assessment and reporting |
 #
 # **Important evaluation rule:** full-reference MSE, PSNR and SSIM require aligned clean and degraded images. Therefore, controlled degradation is applied to clean SOCOFing `Real` images. The SOCOFing `Altered` images may be used later for qualitative/application testing, but they are not treated as pixel-perfect ground truth.
 #
@@ -43,7 +43,9 @@
 # %%
 from pathlib import Path
 from time import perf_counter
+from datetime import datetime
 import json
+import textwrap
 import warnings
 
 import numpy as np
@@ -59,7 +61,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from PIL import Image
 from scipy import ndimage as ndi, signal
 
-from skimage import exposure, feature, filters, morphology, transform
+from skimage import exposure, feature, filters, morphology, restoration, transform
 from skimage.draw import ellipse
 from skimage.metrics import mean_squared_error, peak_signal_noise_ratio, structural_similarity
 from skimage.util import img_as_float
@@ -71,7 +73,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 import joblib
 
+try:
+    import pywt
+except ImportError:
+    pywt = None
+
 warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 sns.set_theme(style="whitegrid", context="notebook")
 
 try:
@@ -113,24 +121,81 @@ if PROJECT_ROOT.name != "Fingerprint_Enhancement_Project" and (PROJECT_ROOT / "F
 DATA_ROOT = PROJECT_ROOT / "data" / "SOCOFing"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+NOTEBOOK_EXECUTION_STARTED_AT = datetime.now().astimezone()
+NOTEBOOK_EXECUTION_TIMER_START = perf_counter()
 
 IMAGE_SIZE = (256, 256)
 DEVELOPMENT_MODE = True
 DEVELOPMENT_SAMPLE_IMAGES = 24
-FINAL_EVALUATION_MAX_IMAGES = None  # None means use all available SOCOFing Real images.
+FINAL_EVALUATION_MAX_IMAGES = 500  # Formal evaluation uses exactly 500 SOCOFing Real images.
 MAX_BATCH_IMAGES = DEVELOPMENT_SAMPLE_IMAGES if DEVELOPMENT_MODE else FINAL_EVALUATION_MAX_IMAGES
 RUNTIME_BENCHMARK_SAMPLE_SIZE = 50
 REFERENCE_SET_MAX_IMAGES = (
-    max(DEVELOPMENT_SAMPLE_IMAGES, RUNTIME_BENCHMARK_SAMPLE_SIZE)
+    DEVELOPMENT_SAMPLE_IMAGES
     if DEVELOPMENT_MODE
     else FINAL_EVALUATION_MAX_IMAGES
 )
 RUN_RUNTIME_BENCHMARK = False
 EXPORT_FINAL_RESULTS = False
+RUN_ADVANCED_DEVELOPMENT_SEARCH = True
+EXPORT_ADVANCED_DEVELOPMENT_RESULTS = True
 RUN_OPTIONAL_SVM = False
 SAVE_OPTIONAL_SVM_MODEL = False
 RANDOM_SEED = 42
+SAMPLING_METHOD_DESCRIPTION = "Sorted SOCOFing Real image paths; take the first MAX_BATCH_IMAGES unique files."
+LITERATURE_PSNR_BENCHMARK_DB = 28.17
 SUPPORTED_EXTENSIONS = {".bmp", ".png", ".jpg", ".jpeg", ".tif", ".tiff"}
+
+DEGRADED_INPUT_LABEL = "Degraded Input"
+GLOBAL_HE_BASELINE_LABEL = "Global HE Baseline"
+CLAHE_BASELINE_LABEL = "CLAHE Baseline"
+M1_LABEL = "M1 - Wiener + CLAHE Enhancement"
+M2_LABEL = "M2 - Gabor / Modified Gabor Ridge Enhancement"
+M3_LABEL = "M3 - Morphological Ridge Restoration"
+M4_LABEL = "M4 - Thinning & Minutiae Extraction"
+TEAM_HYBRID_LABEL = "Team Hybrid Pipeline"
+M1_PROPOSED_LABEL = "M1 Proposed - Wavelet + Wiener Restoration"
+M2_BASELINE_LABEL = "M2 Baseline - Ordinary Gabor"
+M2_PROPOSED_LABEL = "M2 Proposed - Adaptive Orientation-Frequency Gabor"
+CANDIDATE_A_LABEL = "Candidate A - Restoration + Adaptive Gabor Fusion"
+CANDIDATE_B_LABEL = "Candidate B - STFT Contextual Enhancement"
+CANDIDATE_C_LABEL = "Candidate C - Coherence Diffusion + Log-Gabor"
+TEAM_PROPOSED_LABEL = "Team Proposed - Quality/Coherence-Guided Hybrid Fusion"
+
+CONTROL_METHODS = [DEGRADED_INPUT_LABEL]
+BASELINE_METHODS = [GLOBAL_HE_BASELINE_LABEL, CLAHE_BASELINE_LABEL]
+MEMBER_IMAGE_CONTRIBUTIONS = [M1_LABEL, M2_LABEL, M3_LABEL, M4_LABEL]
+ENHANCEMENT_QUALITY_METHODS = [
+    DEGRADED_INPUT_LABEL,
+    GLOBAL_HE_BASELINE_LABEL,
+    CLAHE_BASELINE_LABEL,
+    M1_LABEL,
+    M2_LABEL,
+    TEAM_HYBRID_LABEL,
+]
+TEAM_METHODS = [TEAM_HYBRID_LABEL]
+METHOD_ORDER = ENHANCEMENT_QUALITY_METHODS
+ADVANCED_DEVELOPMENT_METHOD_ORDER = [
+    DEGRADED_INPUT_LABEL,
+    CLAHE_BASELINE_LABEL,
+    M1_PROPOSED_LABEL,
+    M2_BASELINE_LABEL,
+    M2_PROPOSED_LABEL,
+    CANDIDATE_A_LABEL,
+    CANDIDATE_B_LABEL,
+    CANDIDATE_C_LABEL,
+    TEAM_PROPOSED_LABEL,
+]
+LEGACY_METHOD_LABELS = {
+    "Degraded input": DEGRADED_INPUT_LABEL,
+    "Global HE baseline": GLOBAL_HE_BASELINE_LABEL,
+    "M1 CLAHE baseline": CLAHE_BASELINE_LABEL,
+    "M1 Wiener + CLAHE": M1_LABEL,
+    "Gabor": M2_LABEL,
+    "Hybrid": TEAM_HYBRID_LABEL,
+    "Global HE": GLOBAL_HE_BASELINE_LABEL,
+    "CLAHE": CLAHE_BASELINE_LABEL,
+}
 
 
 def find_named_image_folder(root: Path, folder_name: str):
@@ -282,14 +347,14 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ## 4. Member 1 - image restoration and local contrast enhancement
+# ## 4. M1 - Wiener + CLAHE Enhancement
 #
 # Member 1 final methodology is **Image Restoration and Local Contrast Enhancement using Wiener Filtering and CLAHE**.
 #
 # The comparison is intentionally limited to:
 #
-# - **CLAHE only:** Member 1 baseline for local contrast enhancement without restoration.
-# - **Wiener + CLAHE:** Member 1 final methodology, where Wiener restoration is applied before CLAHE.
+# - **CLAHE Baseline:** baseline local contrast enhancement without restoration.
+# - **M1 - Wiener + CLAHE Enhancement:** Member 1 final methodology, where Wiener restoration is applied before CLAHE.
 #
 # CLAHE-only is not Member 1's final method. It is retained only to show what changes when image restoration is added. Removed variants such as Wiener + CLAHE + Unsharp, Median + CLAHE and CLAHE + Unsharp are not part of the Member 1 experimental comparison.
 #
@@ -320,24 +385,24 @@ def member1_wiener_clahe(image, clip_limit=0.020, window_size=5):
 
 
 member1_sample_outputs = {
-    "CLAHE baseline": member1_clahe_baseline(sample_degraded),
-    "Wiener + CLAHE": member1_wiener_clahe(sample_degraded),
+    CLAHE_BASELINE_LABEL: member1_clahe_baseline(sample_degraded),
+    M1_LABEL: member1_wiener_clahe(sample_degraded),
 }
-sample_member1 = member1_sample_outputs["Wiener + CLAHE"]
+sample_member1 = member1_sample_outputs[M1_LABEL]
 
 fig, axes = plt.subplots(1, 3, figsize=(11, 4))
-panels = [("Degraded input", sample_degraded), *member1_sample_outputs.items()]
+panels = [(DEGRADED_INPUT_LABEL, sample_degraded), *member1_sample_outputs.items()]
 for axis, (title, image) in zip(axes, panels):
     axis.imshow(image, cmap="gray", vmin=0, vmax=1)
     axis.set_title(title)
     axis.axis("off")
-fig.suptitle("Member 1 restoration and CLAHE comparison", fontsize=14, fontweight="bold")
+fig.suptitle("Member 1 Enhancement Study", fontsize=14, fontweight="bold")
 fig.tight_layout()
 plt.show()
 
 
 # %% [markdown]
-# ## 5. Member 2 - multi-orientation Gabor enhancement
+# ## 5. M2 - Gabor / Modified Gabor Ridge Enhancement
 #
 # A bank of Gabor filters responds to ridge patterns at several orientations. The strongest orientation response is fused with the CLAHE image. This is more robust than applying a single fixed orientation to the entire fingerprint.
 
@@ -362,7 +427,7 @@ sample_gabor, sample_ridge_energy = multi_orientation_gabor(sample_member1)
 
 
 # %% [markdown]
-# ## 6. Member 3 - segmentation, thresholding and morphology
+# ## 6. M3 - Morphological Ridge Restoration
 #
 # Local variance is used to isolate the fingerprint area. Sauvola thresholding extracts dark ridges under uneven illumination, while opening, closing and small-object removal reconnect ridge fragments and suppress isolated noise.
 
@@ -384,24 +449,28 @@ def fingerprint_mask(image, block_size=17):
     return mask
 
 
-def segment_and_restore_ridges(image, window_size=25, sauvola_k=0.16):
+def raw_sauvola_ridges(image, window_size=25, sauvola_k=0.16):
     image = normalise_image(image)
-
     mask = fingerprint_mask(image)
-
     threshold_surface = filters.threshold_sauvola(
         image,
         window_size=int(window_size),
         k=float(sauvola_k)
     )
+    return (image < threshold_surface) & mask, mask
 
-    ridges = (image < threshold_surface) & mask
+
+def segment_and_restore_ridges(image, window_size=25, sauvola_k=0.16, return_intermediate=False):
+    raw_ridges, mask = raw_sauvola_ridges(image, window_size=window_size, sauvola_k=sauvola_k)
+    ridges = raw_ridges.copy()
 
     ridges = morphology.opening(ridges, morphology.disk(1))
     ridges = morphology.closing(ridges, morphology.disk(1))
     ridges = morphology.remove_small_objects(ridges, 12)
     ridges = morphology.remove_small_holes(ridges, 10)
 
+    if return_intermediate:
+        return ridges, mask, raw_ridges
     return ridges, mask
 
 
@@ -412,23 +481,23 @@ plt.figure(figsize=(12, 4))
 
 plt.subplot(1, 3, 1)
 plt.imshow(sample_gabor, cmap="gray")
-plt.title("Gabor Enhanced")
+plt.title("M2 Gabor enhanced")
 plt.axis("off")
 
 plt.subplot(1, 3, 2)
 plt.imshow(sample_mask, cmap="gray")
-plt.title("Fingerprint Mask")
+plt.title("M3 fingerprint mask")
 plt.axis("off")
 
 plt.subplot(1, 3, 3)
 plt.imshow(sample_binary, cmap="gray")
-plt.title("Binary Ridge Image")
+plt.title("M3 restored binary ridges")
 plt.axis("off")
 
 plt.show()
 
 # %% [markdown]
-# ## 7. Member 4 - thinning and crossing-number minutiae extraction
+# ## 7. M4 - Thinning & Minutiae Extraction
 #
 # Ridges are reduced to one-pixel-wide skeletons. For each skeleton pixel, the crossing number around its eight neighbours identifies ridge endings (CN = 1) and bifurcations (CN = 3). Points close to the segmented boundary or to another detected point are removed to reduce false minutiae.
 
@@ -502,16 +571,21 @@ print(f"Ridge endings: {len(sample_endings)} | Bifurcations: {len(sample_bifurca
 # %% [markdown]
 # ## 8. Integrated pipeline and quantitative metrics
 #
-# The integrated comparison keeps individual member work separate from shared team preprocessing and team-level baselines.
+# The integrated comparison keeps experimental controls, baselines, individual member work and team integration separate.
 #
-# The compared grayscale outputs are:
+# Full-reference MSE, PSNR and SSIM are reported only for aligned grayscale enhancement/restoration outputs:
 #
-# - **Degraded input:** controlled low-quality input.
-# - **Global HE baseline:** simple team-level histogram equalisation baseline.
-# - **Member 1 CLAHE baseline:** CLAHE only.
-# - **Member 1 Wiener + CLAHE:** Member 1 final methodology.
-# - **Member 2 Gabor:** multi-orientation Gabor enhancement.
-# - **Hybrid:** team-level combined experiment.
+# - **Degraded Input:** controlled low-quality input.
+# - **Global HE Baseline:** simple histogram equalisation baseline.
+# - **CLAHE Baseline:** local contrast baseline.
+# - **M1 - Wiener + CLAHE Enhancement:** Member 1 final methodology.
+# - **M2 - Gabor / Modified Gabor Ridge Enhancement:** Member 2 ridge enhancement.
+# - **Team Hybrid Pipeline:** integrated team-level output.
+#
+# M3 and M4 are evaluated with structural outputs and minutiae counts instead of direct greyscale PSNR:
+#
+# - **M3 - Morphological Ridge Restoration:** binary ridge restoration before skeletonisation.
+# - **M4 - Thinning & Minutiae Extraction:** skeleton, ridge endings and bifurcations.
 #
 # The following measurements are reported:
 #
@@ -558,6 +632,14 @@ def keypoint_match_score(reference, candidate, maximum_keypoints=300):
         return 0.0
 
 
+def normalise_method_labels(frame):
+    """Map legacy CSV/report method names to the corrected role-aware labels."""
+    frame = frame.copy()
+    if "Method" in frame.columns:
+        frame["Method"] = frame["Method"].replace(LEGACY_METHOD_LABELS)
+    return frame
+
+
 def metric_image(image):
     """Prepare an already aligned [0, 1] image for full-reference metrics without contrast re-normalising it."""
     image = np.asarray(image, dtype=np.float32)
@@ -585,39 +667,682 @@ def evaluate_grayscale(reference, candidate, mask, runtime_seconds=np.nan):
     }
 
 
+def _odd_int(value, minimum=3):
+    value = max(int(value), int(minimum))
+    return value if value % 2 == 1 else value + 1
+
+
+def _block_starts(length, block_size, step):
+    length = int(length)
+    block_size = min(int(block_size), length)
+    step = max(1, int(step))
+    if length <= block_size:
+        return [0]
+    starts = list(range(0, length - block_size + 1, step))
+    if starts[-1] != length - block_size:
+        starts.append(length - block_size)
+    return starts
+
+
+def _angle_difference_pi(angle_a, angle_b):
+    """Smallest absolute difference between orientations modulo pi."""
+    return np.abs(np.angle(np.exp(2j * (angle_a - angle_b)))) / 2.0
+
+
+def wavelet_denoise(image, wavelet="db2", level=2, threshold_scale=0.12, threshold_strategy="soft"):
+    """Denoise with discrete wavelet shrinkage; fall back to TV denoising if PyWavelets is unavailable."""
+    base = metric_image(image)
+    threshold_strategy = str(threshold_strategy).lower()
+    if pywt is None:
+        return metric_image(restoration.denoise_tv_chambolle(base, weight=0.025 + 0.05 * float(threshold_scale)))
+
+    try:
+        wavelet_object = pywt.Wavelet(wavelet)
+        max_level = pywt.dwtn_max_level(base.shape, wavelet_object)
+        active_level = max(1, min(int(level), int(max_level)))
+        coeffs = pywt.wavedec2(base, wavelet=wavelet_object, level=active_level, mode="symmetric")
+    except (TypeError, ValueError):
+        return metric_image(restoration.denoise_tv_chambolle(base, weight=0.025 + 0.05 * float(threshold_scale)))
+
+    finest_detail = np.concatenate([np.ravel(detail) for detail in coeffs[-1]])
+    sigma = np.median(np.abs(finest_detail - np.median(finest_detail))) / 0.6745
+    if not np.isfinite(sigma) or sigma < 1e-8:
+        return base.copy()
+
+    universal_threshold = sigma * np.sqrt(2.0 * np.log(base.size))
+    threshold_mode = "hard" if threshold_strategy == "hard" else "soft"
+    denoised_coeffs = [coeffs[0]]
+    for level_index, detail_triplet in enumerate(coeffs[1:], start=1):
+        denoised_detail = []
+        for detail in detail_triplet:
+            if threshold_strategy == "bayes":
+                detail_variance = float(np.mean(detail**2))
+                signal_sigma = np.sqrt(max(detail_variance - sigma**2, 1e-8))
+                threshold_value = float(threshold_scale) * sigma**2 / (signal_sigma + 1e-8)
+            elif threshold_strategy == "level_scaled":
+                threshold_value = float(threshold_scale) * universal_threshold / np.sqrt(level_index)
+            else:
+                threshold_value = float(threshold_scale) * universal_threshold
+            denoised_detail.append(pywt.threshold(detail, value=threshold_value, mode=threshold_mode))
+        denoised_coeffs.append(tuple(denoised_detail))
+
+    reconstructed = pywt.waverec2(denoised_coeffs, wavelet=wavelet_object, mode="symmetric")
+    reconstructed = reconstructed[: base.shape[0], : base.shape[1]]
+    return metric_image(reconstructed)
+
+
+def gaussian_psf(sigma=1.1, size=None):
+    sigma = max(0.25, float(sigma))
+    if size is None:
+        size = _odd_int(np.ceil(6 * sigma), minimum=5)
+    size = _odd_int(size, minimum=5)
+    radius = size // 2
+    yy, xx = np.mgrid[-radius: radius + 1, -radius: radius + 1]
+    psf = np.exp(-(xx**2 + yy**2) / (2.0 * sigma**2))
+    return psf / max(float(psf.sum()), 1e-8)
+
+
+def frequency_wiener_deconvolution(image, psf_sigma=1.1, balance=0.08, blend=0.05):
+    """Mild Wiener deconvolution with a Gaussian PSF and conservative blending."""
+    base = metric_image(image)
+    psf = gaussian_psf(sigma=psf_sigma)
+    otf = np.fft.fft2(np.fft.ifftshift(psf), s=base.shape)
+    spectrum = np.fft.fft2(base)
+    restored = np.real(np.fft.ifft2((np.conj(otf) / (np.abs(otf) ** 2 + float(balance))) * spectrum))
+    restored = metric_image(restored)
+    return metric_image((1.0 - float(blend)) * base + float(blend) * restored)
+
+
+def local_intensity_normalisation(image, window_size=41, contrast=0.12, blend=0.08):
+    """Local mean-variance normalisation blended back into the grayscale restoration branch."""
+    base = metric_image(image)
+    window_size = _odd_int(window_size, minimum=9)
+    local_mean = ndi.uniform_filter(base, size=window_size, mode="reflect")
+    local_mean_sq = ndi.uniform_filter(base**2, size=window_size, mode="reflect")
+    local_std = np.sqrt(np.maximum(local_mean_sq - local_mean**2, 1e-8))
+    z_score = (base - local_mean) / (local_std + 1e-4)
+    normalised = np.clip(0.5 + float(contrast) * z_score, 0.0, 1.0)
+    return metric_image((1.0 - float(blend)) * base + float(blend) * normalised)
+
+
+def wavelet_wiener_restoration(image, config=None):
+    """Member 1 proposed branch: wavelet denoising followed by conservative Wiener restoration."""
+    config = {} if config is None else dict(config)
+    base = metric_image(image)
+    denoised = wavelet_denoise(
+        base,
+        wavelet=config.get("wavelet", "db2"),
+        level=config.get("wavelet_level", 2),
+        threshold_scale=config.get("wavelet_threshold_scale", 0.12),
+        threshold_strategy=config.get("wavelet_threshold_strategy", "soft"),
+    )
+    local_wiener = signal.wiener(denoised, mysize=_odd_int(config.get("local_wiener_window", 5), minimum=3))
+    local_wiener = metric_image(local_wiener)
+    local_wiener_blend = float(config.get("local_wiener_blend", 0.20))
+    restored = metric_image((1.0 - local_wiener_blend) * denoised + local_wiener_blend * local_wiener)
+    restored = frequency_wiener_deconvolution(
+        restored,
+        psf_sigma=config.get("psf_sigma", 1.1),
+        balance=config.get("deconv_balance", 0.08),
+        blend=config.get("deconv_blend", 0.05),
+    )
+    stages = {
+        "Degraded": base,
+        "Wavelet denoised": denoised,
+        "Deblurred/restored": restored,
+    }
+    return restored, stages
+
+
+def estimate_orientation_field(image, smoothing_sigma=3.0, orientation_smoothing_sigma=2.0):
+    """Estimate local ridge orientation and orientation coherence from the structure tensor."""
+    base = normalise_image(image)
+    grad_x = ndi.sobel(base, axis=1, mode="reflect")
+    grad_y = ndi.sobel(base, axis=0, mode="reflect")
+    gxx_minus_gyy = ndi.gaussian_filter(grad_x**2 - grad_y**2, float(smoothing_sigma), mode="reflect")
+    two_gxy = ndi.gaussian_filter(2.0 * grad_x * grad_y, float(smoothing_sigma), mode="reflect")
+    energy = ndi.gaussian_filter(grad_x**2 + grad_y**2, float(smoothing_sigma), mode="reflect")
+
+    gradient_orientation = 0.5 * np.arctan2(two_gxy, gxx_minus_gyy)
+    ridge_orientation = (gradient_orientation + np.pi / 2.0) % np.pi
+
+    smooth_sin = ndi.gaussian_filter(np.sin(2.0 * ridge_orientation), float(orientation_smoothing_sigma), mode="reflect")
+    smooth_cos = ndi.gaussian_filter(np.cos(2.0 * ridge_orientation), float(orientation_smoothing_sigma), mode="reflect")
+    ridge_orientation = (0.5 * np.arctan2(smooth_sin, smooth_cos)) % np.pi
+    coherence = np.sqrt(gxx_minus_gyy**2 + two_gxy**2) / (energy + 1e-8)
+    return ridge_orientation, np.clip(coherence, 0.0, 1.0)
+
+
+def estimate_block_frequency(block, freq_min=0.045, freq_max=0.18, default_frequency=0.10):
+    """Estimate dominant ridge frequency from a local Fourier spectrum."""
+    block = metric_image(block)
+    centred = block - float(np.mean(block))
+    if float(np.std(centred)) < 1e-5:
+        return float(default_frequency), 0.0, 0.0
+
+    rows, cols = block.shape
+    window = np.outer(np.hanning(rows), np.hanning(cols))
+    spectrum = np.abs(np.fft.fft2(centred * window))
+    fy = np.fft.fftfreq(rows)
+    fx = np.fft.fftfreq(cols)
+    grid_y, grid_x = np.meshgrid(fy, fx, indexing="ij")
+    radius = np.sqrt(grid_x**2 + grid_y**2)
+    valid = (radius >= float(freq_min)) & (radius <= float(freq_max))
+    if not np.any(valid):
+        return float(default_frequency), 0.0, 0.0
+
+    valid_spectrum = np.where(valid, spectrum, 0.0)
+    peak_index = np.unravel_index(int(np.argmax(valid_spectrum)), valid_spectrum.shape)
+    peak_value = float(valid_spectrum[peak_index])
+    band_values = spectrum[valid]
+    band_mean = float(np.mean(band_values)) + 1e-8
+    confidence = np.clip((peak_value / band_mean - 1.0) / 6.0, 0.0, 1.0)
+    normal_orientation = float(np.arctan2(grid_y[peak_index], grid_x[peak_index]) % np.pi)
+    ridge_orientation = float((normal_orientation + np.pi / 2.0) % np.pi)
+    return float(radius[peak_index]), ridge_orientation, float(confidence)
+
+
+def estimate_local_frequency_map(
+    image,
+    mask=None,
+    block_size=40,
+    freq_min=0.045,
+    freq_max=0.18,
+    default_frequency=0.10,
+):
+    """Estimate local ridge frequency on non-overlapping blocks and smooth it into a full image map."""
+    base = metric_image(image)
+    rows, cols = base.shape
+    block_size = min(int(block_size), rows, cols)
+    freq_map = np.full_like(base, float(default_frequency), dtype=np.float32)
+    confidence_map = np.zeros_like(base, dtype=np.float32)
+    fft_orientation_map = np.zeros_like(base, dtype=np.float32)
+    mask = np.ones_like(base, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+
+    for row in _block_starts(rows, block_size, block_size):
+        for col in _block_starts(cols, block_size, block_size):
+            block_mask = mask[row: row + block_size, col: col + block_size]
+            if np.mean(block_mask) < 0.18:
+                continue
+            frequency, fft_orientation, confidence = estimate_block_frequency(
+                base[row: row + block_size, col: col + block_size],
+                freq_min=freq_min,
+                freq_max=freq_max,
+                default_frequency=default_frequency,
+            )
+            freq_map[row: row + block_size, col: col + block_size] = frequency
+            confidence_map[row: row + block_size, col: col + block_size] = confidence
+            fft_orientation_map[row: row + block_size, col: col + block_size] = fft_orientation
+
+    smooth_size = _odd_int(max(3, block_size // 2), minimum=3)
+    freq_map = ndi.median_filter(freq_map, size=smooth_size, mode="nearest")
+    confidence_map = np.clip(ndi.gaussian_filter(confidence_map, sigma=max(1.0, block_size / 12.0)), 0.0, 1.0)
+    return freq_map, confidence_map, fft_orientation_map
+
+
+def adaptive_gabor_enhancement(
+    image,
+    orientation_map,
+    frequency_map,
+    mask=None,
+    orientation_bins=6,
+    frequency_bins=(0.07, 0.10, 0.13),
+    bandwidth=1.8,
+):
+    """Select Gabor responses by local orientation and local ridge-frequency bins."""
+    base = metric_image(image)
+    mask = np.ones_like(base, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+    orientation_bins = max(4, int(orientation_bins))
+    frequency_bins = np.asarray(frequency_bins, dtype=float)
+    theta_values = np.linspace(0.0, np.pi, orientation_bins, endpoint=False)
+
+    theta_index = np.floor(((orientation_map % np.pi) / np.pi) * orientation_bins + 0.5).astype(int) % orientation_bins
+    frequency_index = np.argmin(np.abs(frequency_map[..., None] - frequency_bins.reshape(1, 1, -1)), axis=2)
+    selected_energy = np.zeros_like(base, dtype=np.float32)
+    inverted = 1.0 - base
+
+    for freq_idx, frequency in enumerate(frequency_bins):
+        for theta_idx, theta in enumerate(theta_values):
+            real_response, imaginary_response = filters.gabor(
+                inverted,
+                frequency=float(frequency),
+                theta=float(theta),
+                bandwidth=float(bandwidth),
+            )
+            response = normalise_image(np.hypot(real_response, imaginary_response))
+            selected = (frequency_index == freq_idx) & (theta_index == theta_idx) & mask
+            selected_energy[selected] = response[selected]
+
+    ridge_energy = normalise_image(selected_energy)
+    ridge_enhanced = np.where(mask, 1.0 - ridge_energy, base)
+    return metric_image(ridge_enhanced), ridge_energy
+
+
+def confidence_guided_fusion(restored, enhanced, mask=None, coherence=None, frequency_confidence=None, strength=0.06, threshold=0.25):
+    """Blend ridge enhancement into the restoration branch only where local confidence is sufficient."""
+    restored = metric_image(restored)
+    enhanced = metric_image(enhanced)
+    weight = np.ones_like(restored, dtype=np.float32)
+    if coherence is not None:
+        weight *= np.clip(coherence, 0.0, 1.0)
+    if frequency_confidence is not None:
+        weight *= np.clip(frequency_confidence, 0.0, 1.0)
+    if mask is not None:
+        weight *= np.asarray(mask, dtype=bool)
+    threshold = float(threshold)
+    if threshold > 0:
+        weight = np.clip((weight - threshold) / max(1e-8, 1.0 - threshold), 0.0, 1.0)
+    weight = np.clip(ndi.gaussian_filter(weight, sigma=2.0), 0.0, 1.0)
+    alpha = float(strength) * weight
+    fused = (1.0 - alpha) * restored + alpha * enhanced
+    return metric_image(fused), weight
+
+
+def candidate_a_restoration_adaptive_gabor_fusion(degraded, restored=None, restoration_stages=None, config=None):
+    """Candidate A: restoration branch plus local orientation/frequency adaptive Gabor fusion."""
+    config = {} if config is None else dict(config)
+    if restored is None or restoration_stages is None:
+        restored, restoration_stages = wavelet_wiener_restoration(degraded, config)
+    mask = fingerprint_mask(restored)
+    local_norm = local_intensity_normalisation(
+        restored,
+        window_size=config.get("local_norm_window", 41),
+        contrast=config.get("local_norm_contrast", 0.12),
+        blend=config.get("local_norm_blend", 0.08),
+    )
+    orientation_map, coherence = estimate_orientation_field(
+        local_norm,
+        smoothing_sigma=config.get("orientation_smoothing_sigma", 3.0),
+        orientation_smoothing_sigma=config.get("orientation_vector_smoothing_sigma", 2.0),
+    )
+    frequency_map, frequency_confidence, _ = estimate_local_frequency_map(
+        local_norm,
+        mask=mask,
+        block_size=config.get("adaptive_block_size", 40),
+        freq_min=config.get("frequency_min", 0.045),
+        freq_max=config.get("frequency_max", 0.18),
+        default_frequency=config.get("default_frequency", 0.10),
+    )
+    adaptive_gabor, ridge_energy = adaptive_gabor_enhancement(
+        local_norm,
+        orientation_map=orientation_map,
+        frequency_map=frequency_map,
+        mask=mask,
+        orientation_bins=config.get("adaptive_orientation_bins", 6),
+        frequency_bins=config.get("adaptive_frequency_bins", (0.07, 0.10, 0.13)),
+        bandwidth=config.get("adaptive_gabor_bandwidth", 1.8),
+    )
+    fused, fusion_weight = confidence_guided_fusion(
+        restored,
+        adaptive_gabor,
+        mask=mask,
+        coherence=coherence,
+        frequency_confidence=frequency_confidence,
+        strength=config.get("adaptive_fusion_strength", 0.06),
+        threshold=config.get("confidence_threshold", 0.25),
+    )
+    stages = {
+        "Degraded": metric_image(degraded),
+        "Wavelet denoised": restoration_stages["Wavelet denoised"],
+        "Deblurred/restored": restoration_stages["Deblurred/restored"],
+        "Local normalised": local_norm,
+        "Adaptive Gabor": adaptive_gabor,
+        "Fused output": fused,
+    }
+    aux = {
+        "mask": mask,
+        "orientation_map": orientation_map,
+        "frequency_map": frequency_map,
+        "coherence": coherence,
+        "frequency_confidence": frequency_confidence,
+        "ridge_energy": ridge_energy,
+        "fusion_weight": fusion_weight,
+    }
+    return fused, stages, aux
+
+
+def stft_contextual_filter(
+    image,
+    mask=None,
+    block_size=48,
+    overlap=24,
+    freq_min=0.045,
+    freq_max=0.18,
+    radial_bandwidth=0.026,
+    directional_bandwidth=np.pi / 8.0,
+    gain=0.35,
+    default_frequency=0.10,
+):
+    """Block STFT-style contextual filtering with overlap-add reconstruction."""
+    base = metric_image(image)
+    rows, cols = base.shape
+    block_size = min(int(block_size), rows, cols)
+    overlap = min(int(overlap), block_size - 1)
+    step = max(1, block_size - overlap)
+    mask = np.ones_like(base, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+    window = np.outer(np.hanning(block_size), np.hanning(block_size))
+    window = 0.10 + 0.90 * window
+    output = np.zeros_like(base, dtype=np.float32)
+    weights = np.zeros_like(base, dtype=np.float32)
+    frequency_map = np.full_like(base, float(default_frequency), dtype=np.float32)
+    confidence_map = np.zeros_like(base, dtype=np.float32)
+
+    fy = np.fft.fftfreq(block_size)
+    fx = np.fft.fftfreq(block_size)
+    grid_y, grid_x = np.meshgrid(fy, fx, indexing="ij")
+    radius = np.sqrt(grid_x**2 + grid_y**2)
+    spectrum_angle = np.arctan2(grid_y, grid_x) % np.pi
+    valid_band = (radius >= float(freq_min)) & (radius <= float(freq_max))
+
+    for row in _block_starts(rows, block_size, step):
+        for col in _block_starts(cols, block_size, step):
+            block_mask = mask[row: row + block_size, col: col + block_size]
+            block = base[row: row + block_size, col: col + block_size]
+            if np.mean(block_mask) < 0.18:
+                output[row: row + block_size, col: col + block_size] += block * window
+                weights[row: row + block_size, col: col + block_size] += window
+                continue
+
+            centred = block - float(np.mean(block))
+            spectrum = np.fft.fft2(centred * window)
+            magnitude = np.abs(spectrum)
+            valid_magnitude = np.where(valid_band, magnitude, 0.0)
+            peak_index = np.unravel_index(int(np.argmax(valid_magnitude)), valid_magnitude.shape)
+            peak_frequency = float(radius[peak_index])
+            if peak_frequency <= 0:
+                peak_frequency = float(default_frequency)
+            band_mean = float(np.mean(magnitude[valid_band])) + 1e-8
+            confidence = float(np.clip((valid_magnitude[peak_index] / band_mean - 1.0) / 6.0, 0.0, 1.0))
+            normal_orientation = float(np.arctan2(grid_y[peak_index], grid_x[peak_index]) % np.pi)
+
+            radial_filter = np.exp(-((radius - peak_frequency) ** 2) / (2.0 * float(radial_bandwidth) ** 2))
+            angular_filter = np.exp(-(_angle_difference_pi(spectrum_angle, normal_orientation) ** 2) / (2.0 * float(directional_bandwidth) ** 2))
+            contextual_filter = 1.0 + float(gain) * confidence * radial_filter * angular_filter
+            contextual_filter[~valid_band] = 1.0
+            filtered = np.real(np.fft.ifft2(spectrum * contextual_filter)) + float(np.mean(block))
+
+            output[row: row + block_size, col: col + block_size] += metric_image(filtered) * window
+            weights[row: row + block_size, col: col + block_size] += window
+            frequency_map[row: row + block_size, col: col + block_size] = peak_frequency
+            confidence_map[row: row + block_size, col: col + block_size] = confidence
+
+    reconstructed = np.divide(output, np.maximum(weights, 1e-8))
+    confidence_map = np.clip(ndi.gaussian_filter(confidence_map, sigma=max(1.0, block_size / 12.0)), 0.0, 1.0)
+    return metric_image(reconstructed), frequency_map, confidence_map
+
+
+def candidate_b_stft_contextual_enhancement(degraded, restored=None, restoration_stages=None, config=None):
+    """Candidate B: overlapping-block STFT/contextual ridge enhancement blended with restoration."""
+    config = {} if config is None else dict(config)
+    if restored is None or restoration_stages is None:
+        restored, restoration_stages = wavelet_wiener_restoration(degraded, config)
+    mask = fingerprint_mask(restored)
+    local_norm = local_intensity_normalisation(
+        restored,
+        window_size=config.get("local_norm_window", 41),
+        contrast=config.get("local_norm_contrast", 0.12),
+        blend=config.get("stft_local_norm_blend", config.get("local_norm_blend", 0.08)),
+    )
+    stft_image, frequency_map, frequency_confidence = stft_contextual_filter(
+        local_norm,
+        mask=mask,
+        block_size=config.get("stft_block_size", 48),
+        overlap=config.get("stft_overlap", 24),
+        freq_min=config.get("frequency_min", 0.045),
+        freq_max=config.get("frequency_max", 0.18),
+        radial_bandwidth=config.get("stft_radial_bandwidth", 0.026),
+        directional_bandwidth=config.get("stft_directional_bandwidth", np.pi / 8.0),
+        gain=config.get("stft_gain", 0.35),
+        default_frequency=config.get("default_frequency", 0.10),
+    )
+    orientation_map, coherence = estimate_orientation_field(
+        stft_image,
+        smoothing_sigma=config.get("orientation_smoothing_sigma", 3.0),
+        orientation_smoothing_sigma=config.get("orientation_vector_smoothing_sigma", 2.0),
+    )
+    fused, fusion_weight = confidence_guided_fusion(
+        restored,
+        stft_image,
+        mask=mask,
+        coherence=coherence,
+        frequency_confidence=frequency_confidence,
+        strength=config.get("stft_fusion_strength", 0.05),
+        threshold=config.get("confidence_threshold", 0.25),
+    )
+    stages = {
+        "Degraded": metric_image(degraded),
+        "Wavelet denoised": restoration_stages["Wavelet denoised"],
+        "Deblurred/restored": restoration_stages["Deblurred/restored"],
+        "Local normalised": local_norm,
+        "STFT contextual": stft_image,
+        "Fused output": fused,
+    }
+    aux = {
+        "mask": mask,
+        "orientation_map": orientation_map,
+        "frequency_map": frequency_map,
+        "coherence": coherence,
+        "frequency_confidence": frequency_confidence,
+        "fusion_weight": fusion_weight,
+    }
+    return fused, stages, aux
+
+
+def oriented_gaussian_kernel(theta, sigma_parallel=1.45, sigma_perpendicular=0.45, radius=None):
+    """Small anisotropic Gaussian kernel aligned with the local ridge direction."""
+    sigma_parallel = max(0.40, float(sigma_parallel))
+    sigma_perpendicular = max(0.25, float(sigma_perpendicular))
+    if radius is None:
+        radius = int(np.ceil(3.0 * max(sigma_parallel, sigma_perpendicular)))
+    radius = max(2, int(radius))
+    yy, xx = np.mgrid[-radius: radius + 1, -radius: radius + 1]
+    parallel = xx * np.cos(theta) + yy * np.sin(theta)
+    perpendicular = -xx * np.sin(theta) + yy * np.cos(theta)
+    kernel = np.exp(
+        -(parallel**2 / (2.0 * sigma_parallel**2) + perpendicular**2 / (2.0 * sigma_perpendicular**2))
+    )
+    return kernel / max(float(kernel.sum()), 1e-8)
+
+
+def orientation_selected_smoothing(image, orientation_map, orientation_bins=6, sigma_parallel=1.45, sigma_perpendicular=0.45):
+    base = metric_image(image)
+    orientation_bins = max(4, int(orientation_bins))
+    theta_values = np.linspace(0.0, np.pi, orientation_bins, endpoint=False)
+    theta_index = np.floor(((orientation_map % np.pi) / np.pi) * orientation_bins + 0.5).astype(int) % orientation_bins
+    smoothed = np.zeros_like(base, dtype=np.float32)
+    for index, theta in enumerate(theta_values):
+        kernel = oriented_gaussian_kernel(
+            theta,
+            sigma_parallel=sigma_parallel,
+            sigma_perpendicular=sigma_perpendicular,
+        )
+        filtered = ndi.convolve(base, kernel, mode="reflect")
+        selected = theta_index == index
+        smoothed[selected] = filtered[selected]
+    return metric_image(smoothed)
+
+
+def coherence_guided_diffusion(image, mask=None, iterations=2, step=0.18, orientation_bins=6):
+    """Approximate coherence-enhancing diffusion using orientation-selected anisotropic smoothing."""
+    current = metric_image(image)
+    mask = np.ones_like(current, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+    orientation_map, coherence = estimate_orientation_field(current)
+    for _ in range(max(1, int(iterations))):
+        smoothed = orientation_selected_smoothing(
+            current,
+            orientation_map=orientation_map,
+            orientation_bins=orientation_bins,
+        )
+        weight = np.clip(coherence, 0.0, 1.0) * mask
+        current = metric_image((1.0 - float(step) * weight) * current + float(step) * weight * smoothed)
+    return current, orientation_map, coherence
+
+
+def log_gabor_enhancement(
+    image,
+    orientation_map,
+    frequency_map,
+    mask=None,
+    orientation_bins=6,
+    frequency_bins=(0.07, 0.10, 0.13),
+    sigma_on_frequency=0.60,
+    angular_sigma=np.pi / 7.0,
+):
+    """Local-selection Log-Gabor bank using estimated orientation and ridge frequency maps."""
+    base = metric_image(image)
+    mask = np.ones_like(base, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+    rows, cols = base.shape
+    fy = np.fft.fftfreq(rows)
+    fx = np.fft.fftfreq(cols)
+    grid_y, grid_x = np.meshgrid(fy, fx, indexing="ij")
+    radius = np.sqrt(grid_x**2 + grid_y**2)
+    radius[0, 0] = 1.0
+    frequency_angle = np.arctan2(grid_y, grid_x) % np.pi
+
+    orientation_bins = max(4, int(orientation_bins))
+    frequency_bins = np.asarray(frequency_bins, dtype=float)
+    normal_orientation_map = (orientation_map - np.pi / 2.0) % np.pi
+    theta_values = np.linspace(0.0, np.pi, orientation_bins, endpoint=False)
+    theta_index = np.floor(((normal_orientation_map % np.pi) / np.pi) * orientation_bins + 0.5).astype(int) % orientation_bins
+    frequency_index = np.argmin(np.abs(frequency_map[..., None] - frequency_bins.reshape(1, 1, -1)), axis=2)
+
+    spectrum = np.fft.fft2((1.0 - base) - float(np.mean(1.0 - base)))
+    selected_energy = np.zeros_like(base, dtype=np.float32)
+    log_sigma = np.log(float(sigma_on_frequency))
+    for freq_idx, frequency in enumerate(frequency_bins):
+        radial = np.exp(-(np.log(radius / float(frequency)) ** 2) / (2.0 * log_sigma**2))
+        radial[0, 0] = 0.0
+        for theta_idx, theta in enumerate(theta_values):
+            angular = np.exp(-(_angle_difference_pi(frequency_angle, theta) ** 2) / (2.0 * float(angular_sigma) ** 2))
+            response = normalise_image(np.abs(np.fft.ifft2(spectrum * radial * angular)))
+            selected = (frequency_index == freq_idx) & (theta_index == theta_idx) & mask
+            selected_energy[selected] = response[selected]
+
+    ridge_energy = normalise_image(selected_energy)
+    ridge_image = np.where(mask, 1.0 - ridge_energy, base)
+    return metric_image(ridge_image), ridge_energy
+
+
+def candidate_c_coherence_diffusion_log_gabor(degraded, restored=None, restoration_stages=None, config=None):
+    """Candidate C: coherence-guided diffusion, local ridge frequency and Log-Gabor fusion."""
+    config = {} if config is None else dict(config)
+    if restored is None or restoration_stages is None:
+        restored, restoration_stages = wavelet_wiener_restoration(degraded, config)
+    mask = fingerprint_mask(restored)
+    diffused, orientation_map, coherence = coherence_guided_diffusion(
+        restored,
+        mask=mask,
+        iterations=config.get("diffusion_iterations", 2),
+        step=config.get("diffusion_step", 0.18),
+        orientation_bins=config.get("diffusion_orientation_bins", config.get("adaptive_orientation_bins", 6)),
+    )
+    frequency_map, frequency_confidence, _ = estimate_local_frequency_map(
+        diffused,
+        mask=mask,
+        block_size=config.get("adaptive_block_size", 40),
+        freq_min=config.get("frequency_min", 0.045),
+        freq_max=config.get("frequency_max", 0.18),
+        default_frequency=config.get("default_frequency", 0.10),
+    )
+    log_gabor, ridge_energy = log_gabor_enhancement(
+        diffused,
+        orientation_map=orientation_map,
+        frequency_map=frequency_map,
+        mask=mask,
+        orientation_bins=config.get("log_gabor_orientation_bins", config.get("adaptive_orientation_bins", 6)),
+        frequency_bins=config.get("adaptive_frequency_bins", (0.07, 0.10, 0.13)),
+        sigma_on_frequency=config.get("log_gabor_sigma_on_frequency", 0.60),
+        angular_sigma=config.get("log_gabor_angular_sigma", np.pi / 7.0),
+    )
+    fused, fusion_weight = confidence_guided_fusion(
+        diffused,
+        log_gabor,
+        mask=mask,
+        coherence=coherence,
+        frequency_confidence=frequency_confidence,
+        strength=config.get("log_gabor_fusion_strength", 0.05),
+        threshold=config.get("confidence_threshold", 0.25),
+    )
+    stages = {
+        "Degraded": metric_image(degraded),
+        "Wavelet denoised": restoration_stages["Wavelet denoised"],
+        "Deblurred/restored": restoration_stages["Deblurred/restored"],
+        "Coherence diffusion": diffused,
+        "Log-Gabor": log_gabor,
+        "Fused output": fused,
+    }
+    aux = {
+        "mask": mask,
+        "orientation_map": orientation_map,
+        "frequency_map": frequency_map,
+        "coherence": coherence,
+        "frequency_confidence": frequency_confidence,
+        "ridge_energy": ridge_energy,
+        "fusion_weight": fusion_weight,
+    }
+    return fused, stages, aux
+
+
+def quality_guided_team_fusion(restored, candidate_outputs, mask=None, fusion_strength=0.07):
+    """Team candidate: internally weight candidate outputs by ridge coherence and blend with restoration."""
+    restored = metric_image(restored)
+    mask = np.ones_like(restored, dtype=bool) if mask is None else np.asarray(mask, dtype=bool)
+    valid_outputs = [(label, metric_image(image)) for label, image in candidate_outputs if image is not None]
+    if not valid_outputs:
+        return restored.copy(), {}
+
+    scores = []
+    for _, image in valid_outputs:
+        scores.append(max(1e-4, orientation_coherence(image, mask)))
+    scores = np.asarray(scores, dtype=float)
+    weights = scores / max(float(scores.sum()), 1e-8)
+    ridge_stack = np.stack([image for _, image in valid_outputs], axis=0)
+    internally_selected = np.tensordot(weights, ridge_stack, axes=(0, 0))
+    fused, _ = confidence_guided_fusion(
+        restored,
+        internally_selected,
+        mask=mask,
+        coherence=np.ones_like(restored),
+        frequency_confidence=np.ones_like(restored),
+        strength=fusion_strength,
+        threshold=0.0,
+    )
+    return fused, {label: float(weight) for (label, _), weight in zip(valid_outputs, weights)}
+
+
 def run_comparison(reference, severity=0.55, seed=RANDOM_SEED):
     """Run comparable grayscale methods and the complete binary-feature pipeline."""
     degraded = simulate_degradation(reference, severity=severity, seed=seed)
     reference_mask = fingerprint_mask(reference)
 
-    outputs = {"Degraded input": degraded}
-    runtimes = {"Degraded input": 0.0}
+    outputs = {DEGRADED_INPUT_LABEL: degraded}
+    runtimes = {DEGRADED_INPUT_LABEL: 0.0}
 
     start = perf_counter()
-    outputs["Global HE baseline"] = global_histogram_equalisation(degraded)
-    runtimes["Global HE baseline"] = perf_counter() - start
+    outputs[GLOBAL_HE_BASELINE_LABEL] = global_histogram_equalisation(degraded)
+    runtimes[GLOBAL_HE_BASELINE_LABEL] = perf_counter() - start
 
     start = perf_counter()
-    outputs["M1 CLAHE baseline"] = member1_clahe_baseline(degraded)
-    runtimes["M1 CLAHE baseline"] = perf_counter() - start
+    outputs[CLAHE_BASELINE_LABEL] = member1_clahe_baseline(degraded)
+    runtimes[CLAHE_BASELINE_LABEL] = perf_counter() - start
 
     start = perf_counter()
     member1_final = member1_wiener_clahe(degraded)
-    outputs["M1 Wiener + CLAHE"] = member1_final
-    runtimes["M1 Wiener + CLAHE"] = perf_counter() - start
+    outputs[M1_LABEL] = member1_final
+    runtimes[M1_LABEL] = perf_counter() - start
 
     start = perf_counter()
     gabor_input = apply_clahe(degraded, clip_limit=0.012)
     gabor_only, _ = multi_orientation_gabor(gabor_input, blend=0.58)
-    outputs["Gabor"] = gabor_only
-    runtimes["Gabor"] = perf_counter() - start
+    outputs[M2_LABEL] = gabor_only
+    runtimes[M2_LABEL] = perf_counter() - start
 
     start = perf_counter()
     hybrid_gray, ridge_energy = multi_orientation_gabor(member1_final, blend=0.30)
-    outputs["Hybrid"] = hybrid_gray
-    runtimes["Hybrid"] = perf_counter() - start
+    outputs[TEAM_HYBRID_LABEL] = hybrid_gray
+    runtimes[TEAM_HYBRID_LABEL] = perf_counter() - start
 
-    binary, mask = segment_and_restore_ridges(hybrid_gray)
+    binary, mask, raw_binary = segment_and_restore_ridges(hybrid_gray, return_intermediate=True)
     skeleton = thin_ridges(binary)
     endings, bifurcations = extract_minutiae(skeleton, mask)
 
@@ -632,6 +1357,7 @@ def run_comparison(reference, severity=0.55, seed=RANDOM_SEED):
         "degraded": degraded,
         "outputs": outputs,
         "ridge_energy": ridge_energy,
+        "raw_binary": raw_binary,
         "binary": binary,
         "mask": mask,
         "skeleton": skeleton,
@@ -651,26 +1377,48 @@ display(sample_result["metrics"].round(4))
 # The dashboard summarises the complete pipeline for one image. In Jupyter, the optional controls permit the image and degradation severity to be changed interactively.
 
 # %%
-def plot_pipeline_dashboard(result, sample_title="Fingerprint enhancement result"):
+def plot_individual_contributions(result, sample_title="Fingerprint enhancement result"):
     panels = [
-        (result["reference"], "Clean reference", "gray"),
-        (result["degraded"], "Low-quality input", "gray"),
-        (result["outputs"]["M1 Wiener + CLAHE"], "Member 1: Wiener + CLAHE", "gray"),
-        (result["outputs"]["Gabor"], "Member 2: Gabor", "gray"),
-        (result["binary"], "Member 3: Restored ridges", "gray"),
-        (result["skeleton"], "Member 4: Skeleton", "gray"),
+        (result["outputs"][M1_LABEL], "M1 - Wiener + CLAHE", "gray"),
+        (result["outputs"][M2_LABEL], "M2 - Gabor / Modified Gabor", "gray"),
+        (result["binary"], "M3 - Morphological Ridge Restoration", "gray"),
+        (result["skeleton"], "M4 - Thinning & Minutiae Extraction", "gray"),
+    ]
+    fig, axes = plt.subplots(2, 2, figsize=(11, 9))
+    for axis, (image, title, colourmap) in zip(axes.ravel(), panels):
+        axis.imshow(image, cmap=colourmap, vmin=0, vmax=1)
+        axis.set_title(title)
+        axis.axis("off")
+    fig.suptitle(f"Individual Image Processing Contributions - {sample_title}", fontsize=16, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def plot_team_hybrid_evaluation(result, sample_title="Fingerprint enhancement result"):
+    panels = [
+        (result["reference"], "Clean Reference", "gray"),
+        (result["degraded"], DEGRADED_INPUT_LABEL, "gray"),
+        (result["outputs"][M1_LABEL], "M1 Stage", "gray"),
+        (result["outputs"][M2_LABEL], "M2 Stage", "gray"),
+        (result["outputs"][TEAM_HYBRID_LABEL], TEAM_HYBRID_LABEL, "gray"),
+        (result["skeleton"], "M4 Feature Output", "gray"),
     ]
     fig, axes = plt.subplots(2, 3, figsize=(13, 8))
     for axis, (image, title, colourmap) in zip(axes.ravel(), panels):
         axis.imshow(image, cmap=colourmap, vmin=0, vmax=1)
         axis.set_title(title)
         axis.axis("off")
-    fig.suptitle(sample_title, fontsize=16, fontweight="bold")
+    fig.suptitle(f"Team Hybrid Evaluation - {sample_title}", fontsize=16, fontweight="bold")
     fig.tight_layout()
     return fig
 
 
-dashboard_figure = plot_pipeline_dashboard(sample_result, sample_title=sample_name)
+def plot_pipeline_dashboard(result, sample_title="Fingerprint enhancement result"):
+    """Backward-compatible alias for the corrected individual-contribution overview."""
+    return plot_individual_contributions(result, sample_title=sample_title)
+
+
+dashboard_figure = plot_individual_contributions(sample_result, sample_title=sample_name)
 plt.show()
 
 
@@ -684,7 +1432,7 @@ try:
         name, reference = reference_set[image_index]
         result = run_comparison(reference, severity=float(severity), seed=RANDOM_SEED + image_index)
         display(result["metrics"].round(4))
-        plot_pipeline_dashboard(result, sample_title=name)
+        plot_individual_contributions(result, sample_title=name)
         plt.show()
 
     widgets.interact(
@@ -693,7 +1441,7 @@ try:
         severity=widgets.FloatSlider(value=0.55, min=0.2, max=0.9, step=0.05),
     )
 except Exception:
-    print("ipywidgets is optional; run plot_pipeline_dashboard(sample_result) for the static dashboard.")
+    print("ipywidgets is optional; run plot_individual_contributions(sample_result) for the static dashboard.")
 
 
 # %% [markdown]
@@ -701,7 +1449,7 @@ except Exception:
 #
 # Every method is tested on the same reference images and degradation settings. The summary uses the mean and standard deviation across the active batch.
 #
-# Development mode uses a small configurable sample for debugging and fast experimentation. Final evaluation mode can use a larger configurable batch, including all 6000 SOCOFing `Real` images when `FINAL_EVALUATION_MAX_IMAGES = None` and runtime is acceptable.
+# Development mode uses a small configurable sample for debugging and fast experimentation. Final evaluation mode is configured separately and must be intentionally reviewed before any larger run.
 #
 # No weighted overall score is created here. MSE, PSNR, SSIM and ridge coherence are interpreted separately so that real trade-offs remain visible. If Global HE achieves the best PSNR or MSE, that result should remain in the comparison.
 #
@@ -722,8 +1470,11 @@ def run_batch_experiment(references, severities=(0.35, 0.55, 0.75), progress=Tru
         frame = result["metrics"].copy()
         frame.insert(0, "Image", name)
         frame.insert(1, "Severity", severity)
-        frame["Ridge endings"] = len(result["endings"])
-        frame["Bifurcations"] = len(result["bifurcations"])
+        frame["Ridge endings"] = np.nan
+        frame["Bifurcations"] = np.nan
+        feature_row = frame["Method"] == TEAM_HYBRID_LABEL
+        frame.loc[feature_row, "Ridge endings"] = len(result["endings"])
+        frame.loc[feature_row, "Bifurcations"] = len(result["bifurcations"])
         rows.append(frame)
         if progress:
             print(f"Processed {index + 1:02d}/{total:02d}: {name}")
@@ -736,7 +1487,10 @@ print(
     f"({'development' if DEVELOPMENT_MODE else 'final evaluation'} mode)"
 )
 
-batch_metrics = run_batch_experiment(active_batch_references)
+batch_start = perf_counter()
+batch_metrics = normalise_method_labels(run_batch_experiment(active_batch_references))
+batch_total_runtime_seconds = perf_counter() - batch_start
+print(f"Batch runtime: {batch_total_runtime_seconds:.2f} seconds")
 summary_metrics = (
     batch_metrics.groupby("Method", as_index=False)
     .agg(
@@ -755,19 +1509,12 @@ summary_metrics = (
     )
 )
 
-method_order = [
-    "Degraded input",
-    "Global HE baseline",
-    "M1 CLAHE baseline",
-    "M1 Wiener + CLAHE",
-    "Gabor",
-    "Hybrid",
-]
+method_order = METHOD_ORDER
 summary_metrics["Method"] = pd.Categorical(summary_metrics["Method"], categories=method_order, ordered=True)
 summary_metrics = summary_metrics.sort_values("Method").reset_index(drop=True)
 summary_metrics["Method"] = summary_metrics["Method"].astype(str)
 
-enhancement_summary = summary_metrics[summary_metrics["Method"] != "Degraded input"].copy()
+enhancement_summary = summary_metrics[~summary_metrics["Method"].isin(CONTROL_METHODS)].copy()
 metric_leaders = pd.DataFrame(
     [
         {
@@ -802,26 +1549,817 @@ display(summary_metrics.round(4))
 print("Metric-specific leaders; no weighted overall score is used:")
 display(metric_leaders.round(4))
 
+member4_feature_rows = batch_metrics[batch_metrics["Method"] == TEAM_HYBRID_LABEL]
+member4_feature_summary = pd.DataFrame(
+    [
+        {
+            "Metric": "Average detected ridge endings",
+            "Value": member4_feature_rows["Ridge endings"].mean(),
+        },
+        {
+            "Metric": "Average detected bifurcations",
+            "Value": member4_feature_rows["Bifurcations"].mean(),
+        },
+    ]
+)
+print("Member 4 detected minutiae counts from the Team Hybrid Pipeline output:")
+display(member4_feature_summary.round(2))
+
+
+# %% [markdown]
+# ## 10. Advanced 24-Image Development Candidates
+#
+# The following experimental block is deliberately limited to the 24-image development subset. It does not overwrite
+# the preserved 500-image `batch_metrics.csv`, `summary_metrics.csv`, PDF report or final metadata.
+#
+# Implemented candidates:
+#
+# - **Candidate A:** restoration branch, ROI mask, wavelet denoising, Wiener/deconvolution restoration, local
+#   normalisation, local orientation/frequency estimation, adaptive Gabor filtering and confidence-guided fusion.
+# - **Candidate B:** restoration branch, local normalisation, overlapping STFT/contextual frequency filtering and
+#   confidence-guided fusion.
+# - **Candidate C:** restoration branch, orientation field, coherence-guided anisotropic diffusion, local ridge
+#   frequency estimation, Log-Gabor filtering and confidence-guided fusion.
+#
+# The clean reference is used only in the evaluation and parameter-validation tables below, not inside enhancement
+# functions.
+#
 
 # %%
-metric_plot_columns = ["PSNR (dB)", "SSIM", "Coherence", "Match score (%)"]
-fig, axes = plt.subplots(2, 2, figsize=(13, 9))
-for axis, metric in zip(axes.ravel(), metric_plot_columns):
-    sns.barplot(
-        data=batch_metrics,
-        x="Method",
-        y=metric,
-        hue="Method",
-        order=method_order,
-        hue_order=method_order,
-        legend=False,
-        errorbar="sd",
-        ax=axis,
+ADVANCED_PARAMETER_CONFIGS = [
+    {
+        "config_id": "psnr_preserving",
+        "wavelet": "db2",
+        "wavelet_level": 2,
+        "wavelet_threshold_scale": 0.08,
+        "wavelet_threshold_strategy": "soft",
+        "local_wiener_window": 5,
+        "local_wiener_blend": 0.18,
+        "psf_sigma": 1.05,
+        "deconv_balance": 0.10,
+        "deconv_blend": 0.04,
+        "local_norm_window": 45,
+        "local_norm_contrast": 0.10,
+        "local_norm_blend": 0.05,
+        "stft_local_norm_blend": 0.04,
+        "orientation_smoothing_sigma": 3.0,
+        "orientation_vector_smoothing_sigma": 2.0,
+        "adaptive_block_size": 48,
+        "adaptive_orientation_bins": 4,
+        "adaptive_frequency_bins": (0.07, 0.10, 0.13),
+        "adaptive_gabor_bandwidth": 1.9,
+        "adaptive_fusion_strength": 0.035,
+        "stft_block_size": 56,
+        "stft_overlap": 28,
+        "stft_radial_bandwidth": 0.028,
+        "stft_directional_bandwidth": np.pi / 7.0,
+        "stft_gain": 0.22,
+        "stft_fusion_strength": 0.035,
+        "diffusion_iterations": 1,
+        "diffusion_step": 0.14,
+        "log_gabor_sigma_on_frequency": 0.62,
+        "log_gabor_angular_sigma": np.pi / 6.0,
+        "log_gabor_fusion_strength": 0.035,
+        "team_fusion_strength": 0.05,
+        "confidence_threshold": 0.20,
+        "frequency_min": 0.045,
+        "frequency_max": 0.18,
+        "default_frequency": 0.10,
+        "ordinary_gabor_frequency": 0.115,
+        "ordinary_gabor_orientations": 8,
+        "ordinary_gabor_blend": 0.35,
+        "ordinary_gabor_clahe_clip": 0.012,
+    },
+    {
+        "config_id": "balanced",
+        "wavelet": "sym4",
+        "wavelet_level": 2,
+        "wavelet_threshold_scale": 0.14,
+        "wavelet_threshold_strategy": "level_scaled",
+        "local_wiener_window": 5,
+        "local_wiener_blend": 0.22,
+        "psf_sigma": 1.15,
+        "deconv_balance": 0.08,
+        "deconv_blend": 0.07,
+        "local_norm_window": 41,
+        "local_norm_contrast": 0.12,
+        "local_norm_blend": 0.08,
+        "stft_local_norm_blend": 0.07,
+        "orientation_smoothing_sigma": 3.0,
+        "orientation_vector_smoothing_sigma": 2.0,
+        "adaptive_block_size": 40,
+        "adaptive_orientation_bins": 6,
+        "adaptive_frequency_bins": (0.065, 0.095, 0.125, 0.155),
+        "adaptive_gabor_bandwidth": 1.7,
+        "adaptive_fusion_strength": 0.07,
+        "stft_block_size": 48,
+        "stft_overlap": 24,
+        "stft_radial_bandwidth": 0.026,
+        "stft_directional_bandwidth": np.pi / 8.0,
+        "stft_gain": 0.35,
+        "stft_fusion_strength": 0.06,
+        "diffusion_iterations": 2,
+        "diffusion_step": 0.18,
+        "log_gabor_sigma_on_frequency": 0.60,
+        "log_gabor_angular_sigma": np.pi / 7.0,
+        "log_gabor_fusion_strength": 0.06,
+        "team_fusion_strength": 0.08,
+        "confidence_threshold": 0.25,
+        "frequency_min": 0.045,
+        "frequency_max": 0.18,
+        "default_frequency": 0.10,
+        "ordinary_gabor_frequency": 0.115,
+        "ordinary_gabor_orientations": 8,
+        "ordinary_gabor_blend": 0.40,
+        "ordinary_gabor_clahe_clip": 0.012,
+    },
+    {
+        "config_id": "ridge_coherence",
+        "wavelet": "coif2",
+        "wavelet_level": 2,
+        "wavelet_threshold_scale": 0.10,
+        "wavelet_threshold_strategy": "soft",
+        "local_wiener_window": 7,
+        "local_wiener_blend": 0.26,
+        "psf_sigma": 1.25,
+        "deconv_balance": 0.06,
+        "deconv_blend": 0.08,
+        "local_norm_window": 33,
+        "local_norm_contrast": 0.15,
+        "local_norm_blend": 0.14,
+        "stft_local_norm_blend": 0.12,
+        "orientation_smoothing_sigma": 2.5,
+        "orientation_vector_smoothing_sigma": 1.8,
+        "adaptive_block_size": 32,
+        "adaptive_orientation_bins": 6,
+        "adaptive_frequency_bins": (0.06, 0.09, 0.12, 0.15),
+        "adaptive_gabor_bandwidth": 1.4,
+        "adaptive_fusion_strength": 0.12,
+        "stft_block_size": 40,
+        "stft_overlap": 24,
+        "stft_radial_bandwidth": 0.024,
+        "stft_directional_bandwidth": np.pi / 9.0,
+        "stft_gain": 0.55,
+        "stft_fusion_strength": 0.10,
+        "diffusion_iterations": 3,
+        "diffusion_step": 0.22,
+        "log_gabor_sigma_on_frequency": 0.56,
+        "log_gabor_angular_sigma": np.pi / 8.0,
+        "log_gabor_fusion_strength": 0.10,
+        "team_fusion_strength": 0.12,
+        "confidence_threshold": 0.18,
+        "frequency_min": 0.045,
+        "frequency_max": 0.18,
+        "default_frequency": 0.10,
+        "ordinary_gabor_frequency": 0.115,
+        "ordinary_gabor_orientations": 8,
+        "ordinary_gabor_blend": 0.45,
+        "ordinary_gabor_clahe_clip": 0.012,
+    },
+]
+
+
+def _advanced_stage_rows(reference, candidate_label, stages, reference_mask, config_id):
+    rows = []
+    for stage_order, (stage_name, image) in enumerate(stages.items(), start=1):
+        row = {
+            "Config ID": config_id,
+            "Candidate": candidate_label,
+            "Stage order": stage_order,
+            "Stage": stage_name,
+        }
+        row.update(evaluate_grayscale(reference, image, reference_mask))
+        rows.append(row)
+    return rows
+
+
+def run_advanced_comparison(reference, severity=0.55, seed=RANDOM_SEED, config=None):
+    """Run advanced candidates on one controlled degraded image without using the clean reference for enhancement."""
+    config = {} if config is None else dict(config)
+    degraded = simulate_degradation(reference, severity=severity, seed=seed)
+    reference_mask = fingerprint_mask(reference)
+
+    outputs = {DEGRADED_INPUT_LABEL: degraded}
+    runtimes = {DEGRADED_INPUT_LABEL: 0.0}
+    stage_rows = []
+
+    start = perf_counter()
+    outputs[CLAHE_BASELINE_LABEL] = member1_clahe_baseline(degraded)
+    runtimes[CLAHE_BASELINE_LABEL] = perf_counter() - start
+
+    start = perf_counter()
+    ordinary_gabor_input = apply_clahe(degraded, clip_limit=config.get("ordinary_gabor_clahe_clip", 0.012))
+    ordinary_gabor, _ = multi_orientation_gabor(
+        ordinary_gabor_input,
+        frequency=config.get("ordinary_gabor_frequency", 0.115),
+        orientations=config.get("ordinary_gabor_orientations", 8),
+        blend=config.get("ordinary_gabor_blend", 0.35),
     )
-    axis.set_title(f"Mean {metric} with standard deviation")
-    axis.tick_params(axis="x", rotation=25)
-fig.suptitle("Comparative fingerprint enhancement results", fontsize=16, fontweight="bold")
-fig.tight_layout()
+    outputs[M2_BASELINE_LABEL] = ordinary_gabor
+    runtimes[M2_BASELINE_LABEL] = perf_counter() - start
+
+    start = perf_counter()
+    restored, restoration_stages = wavelet_wiener_restoration(degraded, config)
+    restoration_runtime = perf_counter() - start
+    outputs[M1_PROPOSED_LABEL] = restored
+    runtimes[M1_PROPOSED_LABEL] = restoration_runtime
+
+    start = perf_counter()
+    candidate_a, candidate_a_stages, candidate_a_aux = candidate_a_restoration_adaptive_gabor_fusion(
+        degraded,
+        restored=restored,
+        restoration_stages=restoration_stages,
+        config=config,
+    )
+    candidate_a_runtime = restoration_runtime + perf_counter() - start
+    outputs[M2_PROPOSED_LABEL] = candidate_a_stages["Adaptive Gabor"]
+    outputs[CANDIDATE_A_LABEL] = candidate_a
+    runtimes[M2_PROPOSED_LABEL] = candidate_a_runtime
+    runtimes[CANDIDATE_A_LABEL] = candidate_a_runtime
+    stage_rows.extend(_advanced_stage_rows(reference, CANDIDATE_A_LABEL, candidate_a_stages, reference_mask, config["config_id"]))
+
+    start = perf_counter()
+    candidate_b, candidate_b_stages, candidate_b_aux = candidate_b_stft_contextual_enhancement(
+        degraded,
+        restored=restored,
+        restoration_stages=restoration_stages,
+        config=config,
+    )
+    candidate_b_runtime = restoration_runtime + perf_counter() - start
+    outputs[CANDIDATE_B_LABEL] = candidate_b
+    runtimes[CANDIDATE_B_LABEL] = candidate_b_runtime
+    stage_rows.extend(_advanced_stage_rows(reference, CANDIDATE_B_LABEL, candidate_b_stages, reference_mask, config["config_id"]))
+
+    start = perf_counter()
+    candidate_c, candidate_c_stages, candidate_c_aux = candidate_c_coherence_diffusion_log_gabor(
+        degraded,
+        restored=restored,
+        restoration_stages=restoration_stages,
+        config=config,
+    )
+    candidate_c_runtime = restoration_runtime + perf_counter() - start
+    outputs[CANDIDATE_C_LABEL] = candidate_c
+    runtimes[CANDIDATE_C_LABEL] = candidate_c_runtime
+    stage_rows.extend(_advanced_stage_rows(reference, CANDIDATE_C_LABEL, candidate_c_stages, reference_mask, config["config_id"]))
+
+    start = perf_counter()
+    team_output, team_weights = quality_guided_team_fusion(
+        restored,
+        [
+            (CANDIDATE_A_LABEL, candidate_a),
+            (CANDIDATE_B_LABEL, candidate_b),
+            (CANDIDATE_C_LABEL, candidate_c),
+        ],
+        mask=candidate_a_aux["mask"],
+        fusion_strength=config.get("team_fusion_strength", 0.05),
+    )
+    team_runtime = restoration_runtime + perf_counter() - start
+    outputs[TEAM_PROPOSED_LABEL] = team_output
+    runtimes[TEAM_PROPOSED_LABEL] = team_runtime
+
+    binary, mask, raw_binary = segment_and_restore_ridges(team_output, return_intermediate=True)
+    skeleton = thin_ridges(binary)
+    endings, bifurcations = extract_minutiae(skeleton, mask)
+
+    metric_rows = []
+    for method, output in outputs.items():
+        row = {"Method": method}
+        row.update(evaluate_grayscale(reference, output, reference_mask, runtimes[method]))
+        metric_rows.append(row)
+
+    return {
+        "reference": reference,
+        "degraded": degraded,
+        "outputs": outputs,
+        "metrics": pd.DataFrame(metric_rows),
+        "stage_metrics": pd.DataFrame(stage_rows),
+        "team_weights": team_weights,
+        "raw_binary": raw_binary,
+        "binary": binary,
+        "mask": mask,
+        "skeleton": skeleton,
+        "endings": endings,
+        "bifurcations": bifurcations,
+    }
+
+
+def run_advanced_development_search(references, parameter_configs=ADVANCED_PARAMETER_CONFIGS, progress=True):
+    """Evaluate each advanced parameter configuration on the same 24-image development subset."""
+    rows = []
+    stage_rows = []
+    feature_rows = []
+    active_references = select_reference_batch(references, DEVELOPMENT_SAMPLE_IMAGES)
+    for config in parameter_configs:
+        config_id = config["config_id"]
+        if progress:
+            print(f"Advanced config: {config_id}")
+        for index, (name, reference) in enumerate(active_references):
+            severity = [0.35, 0.55, 0.75][index % 3]
+            result = run_advanced_comparison(reference, severity=severity, seed=RANDOM_SEED + index, config=config)
+            frame = result["metrics"].copy()
+            frame.insert(0, "Config ID", config_id)
+            frame.insert(1, "Image", name)
+            frame.insert(2, "Severity", severity)
+            rows.append(frame)
+
+            stage_frame = result["stage_metrics"].copy()
+            stage_frame.insert(1, "Image", name)
+            stage_frame.insert(2, "Severity", severity)
+            stage_rows.append(stage_frame)
+
+            feature_rows.append(
+                {
+                    "Config ID": config_id,
+                    "Image": name,
+                    "Severity": severity,
+                    "Ridge endings": len(result["endings"]),
+                    "Bifurcations": len(result["bifurcations"]),
+                }
+            )
+            if progress:
+                print(f"  Processed {index + 1:02d}/{len(active_references):02d}: {name}")
+    return (
+        pd.concat(rows, ignore_index=True),
+        pd.concat(stage_rows, ignore_index=True),
+        pd.DataFrame(feature_rows),
+    )
+
+
+def summarise_advanced_metrics(metrics):
+    summary = (
+        metrics.groupby(["Config ID", "Method"], as_index=False)
+        .agg(
+            MSE_mean=("MSE", "mean"),
+            MSE_std=("MSE", "std"),
+            PSNR_mean=("PSNR (dB)", "mean"),
+            PSNR_std=("PSNR (dB)", "std"),
+            SSIM_mean=("SSIM", "mean"),
+            SSIM_std=("SSIM", "std"),
+            Coherence_mean=("Coherence", "mean"),
+            Coherence_std=("Coherence", "std"),
+            Match_mean=("Match score (%)", "mean"),
+            Match_std=("Match score (%)", "std"),
+            Runtime_mean=("Runtime (s)", "mean"),
+            Runtime_std=("Runtime (s)", "std"),
+        )
+    )
+    degraded_psnr = summary[summary["Method"] == DEGRADED_INPUT_LABEL].set_index("Config ID")["PSNR_mean"]
+    summary["PSNR improvement vs degraded (dB)"] = summary.apply(
+        lambda row: row["PSNR_mean"] - float(degraded_psnr.loc[row["Config ID"]]),
+        axis=1,
+    )
+    summary["PSNR gap to 28.17 dB"] = LITERATURE_PSNR_BENCHMARK_DB - summary["PSNR_mean"]
+    summary["PSNR delta to 28.17 dB"] = summary["PSNR_mean"] - LITERATURE_PSNR_BENCHMARK_DB
+    return summary
+
+
+def summarise_advanced_stages(stage_metrics):
+    stage_summary = (
+        stage_metrics.groupby(["Config ID", "Candidate", "Stage order", "Stage"], as_index=False)
+        .agg(
+            MSE_mean=("MSE", "mean"),
+            MSE_std=("MSE", "std"),
+            PSNR_mean=("PSNR (dB)", "mean"),
+            PSNR_std=("PSNR (dB)", "std"),
+            SSIM_mean=("SSIM", "mean"),
+            SSIM_std=("SSIM", "std"),
+            Coherence_mean=("Coherence", "mean"),
+            Coherence_std=("Coherence", "std"),
+        )
+    )
+    degraded_stage = stage_summary[stage_summary["Stage"] == "Degraded"].set_index(["Config ID", "Candidate"])["PSNR_mean"]
+    stage_summary["PSNR improvement vs degraded (dB)"] = stage_summary.apply(
+        lambda row: row["PSNR_mean"] - float(degraded_stage.loc[(row["Config ID"], row["Candidate"])]),
+        axis=1,
+    )
+    return stage_summary
+
+
+def select_advanced_config(search_summary):
+    candidate_methods = [
+        M1_PROPOSED_LABEL,
+        M2_PROPOSED_LABEL,
+        CANDIDATE_A_LABEL,
+        CANDIDATE_B_LABEL,
+        CANDIDATE_C_LABEL,
+        TEAM_PROPOSED_LABEL,
+    ]
+    candidates = search_summary[search_summary["Method"].isin(candidate_methods)].copy()
+    best_row = candidates.loc[candidates["PSNR_mean"].idxmax()]
+    return str(best_row["Config ID"]), best_row
+
+
+def build_metric_rankings(summary):
+    methods = [
+        CLAHE_BASELINE_LABEL,
+        M1_PROPOSED_LABEL,
+        M2_BASELINE_LABEL,
+        M2_PROPOSED_LABEL,
+        CANDIDATE_A_LABEL,
+        CANDIDATE_B_LABEL,
+        CANDIDATE_C_LABEL,
+        TEAM_PROPOSED_LABEL,
+    ]
+    frame = summary[summary["Method"].isin(methods)].copy()
+    ranking_frames = []
+    for metric, ascending in [("PSNR_mean", False), ("SSIM_mean", False), ("Coherence_mean", False)]:
+        ranking = frame.sort_values(metric, ascending=ascending).reset_index(drop=True)
+        ranking.insert(0, "Rank", np.arange(1, len(ranking) + 1))
+        ranking.insert(1, "Metric", metric.replace("_mean", ""))
+        ranking = ranking[["Metric", "Rank", "Method", metric]]
+        ranking = ranking.rename(columns={metric: "Value"})
+        ranking_frames.append(ranking)
+    return pd.concat(ranking_frames, ignore_index=True)
+
+
+def _format_key_table(frame, columns, max_rows=None):
+    display_frame = frame[columns].copy()
+    if max_rows is not None:
+        display_frame = display_frame.head(max_rows)
+    return display_frame.round(4).to_string(index=False)
+
+
+def create_advanced_development_report(summary, stage_summary, search_summary, rankings, selected_config_id, selected_config_row):
+    candidate_methods = [
+        M1_PROPOSED_LABEL,
+        M2_PROPOSED_LABEL,
+        CANDIDATE_A_LABEL,
+        CANDIDATE_B_LABEL,
+        CANDIDATE_C_LABEL,
+        TEAM_PROPOSED_LABEL,
+    ]
+    summary_candidates = summary[summary["Method"].isin(candidate_methods + [CLAHE_BASELINE_LABEL, M2_BASELINE_LABEL])]
+    best_psnr_row = summary_candidates.loc[summary_candidates["PSNR_mean"].idxmax()]
+    best_coherence_row = summary_candidates.loc[summary_candidates["Coherence_mean"].idxmax()]
+    candidate_a_row = summary[summary["Method"] == CANDIDATE_A_LABEL].iloc[0]
+    candidate_b_row = summary[summary["Method"] == CANDIDATE_B_LABEL].iloc[0]
+    candidate_c_row = summary[summary["Method"] == CANDIDATE_C_LABEL].iloc[0]
+
+    lines = [
+        "# Advanced 24-Image Development Experiment",
+        "",
+        "This diagnostic run uses the fixed 24-image development subset only. Existing 500-image evidence files are preserved.",
+        "",
+        "## A. Candidate architectures implemented",
+        "",
+        "- Candidate A: ROI segmentation, wavelet denoising, Wiener/deconvolution restoration, local normalisation, local orientation/frequency estimation, adaptive Gabor filtering and confidence-guided fusion.",
+        "- Candidate B: overlapping STFT/contextual enhancement with dominant ridge orientation/frequency estimation and restoration-branch fusion.",
+        "- Candidate C: orientation field, coherence-guided anisotropic diffusion, local ridge frequency estimation, Log-Gabor filtering and confidence-guided fusion.",
+        "- Team proposed: quality/coherence-guided fusion of Candidates A, B and C, blended conservatively with the restoration branch.",
+        "",
+        "## Selected parameter configuration",
+        "",
+        f"Selected config: `{selected_config_id}`. Selection was based on mean PSNR over the 24-image development subset, not per-image tuning.",
+        "",
+        "## B. Stage-by-stage PSNR",
+        "",
+        "```text",
+        _format_key_table(
+            stage_summary,
+            [
+                "Candidate",
+                "Stage",
+                "PSNR_mean",
+                "PSNR_std",
+                "SSIM_mean",
+                "Coherence_mean",
+                "PSNR improvement vs degraded (dB)",
+            ],
+        ),
+        "```",
+        "",
+        "## C. Member 1 baseline vs proposed",
+        "",
+        "```text",
+        _format_key_table(
+            summary[summary["Method"].isin([CLAHE_BASELINE_LABEL, M1_PROPOSED_LABEL])],
+            [
+                "Method",
+                "MSE_mean",
+                "MSE_std",
+                "PSNR_mean",
+                "PSNR_std",
+                "SSIM_mean",
+                "SSIM_std",
+                "Coherence_mean",
+                "Coherence_std",
+                "PSNR improvement vs degraded (dB)",
+                "PSNR gap to 28.17 dB",
+                "PSNR delta to 28.17 dB",
+            ],
+        ),
+        "```",
+        "",
+        "## D. Member 2 baseline vs proposed",
+        "",
+        "```text",
+        _format_key_table(
+            summary[summary["Method"].isin([M2_BASELINE_LABEL, M2_PROPOSED_LABEL])],
+            [
+                "Method",
+                "MSE_mean",
+                "MSE_std",
+                "PSNR_mean",
+                "PSNR_std",
+                "SSIM_mean",
+                "SSIM_std",
+                "Coherence_mean",
+                "Coherence_std",
+                "PSNR improvement vs degraded (dB)",
+                "PSNR gap to 28.17 dB",
+                "PSNR delta to 28.17 dB",
+            ],
+        ),
+        "```",
+        "",
+        "## E. Candidate A results",
+        "",
+        f"Mean PSNR: {candidate_a_row['PSNR_mean']:.4f} dB; signed gap to 28.17 dB: {candidate_a_row['PSNR delta to 28.17 dB']:+.4f} dB.",
+        "",
+        "## F. Candidate B results",
+        "",
+        f"Mean PSNR: {candidate_b_row['PSNR_mean']:.4f} dB; signed gap to 28.17 dB: {candidate_b_row['PSNR delta to 28.17 dB']:+.4f} dB.",
+        "",
+        "## G. Candidate C results",
+        "",
+        f"Mean PSNR: {candidate_c_row['PSNR_mean']:.4f} dB; signed gap to 28.17 dB: {candidate_c_row['PSNR delta to 28.17 dB']:+.4f} dB.",
+        "",
+        "## H. Best PSNR candidate",
+        "",
+        f"{best_psnr_row['Method']} at {best_psnr_row['PSNR_mean']:.4f} dB.",
+        "",
+        "## I. Best ridge-coherence candidate",
+        "",
+        f"{best_coherence_row['Method']} at coherence {best_coherence_row['Coherence_mean']:.4f}.",
+        "",
+        "## J. Current best mean PSNR",
+        "",
+        f"{best_psnr_row['PSNR_mean']:.4f} dB.",
+        "",
+        "## K. Gap to 28.17 dB",
+        "",
+        f"{best_psnr_row['PSNR_mean'] - LITERATURE_PSNR_BENCHMARK_DB:+.4f} dB.",
+        "",
+        "## Candidate summary",
+        "",
+        "```text",
+        _format_key_table(
+            summary_candidates,
+            [
+                "Method",
+                "MSE_mean",
+                "MSE_std",
+                "PSNR_mean",
+                "PSNR_std",
+                "SSIM_mean",
+                "SSIM_std",
+                "Coherence_mean",
+                "Coherence_std",
+                "PSNR improvement vs degraded (dB)",
+                "PSNR gap to 28.17 dB",
+                "PSNR delta to 28.17 dB",
+            ],
+        ),
+        "```",
+        "",
+        "## Metric rankings",
+        "",
+        "```text",
+        rankings.round(4).to_string(index=False),
+        "```",
+        "",
+        "## Parameter search",
+        "",
+        "```text",
+        _format_key_table(
+            search_summary.sort_values(["Method", "PSNR_mean"], ascending=[True, False]),
+            [
+                "Config ID",
+                "Method",
+                "PSNR_mean",
+                "SSIM_mean",
+                "Coherence_mean",
+                "PSNR improvement vs degraded (dB)",
+                "PSNR delta to 28.17 dB",
+            ],
+        ),
+        "```",
+        "",
+        "## M. Recommended next modification",
+        "",
+        "The stage diagnostics should decide the next move: if restoration improves PSNR but adaptive ridge stages reduce it, reduce fusion strength further or blend by a stricter confidence mask. If all restoration stages remain far below 28.17 dB, the limiting factor is likely the synthetic degradation severity/noise model rather than the Gabor/STFT stage alone.",
+    ]
+    return "\n".join(lines)
+
+
+advanced_batch_metrics = pd.DataFrame()
+advanced_stage_metrics = pd.DataFrame()
+advanced_feature_metrics = pd.DataFrame()
+advanced_search_summary = pd.DataFrame()
+advanced_summary_metrics = pd.DataFrame()
+advanced_stage_summary = pd.DataFrame()
+advanced_rankings = pd.DataFrame()
+advanced_selected_config_id = None
+advanced_selected_config_row = None
+advanced_development_report = ""
+
+if RUN_ADVANCED_DEVELOPMENT_SEARCH:
+    advanced_start = perf_counter()
+    advanced_batch_metrics, advanced_stage_metrics, advanced_feature_metrics = run_advanced_development_search(
+        reference_set,
+        parameter_configs=ADVANCED_PARAMETER_CONFIGS,
+        progress=True,
+    )
+    advanced_total_runtime_seconds = perf_counter() - advanced_start
+    advanced_search_summary = summarise_advanced_metrics(advanced_batch_metrics)
+    advanced_selected_config_id, advanced_selected_config_row = select_advanced_config(advanced_search_summary)
+
+    selected_metrics = advanced_batch_metrics[advanced_batch_metrics["Config ID"] == advanced_selected_config_id].copy()
+    advanced_summary_metrics = summarise_advanced_metrics(selected_metrics)
+    advanced_summary_metrics["Method"] = pd.Categorical(
+        advanced_summary_metrics["Method"],
+        categories=ADVANCED_DEVELOPMENT_METHOD_ORDER,
+        ordered=True,
+    )
+    advanced_summary_metrics = advanced_summary_metrics.sort_values("Method").reset_index(drop=True)
+    advanced_summary_metrics["Method"] = advanced_summary_metrics["Method"].astype(str)
+
+    selected_stage_metrics = advanced_stage_metrics[advanced_stage_metrics["Config ID"] == advanced_selected_config_id].copy()
+    advanced_stage_summary = summarise_advanced_stages(selected_stage_metrics)
+    advanced_stage_summary = advanced_stage_summary.sort_values(["Candidate", "Stage order"]).reset_index(drop=True)
+    advanced_rankings = build_metric_rankings(advanced_summary_metrics)
+    advanced_development_report = create_advanced_development_report(
+        advanced_summary_metrics,
+        advanced_stage_summary,
+        advanced_search_summary,
+        advanced_rankings,
+        advanced_selected_config_id,
+        advanced_selected_config_row,
+    )
+
+    print(f"Advanced development runtime: {advanced_total_runtime_seconds:.2f} seconds")
+    print(f"Selected advanced config: {advanced_selected_config_id}")
+    print("Advanced 24-image candidate summary:")
+    display(advanced_summary_metrics.round(4))
+    print("Advanced stage-by-stage summary:")
+    display(advanced_stage_summary.round(4))
+    print("Advanced metric rankings:")
+    display(advanced_rankings.round(4))
+
+    if EXPORT_ADVANCED_DEVELOPMENT_RESULTS:
+        advanced_batch_csv = OUTPUT_DIR / "advanced_dev_batch_metrics.csv"
+        advanced_stage_csv = OUTPUT_DIR / "advanced_dev_stage_metrics.csv"
+        advanced_summary_csv = OUTPUT_DIR / "advanced_dev_summary_metrics.csv"
+        advanced_search_csv = OUTPUT_DIR / "advanced_dev_parameter_search.csv"
+        advanced_feature_csv = OUTPUT_DIR / "advanced_dev_minutiae_counts.csv"
+        advanced_metadata_json = OUTPUT_DIR / "advanced_dev_metadata.json"
+        advanced_report_md = OUTPUT_DIR / "advanced_development_report.md"
+
+        advanced_batch_metrics.to_csv(advanced_batch_csv, index=False)
+        advanced_stage_metrics.to_csv(advanced_stage_csv, index=False)
+        advanced_summary_metrics.to_csv(advanced_summary_csv, index=False)
+        advanced_search_summary.to_csv(advanced_search_csv, index=False)
+        advanced_feature_metrics.to_csv(advanced_feature_csv, index=False)
+        advanced_report_md.write_text(advanced_development_report, encoding="utf-8")
+
+        advanced_metadata = {
+            "dataset_mode": "synthetic_demo" if USING_DEMO_DATA else "SOCOFing_real_controlled_degradation",
+            "development_subset_images": DEVELOPMENT_SAMPLE_IMAGES,
+            "active_advanced_images": int(advanced_batch_metrics["Image"].nunique()),
+            "parameter_configurations_tested": [config["config_id"] for config in ADVANCED_PARAMETER_CONFIGS],
+            "selected_config_id": advanced_selected_config_id,
+            "selection_rule": "Highest mean PSNR over the 24-image development subset; no per-image tuning.",
+            "literature_psnr_benchmark_db": LITERATURE_PSNR_BENCHMARK_DB,
+            "advanced_runtime_seconds": float(advanced_total_runtime_seconds),
+            "pywavelets_available": pywt is not None,
+            "outputs": [
+                advanced_batch_csv.name,
+                advanced_stage_csv.name,
+                advanced_summary_csv.name,
+                advanced_search_csv.name,
+                advanced_feature_csv.name,
+                advanced_metadata_json.name,
+                advanced_report_md.name,
+            ],
+            "preserved_500_image_files": [
+                "batch_metrics.csv",
+                "summary_metrics.csv",
+                "fingerprint_enhancement_report.pdf",
+                "experiment_metadata.json",
+                "example_minutiae_overlay.png",
+            ],
+        }
+        advanced_metadata_json.write_text(json.dumps(advanced_metadata, indent=2), encoding="utf-8")
+        print("Exported advanced development files without overwriting preserved 500-image evidence.")
+else:
+    print("Advanced development search is disabled.")
+
+
+# %%
+metric_plot_columns = ["MSE", "PSNR (dB)", "SSIM", "Coherence"]
+
+
+def _ordered_metric_data(metrics, methods):
+    frame = normalise_method_labels(metrics)
+    frame = frame[frame["Method"].isin(methods)].copy()
+    frame["Method"] = pd.Categorical(frame["Method"], categories=methods, ordered=True)
+    return frame.sort_values("Method")
+
+
+def plot_enhancement_quality_comparison(metrics, methods=ENHANCEMENT_QUALITY_METHODS, title="Enhancement Quality Comparison"):
+    frame = _ordered_metric_data(metrics, methods)
+    fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+    for axis, metric in zip(axes.ravel(), metric_plot_columns):
+        sns.barplot(
+            data=frame,
+            x="Method",
+            y=metric,
+            hue="Method",
+            order=methods,
+            hue_order=methods,
+            legend=False,
+            errorbar="sd",
+            ax=axis,
+        )
+        axis.set_title(f"Mean {metric} with standard deviation")
+        axis.set_xlabel("")
+        wrapped_labels = [textwrap.fill(label.get_text(), 18) for label in axis.get_xticklabels()]
+        axis.set_xticks(axis.get_xticks())
+        axis.set_xticklabels(wrapped_labels, rotation=0, ha="center")
+    fig.suptitle(title, fontsize=16, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def plot_member1_enhancement_study(metrics):
+    return plot_enhancement_quality_comparison(
+        metrics,
+        methods=[CLAHE_BASELINE_LABEL, M1_LABEL],
+        title="Member 1 Enhancement Study",
+    )
+
+
+def plot_member2_ridge_enhancement_study(metrics):
+    return plot_enhancement_quality_comparison(
+        metrics,
+        methods=[M2_LABEL],
+        title="Member 2 Ridge Enhancement Study",
+    )
+
+
+def plot_member3_ridge_restoration_study(result, sample_title="Fingerprint enhancement result"):
+    panels = [
+        (result["outputs"][TEAM_HYBRID_LABEL], "Input to M3", "gray"),
+        (result["raw_binary"], "Before Morphology", "gray"),
+        (result["binary"], M3_LABEL, "gray"),
+        (result["mask"], "Fingerprint Mask", "gray"),
+    ]
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+    for axis, (image, title, colourmap) in zip(axes.ravel(), panels):
+        axis.imshow(image, cmap=colourmap, vmin=0, vmax=1)
+        axis.set_title(title)
+        axis.axis("off")
+    fig.suptitle(f"Member 3 Ridge Restoration Study - {sample_title}", fontsize=16, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def plot_member4_feature_results(result, sample_title="Fingerprint enhancement result"):
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.5))
+    axes[0].imshow(result["skeleton"], cmap="gray", vmin=0, vmax=1)
+    axes[0].set_title("Thinning Skeleton")
+    axes[0].axis("off")
+    axes[1].imshow(result["skeleton"], cmap="gray", vmin=0, vmax=1)
+    if len(result["endings"]):
+        axes[1].scatter(result["endings"][:, 1], result["endings"][:, 0], s=24, facecolors="none", edgecolors="#00d084")
+    if len(result["bifurcations"]):
+        axes[1].scatter(result["bifurcations"][:, 1], result["bifurcations"][:, 0], s=28, marker="x", c="#ff3b30")
+    axes[1].set_title("Minutiae Overlay")
+    axes[1].axis("off")
+    axes[2].bar(["Ridge endings", "Bifurcations"], [len(result["endings"]), len(result["bifurcations"])], color=["#00a76f", "#d92d20"])
+    axes[2].set_title("Detected Minutiae Counts")
+    axes[2].set_ylabel("Count")
+    fig.suptitle(f"Member 4 Feature Extraction Results - {sample_title}", fontsize=16, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+figure2 = plot_enhancement_quality_comparison(batch_metrics, method_order)
+plt.show()
+
+figure3 = plot_member1_enhancement_study(batch_metrics)
+plt.show()
+
+figure4 = plot_member2_ridge_enhancement_study(batch_metrics)
+plt.show()
+
+figure5 = plot_member3_ridge_restoration_study(sample_result, sample_title=sample_name)
+plt.show()
+
+figure6 = plot_member4_feature_results(sample_result, sample_title=sample_name)
+plt.show()
+
+figure7 = plot_team_hybrid_evaluation(sample_result, sample_title=sample_name)
 plt.show()
 
 
@@ -882,7 +2420,7 @@ else:
 # %% [markdown]
 # ## 12. Optional Extra Effort - SVM Synthetic Quality Classification
 #
-# The SVM section is frozen for the main classical image-processing cleanup. It is kept as a clearly separated optional extra-effort component and does not affect Member 1, Member 2, Member 3, Member 4, Hybrid, PSNR/MSE/SSIM comparison or method interpretation.
+# The SVM section is frozen for the main classical image-processing cleanup. It is kept as a clearly separated optional extra-effort component and does not affect Member 1, Member 2, Member 3, Member 4, Team Hybrid Pipeline, PSNR/MSE/SSIM comparison or method interpretation.
 #
 # When intentionally enabled later, the SVM predicts **Good**, **Fair** or **Poor** quality from six image-quality features. Labels come from controlled degradation levels, so this model assesses degradation quality; it does not recognise fingerprint identity. Accuracy is only reported for the held-out controlled test set.
 #
@@ -982,52 +2520,72 @@ else:
 #
 
 # %%
-def export_pdf_report(summary, example_result, destination):
+def export_pdf_report(summary, example_result, destination, metrics=None):
+    metrics = batch_metrics if metrics is None else normalise_method_labels(metrics)
+    summary = normalise_method_labels(summary)
     with PdfPages(destination) as pdf:
-        # Page 1: method summary.
+        # Page 1: role-aware method summary.
         fig, ax = plt.subplots(figsize=(11.69, 8.27))
         ax.axis("off")
-        ax.set_title("Fingerprint Enhancement - Batch Experiment Summary", fontsize=18, fontweight="bold", pad=18)
+        ax.set_title("Fingerprint Enhancement - Role-Aware Batch Summary", fontsize=18, fontweight="bold", pad=18)
         table_columns = ["Method", "MSE_mean", "PSNR_mean", "SSIM_mean", "Coherence_mean", "Match_mean", "Runtime_mean"]
         table_frame = summary[table_columns].copy().round(4)
+        table_frame["Method"] = table_frame["Method"].str.wrap(32)
         table = ax.table(cellText=table_frame.values, colLabels=table_frame.columns, cellLoc="center", loc="center")
         table.auto_set_font_size(False)
-        table.set_fontsize(9)
-        table.scale(1.0, 1.6)
+        table.set_fontsize(7)
+        table.scale(1.0, 1.8)
         ax.text(
             0.5,
-            0.08,
+            0.12,
             f"Dataset mode: {'SYNTHETIC DEMO - replace with SOCOFing' if USING_DEMO_DATA else 'SOCOFing Real images with controlled degradation'}",
             ha="center",
             fontsize=10,
             color="#b42318" if USING_DEMO_DATA else "#176b3a",
         )
+        ax.text(
+            0.5,
+            0.06,
+            "Controls and baselines are not individual member techniques; Team Hybrid Pipeline is reported separately.",
+            ha="center",
+            fontsize=9,
+            color="#344054",
+        )
         pdf.savefig(fig, bbox_inches="tight")
         plt.close(fig)
 
-        # Page 2: pipeline images.
-        fig = plot_pipeline_dashboard(example_result, sample_title="Example processing pipeline")
+        # Figure 1: individual member contributions.
+        fig = plot_individual_contributions(example_result, sample_title="Example processing pipeline")
         pdf.savefig(fig, bbox_inches="tight")
         plt.close(fig)
 
-        # Page 3: metric charts.
-        fig, axes = plt.subplots(2, 2, figsize=(11.69, 8.27))
-        for axis, metric in zip(axes.ravel(), metric_plot_columns):
-            sns.barplot(
-                data=batch_metrics,
-                x="Method",
-                y=metric,
-                hue="Method",
-                order=method_order,
-                hue_order=method_order,
-                legend=False,
-                errorbar="sd",
-                ax=axis,
-            )
-            axis.set_title(metric)
-            axis.tick_params(axis="x", rotation=25)
-        fig.suptitle("Mean performance with standard deviation", fontsize=16, fontweight="bold")
-        fig.tight_layout()
+        # Figure 2: enhancement/restoration metrics only where greyscale metrics are meaningful.
+        fig = plot_enhancement_quality_comparison(metrics, method_order)
+        pdf.savefig(fig, bbox_inches="tight")
+        plt.close(fig)
+
+        # Figure 3: Member 1 baseline-vs-final evidence.
+        fig = plot_member1_enhancement_study(metrics)
+        pdf.savefig(fig, bbox_inches="tight")
+        plt.close(fig)
+
+        # Figure 4: Member 2 ridge enhancement evidence.
+        fig = plot_member2_ridge_enhancement_study(metrics)
+        pdf.savefig(fig, bbox_inches="tight")
+        plt.close(fig)
+
+        # Figure 5: Member 3 binary ridge restoration structure.
+        fig = plot_member3_ridge_restoration_study(example_result, sample_title="Example processing pipeline")
+        pdf.savefig(fig, bbox_inches="tight")
+        plt.close(fig)
+
+        # Figure 6: Member 4 feature extraction outputs and counts.
+        fig = plot_member4_feature_results(example_result, sample_title="Example processing pipeline")
+        pdf.savefig(fig, bbox_inches="tight")
+        plt.close(fig)
+
+        # Figure 7: team-level integrated hybrid pipeline.
+        fig = plot_team_hybrid_evaluation(example_result, sample_title="Example processing pipeline")
         pdf.savefig(fig, bbox_inches="tight")
         plt.close(fig)
 
@@ -1055,14 +2613,30 @@ if EXPORT_FINAL_RESULTS:
     metadata = {
         "dataset_mode": "synthetic_demo" if USING_DEMO_DATA else "SOCOFing_real_controlled_degradation",
         "development_mode": DEVELOPMENT_MODE,
+        "experiment_started_at": NOTEBOOK_EXECUTION_STARTED_AT.isoformat(timespec="seconds"),
+        "experiment_completed_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+        "total_runtime_seconds": float(perf_counter() - NOTEBOOK_EXECUTION_TIMER_START),
+        "batch_runtime_seconds": float(batch_total_runtime_seconds),
         "max_batch_images": MAX_BATCH_IMAGES,
+        "number_of_real_images_available": len(real_paths),
         "number_of_reference_images": len(reference_set),
         "active_batch_images": len(active_batch_references),
         "image_size": list(IMAGE_SIZE),
         "random_seed": RANDOM_SEED,
-        "member1_final_method": "Wiener + CLAHE",
-        "member1_baseline": "CLAHE only",
-        "team_baseline": "Global HE baseline",
+        "sampling_method": "synthetic demo generator" if USING_DEMO_DATA else SAMPLING_METHOD_DESCRIPTION,
+        "degradation_model": "simulate_degradation",
+        "degradation_severities": [0.35, 0.55, 0.75],
+        "degradation_seed_formula": "RANDOM_SEED + image_index",
+        "methods_compared": method_order,
+        "control_methods": CONTROL_METHODS,
+        "baseline_methods": BASELINE_METHODS,
+        "member_image_contributions": MEMBER_IMAGE_CONTRIBUTIONS,
+        "team_methods": TEAM_METHODS,
+        "literature_psnr_benchmark_db": LITERATURE_PSNR_BENCHMARK_DB,
+        "member1_final_method": M1_LABEL,
+        "member1_baseline": CLAHE_BASELINE_LABEL,
+        "team_baseline": GLOBAL_HE_BASELINE_LABEL,
+        "member4_feature_summary": member4_feature_summary.to_dict(orient="records"),
         "metric_specific_leaders": metric_leaders.to_dict(orient="records"),
         "svm_controlled_test_accuracy": None if np.isnan(quality_accuracy) else float(quality_accuracy),
         "warning": "Synthetic demo measurements are not final experimental evidence." if USING_DEMO_DATA else "",
@@ -1086,13 +2660,15 @@ else:
 # 5. Compare mean **and standard deviation**, not a single best-looking image.
 # 6. Interpret MSE, PSNR, SSIM and ridge coherence separately; do not use a weighted overall score.
 # 7. If metric leaders disagree, explain the trade-off instead of forcing one method to win.
-# 8. Report Global HE as a simple team-level baseline, not as an individual member method.
-# 9. Report CLAHE-only as Member 1's baseline and Wiener + CLAHE as Member 1's final methodology.
-# 10. Explain the trade-off between restoration quality and runtime. Gabor filtering may improve ridge coherence but require more computation.
-# 11. Do not rename the ORB match score as "accuracy". Only the SVM held-out classification result is an accuracy value.
-# 12. Keep the optional SVM synthetic quality classifier separate from the main classical image-processing comparison.
-# 13. Discuss failure cases such as severe smudging, weak ridge contrast, over-segmentation and false minutiae.
-# 14. Link the conclusion back to the SMART objectives and state whether the quantitative improvement target was achieved.
+# 8. Report Degraded Input, Global HE Baseline and CLAHE Baseline as controls/baselines, not as individual member techniques.
+# 9. Use the four member labels consistently: M1 - Wiener + CLAHE Enhancement, M2 - Gabor / Modified Gabor Ridge Enhancement, M3 - Morphological Ridge Restoration, and M4 - Thinning & Minutiae Extraction.
+# 10. Report Team Hybrid Pipeline separately from the four individual member techniques.
+# 11. Do not report M4 skeleton/minutiae outputs as direct greyscale PSNR enhancement scores.
+# 12. Explain the trade-off between restoration quality and runtime. Gabor filtering may improve ridge coherence but require more computation.
+# 13. Do not rename the ORB match score or minutiae counts as "accuracy". Only a held-out labelled classifier result can be an accuracy value.
+# 14. Keep the optional SVM synthetic quality classifier separate from the main classical image-processing comparison.
+# 15. Discuss failure cases such as severe smudging, weak ridge contrast, over-segmentation and false minutiae.
+# 16. Link the conclusion back to the SMART objectives and state whether the quantitative improvement target was achieved.
 #
 
 # %% [markdown]

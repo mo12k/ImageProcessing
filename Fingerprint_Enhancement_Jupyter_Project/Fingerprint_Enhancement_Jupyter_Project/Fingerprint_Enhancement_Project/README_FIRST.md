@@ -50,7 +50,7 @@ The supplied environment uses NumPy 1.26.4, so it avoids the error saying that a
 2. Choose `fingerprint-enhancement` from the environment menu.
 3. Launch **JupyterLab** or **Notebook**.
 4. Browse to this folder and open `Fingerprint_Enhancement_System.ipynb`.
-5. Select **Kernel > Restart Kernel and Run All Cells**.
+5. Select **Kernel > Restart Kernel and Run All Cells** for the current development subset only.
 
 Near the beginning, confirm that the notebook prints:
 
@@ -60,27 +60,33 @@ SOCOFing detected successfully.
 
 If it prints `Synthetic DEMO images will be used`, the dataset path is wrong. The synthetic fallback only proves that the code works and must not be used as the final assignment result.
 
-## Step 4 - Collect final results
+## Step 4 - Collect reviewed results
 
-After all cells finish, review the dashboard, method table, graphs, SVM confusion matrix and extracted minutiae. The `outputs` folder will contain:
+The notebook runs in development mode by default and does not overwrite final-looking result files unless `EXPORT_FINAL_RESULTS = True` is deliberately set for an approved run. Review the dashboard, method table, graphs and extracted minutiae before exporting. The `outputs` folder may contain preserved diagnostic/final evidence:
 
 - `batch_metrics.csv`
 - `summary_metrics.csv`
 - `fingerprint_enhancement_report.pdf`
 - `example_minutiae_overlay.png`
-- `svm_quality_model.joblib`
 - `experiment_metadata.json`
 
-Use the real SOCOFing batch outputs in the report. Report matching score as a **matching score**, not as classification accuracy. The only accuracy percentage in the notebook is the held-out SVM quality-classification result.
+Use the real SOCOFing batch outputs in the report. Report matching score as a **matching score**, not as classification accuracy. Minutiae counts should be described as detected ridge endings and detected bifurcations unless ground-truth minutiae annotations are added. The optional SVM quality classifier is separate from the main classical image-processing comparison and is disabled by default.
 
 ## Contribution mapping
 
 | Member | Main notebook sections |
 |---|---|
-| Member 1 | Section 4: normalisation, median filtering and CLAHE |
-| Member 2 | Section 5: multi-orientation Gabor filtering |
-| Member 3 | Section 6: segmentation, Sauvola thresholding and morphology |
-| Member 4 | Section 7: thinning, crossing number and minutiae extraction |
-| Whole team | Sections 8-12: integration, dashboard, batch evaluation, SVM and reporting |
+| Member 1 | Section 4: M1 - Wiener + CLAHE Enhancement |
+| Member 2 | Section 5: M2 - Gabor / Modified Gabor Ridge Enhancement |
+| Member 3 | Section 6: M3 - Morphological Ridge Restoration |
+| Member 4 | Section 7: M4 - Thinning & Minutiae Extraction |
+| Whole team | Sections 8-13: controls, baselines, Team Hybrid Pipeline, batch evaluation, optional SVM and reporting |
+
+Experimental controls and baselines are reported separately from individual member techniques:
+
+- Degraded Input
+- Global HE Baseline
+- CLAHE Baseline
+- Team Hybrid Pipeline
 
 Each member should understand and be able to explain their functions, parameters, inputs, outputs and limitations during the demonstration.

@@ -1,0 +1,32 @@
+{
+  "dataset_mode": "SOCOFing_real_controlled_degradation",
+  "development_subset_images": 24,
+  "active_advanced_images": 24,
+  "parameter_configurations_tested": [
+    "psnr_preserving",
+    "balanced",
+    "ridge_coherence"
+  ],
+  "selected_config_id": "psnr_preserving",
+  "selection_rule": "Highest mean PSNR over the 24-image development subset; no per-image tuning.",
+  "literature_psnr_benchmark_db": 28.17,
+  "advanced_runtime_seconds": 967.7098742999951,
+  "pywavelets_available": true,
+  "outputs": [
+    "advanced_dev_batch_metrics.csv",
+    "advanced_dev_stage_metrics.csv",
+    "advanced_dev_summary_metrics.csv",
+    "advanced_dev_parameter_search.csv",
+    "advanced_dev_minutiae_counts.csv",
+    "advanced_dev_metadata.json",
+    "advanced_development_report.md"
+  ],
+  "preserved_500_image_files": [
+    "batch_metrics.csv",
+    "summary_metrics.csv",
+    "fingerprint_enhancement_report.pdf",
+    "experiment_metadata.json",
+    "example_minutiae_overlay.png"
+  ],
+  "target_gap_sign_convention": "PSNR delta to 28.17 dB = PSNR_mean - 28.17 dB"
+}
