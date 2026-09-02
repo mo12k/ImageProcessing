@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-09-02T18:52:34.199477+08:00",
+  "created_at": "2026-09-02T19:40:14.109116+08:00",
   "script": "focused_psnr_audit_optimisation.py",
   "random_seed": 20260902,
   "dev_images": [
@@ -33,6 +33,12 @@
   "formal_500_image_validation_run": false,
   "candidate_count": 72,
   "scenario_count": 8,
+  "optional_backend_availability": {
+    "pywavelets_available": true,
+    "opencv_available": true,
+    "wavelet_candidate_fallback": "PyWavelets discrete wavelet shrinkage",
+    "non_local_means_backend": "OpenCV fastNlMeansDenoising"
+  },
   "metric_protocol": {
     "our_metric_domain": "[0,1] float images clipped only before MSE/PSNR/SSIM",
     "our_psnr_max_i": 1.0,
@@ -67,7 +73,7 @@
     ],
     "extracted_context_near_28_17": "rint Images Using Gabor Filter . https://iopscience.iop.or g/article/10.1088/1742-6596/1 196/1/012045/pdf S t u d y 2 \u2013 P e r f o r m a n c e E v a l u a t i o n o f F i n g e r p r i n t E n h a n c e m e n t A l g o r i t h m s \u25cf Compared Modified Gabor Filter , High Boost Gaussian Filter , and Fuzzy-Based Filter . \u25cf Evaluated the techniques based on noise reduction and fingerprint ridge clarity . \u25cf The Modified Gabor Filter achieved a PSNR of 28.17 dB and MSE of 22.27 . \u25cf The results show that the selection of enhancement filters af fects fingerprint image quality . \u25cf Suitable as a reference for selecting an appropriate enhancement technique. \u25cf Limitation: enhancement filtering alone does not perform segmentation, thinning, or fingerprint feature extraction. Article: Mukaila et al. (2019), Performance Evaluation of Fingerprint Image Enhancement Algorithms . https://fjpas.fuoye.edu.ng/index.php/fjpas/article/view/79/71 P l a n n i n g Member Pr epr ocessing Image Pr ocessing T echnique Member 1: Image Pr epr ocessing Module Convert images to grayscale, resize them, normalise intens"
   },
-  "runtime_seconds": 129.67966530000558,
+  "runtime_seconds": 139.88724539999384,
   "generated_files": [
     "outputs/focused_psnr_audit_dynamic_ranges.csv",
     "outputs/focused_psnr_audit_degradation_stage_audit.csv",

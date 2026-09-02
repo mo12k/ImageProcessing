@@ -1,0 +1,58 @@
+[
+  {
+    "Member": "Member 1",
+    "Main Contemporary Technique": "Non-Local Means Denoising",
+    "Main Purpose": "Ridge-preserving noise reduction",
+    "Baseline / Comparator": "Gaussian / Median / CLAHE",
+    "Main parameters": "Focused PSNR evidence uses OpenCV fastNlMeansDenoising with h=0.06, templateWindowSize=7, searchWindowSize=21, patch_size=5, patch_distance=6. Earlier screening D4 used skimage NLM with h=0.055, patch_size=3, patch_distance=5.",
+    "Output type": "Aligned grayscale float image in [0,1]",
+    "Appropriate evaluation metrics": "Controlled aligned: MSE, PSNR, SSIM. Direct Altered: ridge coherence, local contrast, fragmentation, continuity, visual ridge plausibility.",
+    "Implementation status": "Implemented",
+    "Implementation source": "focused_psnr_audit_optimisation.py: non_local_means; screening24_master_audit.py: D4 Non-local means",
+    "Backend/library": "OpenCV cv2.fastNlMeansDenoising in focused final run; skimage fallback available",
+    "Fallback risk": "Focused function falls back to skimage NLM if cv2 is unavailable; report backend explicitly.",
+    "Registry note": "CLAHE/Gaussian/Median remain baselines only, not the main member technique."
+  },
+  {
+    "Member": "Member 2",
+    "Main Contemporary Technique": "Modified / Orientation-Adaptive Gabor",
+    "Main Purpose": "Ridge enhancement",
+    "Baseline / Comparator": "Ordinary Gabor",
+    "Main parameters": "Adaptive orientation/frequency variants use local orientation, optional local ridge frequency, orientation bins around 8, frequency candidates around 0.075-0.140, and mild blend factors around 0.18-0.22 in screening.",
+    "Output type": "Enhanced grayscale ridge image in [0,1]",
+    "Appropriate evaluation metrics": "Direct Altered: coherence, local contrast, fragmentation, continuity, visual ridge artifacts. Controlled aligned grayscale only: MSE, PSNR, SSIM.",
+    "Implementation status": "Implemented as literature-inspired/adaptive, not exact paper reproduction",
+    "Implementation source": "screening24_master_audit.py: adaptive_gabor_enhancement, multi_orientation_gabor, G2-G4; Fingerprint_Enhancement_System.py: adaptive_gabor_enhancement",
+    "Backend/library": "skimage.filters.gabor plus local orientation/frequency estimates",
+    "Fallback risk": "No confirmed paper parameters/dataset/formula in repository; label as Literature-Inspired Modified Gabor when discussing article relation.",
+    "Registry note": "Ordinary Gabor remains the comparator and should not be presented as the advanced contribution."
+  },
+  {
+    "Member": "Member 3",
+    "Main Contemporary Technique": "Total Variation Restoration",
+    "Main Purpose": "Ridge/edge-preserving restoration",
+    "Baseline / Comparator": "Wiener / Gaussian",
+    "Main parameters": "screening24 R3 uses skimage denoise_tv_chambolle with weight=0.045. Focused audit searched fixed weights 0.01, 0.02, 0.04, 0.08 and selected weight=0.02 for Gaussian noise cases.",
+    "Output type": "Aligned grayscale float image in [0,1]",
+    "Appropriate evaluation metrics": "Controlled aligned: MSE, PSNR, SSIM plus coherence. Direct Altered: coherence, contrast, fragmentation, continuity, visual ridge preservation.",
+    "Implementation status": "Implemented",
+    "Implementation source": "screening24_master_audit.py: R3 Total variation restoration; focused_psnr_audit_optimisation.py: tv_restoration",
+    "Backend/library": "skimage.restoration.denoise_tv_chambolle",
+    "Fallback risk": "Fingerprint_Enhancement_System.py wavelet_denoise can fall back to TV if PyWavelets is unavailable; labels must match actual branch.",
+    "Registry note": "Morphology is downstream/supporting and no longer Member 3's headline technique."
+  },
+  {
+    "Member": "Member 4",
+    "Main Contemporary Technique": "Coherence-Guided Directional Diffusion",
+    "Main Purpose": "Orientation-aware ridge-flow enhancement",
+    "Baseline / Comparator": "conventional directional/ridge methods",
+    "Main parameters": "screening24 uses coherence_guided_diffusion with iterations=4, step=0.16 and orientation-selected smoothing. Fingerprint_Enhancement_System.py variant uses iterations=2, step=0.18, orientation_bins=6.",
+    "Output type": "Enhanced grayscale ridge-flow image in [0,1]",
+    "Appropriate evaluation metrics": "Direct Altered: coherence, local contrast, fragmentation, continuity, visual ridge-flow plausibility. Controlled aligned grayscale only: MSE, PSNR, SSIM.",
+    "Implementation status": "Implemented",
+    "Implementation source": "screening24_master_audit.py: coherence_guided_diffusion, G7; Fingerprint_Enhancement_System.py: coherence_guided_diffusion",
+    "Backend/library": "NumPy/SciPy/skimage local structure estimates and oriented smoothing",
+    "Fallback risk": "No silent replacement observed in the audited functions.",
+    "Registry note": "Thinning, medial axis, and minutiae extraction are downstream analysis, not the main M4 technique."
+  }
+]

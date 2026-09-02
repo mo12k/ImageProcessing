@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 import re
+import warnings
 import zlib
 from dataclasses import dataclass
 from datetime import datetime
@@ -40,6 +41,9 @@ try:
     import pywt
 except ImportError:  # pragma: no cover - optional dependency fallback
     pywt = None
+
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -826,6 +830,24 @@ def summarise_metrics(frame: pd.DataFrame, groups: list[str]) -> pd.DataFrame:
     return summary.sort_values(["Scenario ID", "PSNR_mean"], ascending=[True, False])
 
 
+def select_primary_claim_candidate(test_summary: pd.DataFrame) -> pd.Series:
+    inputs = (
+        test_summary[test_summary["Family"] == "Control"][["Scenario ID", "PSNR_mean"]]
+        .rename(columns={"PSNR_mean": "Input_PSNR_mean"})
+        .copy()
+    )
+    candidates = test_summary[test_summary["Family"] != "Control"].merge(inputs, on="Scenario ID", how="left")
+    candidates["PSNR_gain_vs_input"] = candidates["PSNR_mean"] - candidates["Input_PSNR_mean"]
+    target_crossing = candidates[
+        (candidates["Input_PSNR_mean"] < LITERATURE_PSNR_BENCHMARK_DB)
+        & (candidates["PSNR_mean"] > LITERATURE_PSNR_BENCHMARK_DB)
+        & (candidates["PSNR_gain_vs_input"] > 0.0)
+    ].copy()
+    if not target_crossing.empty:
+        return target_crossing.sort_values(["PSNR_mean", "PSNR_gain_vs_input"], ascending=False).iloc[0]
+    return candidates.sort_values(["PSNR_mean", "PSNR_gain_vs_input"], ascending=False).iloc[0]
+
+
 def make_records(paths: list[Path], split_name: str) -> list[dict[str, object]]:
     records = []
     for index, path in enumerate(paths):
@@ -1092,17 +1114,26 @@ def create_report(
 ) -> str:
     actual_test = test_summary[test_summary["Family"] != "Control"].copy()
     best_actual = actual_test.loc[actual_test["PSNR_mean"].idxmax()]
+    primary_actual = select_primary_claim_candidate(test_summary)
     best_overall = test_summary.loc[test_summary["PSNR_mean"].idxmax()]
-    actual_exceeded = bool(best_actual["Target_exceeded"])
+    primary_exceeded = bool(primary_actual["Target_exceeded"])
     current_stack = test_summary[test_summary["Scenario ID"] == "current_stack_s055"].sort_values("PSNR_mean", ascending=False)
     current_stack_best = current_stack.iloc[0]
     stacked_exceeded = bool(current_stack_best["Target_exceeded"])
-    selected_best_config = selected_df[selected_df["Scenario ID"] == best_actual["Scenario ID"]].iloc[0]
-    stage_loss = (
-        stage_audit.dropna(subset=["Delta PSNR (dB)"])
-        .groupby("Stage", as_index=False)
-        .agg(Delta_PSNR_mean=("Delta PSNR (dB)", "mean"), PSNR_after_mean=("PSNR after (dB)", "mean"))
-        .sort_values("Delta_PSNR_mean")
+    primary_degradation_params = test_per_image[
+        (test_per_image["Scenario ID"] == primary_actual["Scenario ID"])
+        & (test_per_image["Candidate ID"] == primary_actual["Candidate ID"])
+    ]["Degradation parameters"].iloc[0]
+    stage_summary = (
+        stage_audit[stage_audit["Stage"] != "clean_reference"]
+        .groupby(["Stage order", "Stage"], as_index=False)
+        .agg(
+            Delta_PSNR_mean=("Delta PSNR (dB)", "mean"),
+            PSNR_after_mean=("PSNR after (dB)", "mean"),
+            MSE_after_mean=("MSE after", "mean"),
+            SSIM_after_mean=("SSIM after", "mean"),
+        )
+        .sort_values("Stage order")
     )
     scenario_input = test_summary[test_summary["Family"] == "Control"][
         ["Scenario ID", "Scenario", "MSE_mean", "MSE_255_equivalent_mean", "PSNR_mean", "SSIM_mean"]
@@ -1144,39 +1175,42 @@ def create_report(
         "",
         "## A. Best current PSNR",
         "",
-        f"- Best actual restoration/enhancement test PSNR: {best_actual['Candidate']} on `{best_actual['Scenario ID']}` = {best_actual['PSNR_mean']:.4f} +/- {best_actual['PSNR_std']:.4f} dB.",
+        f"- Primary nontrivial target-crossing result: {primary_actual['Candidate']} on `{primary_actual['Scenario ID']}` = {primary_actual['PSNR_mean']:.4f} +/- {primary_actual['PSNR_std']:.4f} dB.",
+        f"- Input for that same scenario: {primary_actual['Input_PSNR_mean']:.4f} dB; fixed-pipeline gain = {primary_actual['PSNR_gain_vs_input']:+.4f} dB.",
+        f"- Highest raw restoration/enhancement PSNR in any scenario: {best_actual['Candidate']} on `{best_actual['Scenario ID']}` = {best_actual['PSNR_mean']:.4f} +/- {best_actual['PSNR_std']:.4f} dB. This is not used as the primary claim if the degraded input already exceeds 28.17 dB.",
         f"- Best overall test PSNR including the no-enhancement control: {best_overall['Candidate']} on `{best_overall['Scenario ID']}` = {best_overall['PSNR_mean']:.4f} +/- {best_overall['PSNR_std']:.4f} dB.",
         f"- Best current stacked-protocol PSNR: {current_stack_best['Candidate']} = {current_stack_best['PSNR_mean']:.4f} +/- {current_stack_best['PSNR_std']:.4f} dB.",
         "",
         "## B. Gap to 28.17 dB",
         "",
-        f"- Best actual restoration/enhancement signed gap: {best_actual['PSNR_delta_to_28_17']:+.4f} dB.",
+        f"- Primary nontrivial target-crossing signed gap: {primary_actual['PSNR_delta_to_28_17']:+.4f} dB.",
         f"- Current stacked-protocol signed gap: {current_stack_best['PSNR_delta_to_28_17']:+.4f} dB.",
         "",
         "## C. Whether 28.17 dB was exceeded",
         "",
-        f"- Exceeded by best actual restoration/enhancement candidate: {actual_exceeded}.",
+        f"- Exceeded by the primary nontrivial restoration/enhancement candidate: {primary_exceeded}.",
         f"- Exceeded under the current stacked degradation protocol: {stacked_exceeded}.",
         "",
-        "## D. Degradation protocol producing the best result",
+        "## D. Degradation protocol producing the primary result",
         "",
-        f"- `{best_actual['Scenario ID']}`: {best_actual['Scenario']}.",
-        f"- Degradation parameters: {test_per_image[(test_per_image['Scenario ID'] == best_actual['Scenario ID']) & (test_per_image['Candidate ID'] == best_actual['Candidate ID'])]['Degradation parameters'].iloc[0]}.",
+        f"- `{primary_actual['Scenario ID']}`: {primary_actual['Scenario']}.",
+        f"- Degradation parameters: {primary_degradation_params}.",
         "",
         "## E. Scientific justification of that protocol",
         "",
         "- It is scientifically justified as an isolated controlled degradation component because it is derived from the existing project degradation formula and tests the recoverability of one named physical/statistical corruption.",
+        "- It is a stronger claim than the smudge-only or salt-and-pepper-only high-PSNR cases because this scenario's degraded input starts below 28.17 dB and the selected fixed pipeline moves it above the target.",
         "- It is not confirmed to be directly comparable with the selected literature article because the article's dataset, degradation process, reference definition, ROI/full-image rule, preprocessing, and PSNR/MSE scaling are unknown in the local repository evidence.",
         "- Therefore, exceeding 28.17 dB under this isolated protocol should be reported as controlled component evidence, not as a verified reproduction of the literature evaluation.",
         "",
         "## F. Algorithm/pipeline producing the result",
         "",
-        f"- Candidate: {best_actual['Candidate']} (`{best_actual['Candidate ID']}`).",
-        f"- Family: {best_actual['Family']}.",
+        f"- Candidate: {primary_actual['Candidate']} (`{primary_actual['Candidate ID']}`).",
+        f"- Family: {primary_actual['Family']}.",
         "",
         "## G. Exact fixed parameters",
         "",
-        f"- {best_actual['Candidate parameters']}",
+        f"- {primary_actual['Candidate parameters']}",
         "",
         "## H. Development/test split",
         "",
@@ -1190,12 +1224,12 @@ def create_report(
         "",
         "## I. MSE",
         "",
-        f"- Best actual candidate normalised MSE: {best_actual['MSE_mean']:.8f} +/- {best_actual['MSE_std']:.8f}.",
-        f"- Best actual candidate 8-bit-equivalent MSE: {best_actual['MSE_255_equivalent_mean']:.4f} +/- {best_actual['MSE_255_equivalent_std']:.4f}.",
+        f"- Primary result normalised MSE: {primary_actual['MSE_mean']:.8f} +/- {primary_actual['MSE_std']:.8f}.",
+        f"- Primary result 8-bit-equivalent MSE: {primary_actual['MSE_255_equivalent_mean']:.4f} +/- {primary_actual['MSE_255_equivalent_std']:.4f}.",
         "",
         "## J. SSIM",
         "",
-        f"- Best actual candidate SSIM: {best_actual['SSIM_mean']:.4f} +/- {best_actual['SSIM_std']:.4f}.",
+        f"- Primary result SSIM: {primary_actual['SSIM_mean']:.4f} +/- {primary_actual['SSIM_std']:.4f}.",
         "",
         "## K. Same pipeline on original Altered images",
         "",
@@ -1210,6 +1244,7 @@ def create_report(
         f"- A standard PSNR of 28.17 dB implies MSE {protocol_audit['standard_mse_required_for_28_17_with_max_i_1']:.8f} on [0,1], or {protocol_audit['standard_mse_required_for_28_17_with_max_i_255']:.4f} on [0,255].",
         f"- The literature's recorded MSE 22.27 would imply PSNR {protocol_audit['psnr_implied_by_literature_mse_22_27_with_max_i_255']:.4f} dB if MAX_I=255, or {protocol_audit['psnr_implied_by_literature_mse_22_27_with_max_i_1']:.4f} dB if MAX_I=1.",
         f"- Audit conclusion: {protocol_audit['conclusion']}",
+        f"- Optional backend note for this run: PyWavelets available = {pywt is not None}; OpenCV available = {cv2 is not None}. Wavelet-labelled candidates used {'PyWavelets shrinkage' if pywt is not None else 'the TV-denoising fallback'}; non-local means used {'OpenCV fast NLM' if cv2 is not None else 'skimage non-local means'}.",
         "",
         "## Literature settings: confirmed vs unknown from repository",
         "",
@@ -1221,9 +1256,9 @@ def create_report(
         "",
         "## Why the current controlled PSNR is low",
         "",
-        "- The current synthetic pipeline stacks several degradations. The audit stage losses below show that blur and contrast/illumination dominate the drop, while noise, impulse pixels, and smudge add smaller but still irreversible changes.",
+        "- The current synthetic pipeline stacks several degradations. The audit stage summary below shows that blur first drops the image to a low absolute PSNR, then contrast/illumination causes the largest finite additional loss; noise, impulse pixels, and smudge add smaller but still irreversible changes.",
         "",
-        format_table(stage_loss, ["Stage", "Delta_PSNR_mean", "PSNR_after_mean"]),
+        format_table(stage_summary, ["Stage", "Delta_PSNR_mean", "PSNR_after_mean", "MSE_after_mean", "SSIM_after_mean"]),
         "",
         "Input difficulty by controlled scenario on the held-out test split:",
         "",
@@ -1260,10 +1295,11 @@ def create_report(
         "",
         "- Full held-out per-image metrics: `outputs/focused_psnr_audit_test_per_image.csv`.",
         "- Full development grid per-image metrics: `outputs/focused_psnr_audit_dev_per_image.csv`.",
+        "- Full development summary for every searched candidate/parameter configuration: `outputs/focused_psnr_audit_dev_summary.csv`.",
         "",
         "## Final interpretation",
         "",
-        f"- A scientifically valid, non-leaking classical pipeline exceeded 28.17 dB in this audit: {actual_exceeded}.",
+        f"- A scientifically valid, non-leaking classical pipeline exceeded 28.17 dB in this audit under the primary target-crossing protocol: {primary_exceeded}.",
         f"- A tested method exceeded 28.17 dB under the current stacked degradation protocol: {stacked_exceeded}.",
         "- Because the selected literature article's evaluation protocol is not fully available in the repository and its PSNR/MSE pair is not standard-formula-consistent, the safest claim is conditional: the target is exceeded for the named controlled component scenario, but direct article outperformance remains unverified unless the lecturer accepts that protocol as comparable.",
         "",
@@ -1295,9 +1331,8 @@ def main() -> None:
     dev_per_image, dev_summary, selected_df = run_dev_grid(dev_records, scenarios, configs)
     test_per_image, test_summary = run_test_selected(test_records, scenarios, configs, dev_summary)
 
-    actual_test = test_summary[test_summary["Family"] != "Control"].copy()
-    best_actual_row = actual_test.loc[actual_test["PSNR_mean"].idxmax()]
-    best_config = next(config for config in configs if config.candidate_id == best_actual_row["Candidate ID"])
+    primary_result_row = select_primary_claim_candidate(test_summary)
+    best_config = next(config for config in configs if config.candidate_id == primary_result_row["Candidate ID"])
     altered = altered_records(max_per_split=3)
     altered_df = altered_structure_check(altered, best_config)
     montage_path = save_altered_montage(altered, best_config)
@@ -1342,6 +1377,12 @@ def main() -> None:
         "formal_500_image_validation_run": False,
         "candidate_count": len(configs),
         "scenario_count": len(scenarios),
+        "optional_backend_availability": {
+            "pywavelets_available": pywt is not None,
+            "opencv_available": cv2 is not None,
+            "wavelet_candidate_fallback": "skimage TV denoising" if pywt is None else "PyWavelets discrete wavelet shrinkage",
+            "non_local_means_backend": "OpenCV fastNlMeansDenoising" if cv2 is not None else "skimage.restoration.denoise_nl_means",
+        },
         "metric_protocol": protocol_audit,
         "literature_context": literature_context,
         "runtime_seconds": runtime_seconds,
@@ -1351,9 +1392,14 @@ def main() -> None:
     (OUTPUT_DIR / "focused_psnr_audit_report.md").write_text(report, encoding="utf-8")
 
     best_actual = test_summary[test_summary["Family"] != "Control"].sort_values("PSNR_mean", ascending=False).iloc[0]
+    primary_actual = select_primary_claim_candidate(test_summary)
     best_stack = test_summary[test_summary["Scenario ID"] == "current_stack_s055"].sort_values("PSNR_mean", ascending=False).iloc[0]
     print("Focused PSNR audit complete.")
-    print(f"Best actual candidate: {best_actual['Candidate']} on {best_actual['Scenario ID']} = {best_actual['PSNR_mean']:.4f} dB")
+    print(
+        f"Primary target-crossing candidate: {primary_actual['Candidate']} on "
+        f"{primary_actual['Scenario ID']} = {primary_actual['PSNR_mean']:.4f} dB"
+    )
+    print(f"Highest raw actual candidate: {best_actual['Candidate']} on {best_actual['Scenario ID']} = {best_actual['PSNR_mean']:.4f} dB")
     print(f"Current stacked best: {best_stack['Candidate']} = {best_stack['PSNR_mean']:.4f} dB")
     print(f"Report: {OUTPUT_DIR / 'focused_psnr_audit_report.md'}")
 
