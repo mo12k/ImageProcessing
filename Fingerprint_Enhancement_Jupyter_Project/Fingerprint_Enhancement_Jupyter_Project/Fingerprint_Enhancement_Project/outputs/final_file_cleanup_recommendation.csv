@@ -1,0 +1,12 @@
+file,purpose,needed_for_final_ipynb,needed_for_gui,safe_to_archive,safe_to_delete,recommendation
+direct24_original_altered_experiment.py,Development-stage direct Altered experiments,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+focused_psnr_audit_optimisation.py,Frozen protocol and NLM audit source,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+hybrid24_compatibility_experiment.py,Development hybrid investigation,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+member_allocation_consolidation.py,Historical allocation consolidation,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+member_fixed_comparison.py,Frozen member/compatibility comparison source,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+final_holdout_validation.py,Historical fresh hold-out runner,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+final_large_validation.py,"Historical 500 Real/1,500 Altered runner",No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+screening24_master_audit.py,Broad development screening and audited M2/M4 source,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+build_selfcontained_notebook.py,One-off reproducible notebook construction utility,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+finalise_selfcontained_notebook.py,One-off final audit/report utility,No,No,Yes,No,ARCHIVE AFTER GUI HANDOFF
+Fingerprint_Enhancement_System.py,Validated reusable core for future GUI backend,No,Yes,No,No,KEEP

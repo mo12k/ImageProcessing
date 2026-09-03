@@ -1,0 +1,6 @@
+cell,old_dependency,purpose,replacement,status
+10,outputs/member4_controlled_summary.csv,member comparison,"Executable dataset selection, processing and metric aggregation cells",RECOMPUTED IN NOTEBOOK
+12,outputs/member_compatibility_summary.csv,compatibility,"Executable dataset selection, processing and metric aggregation cells",RECOMPUTED IN NOTEBOOK
+14,outputs/final_holdout_statistics.json,fresh hold-out,"Executable dataset selection, processing and metric aggregation cells",RECOMPUTED IN NOTEBOOK
+16,outputs/final_large_real_statistics.json,500-image validation,"Executable dataset selection, processing and metric aggregation cells",RECOMPUTED IN NOTEBOOK
+18,outputs/final_large_altered_summary.csv,Altered validation,"Executable dataset selection, processing and metric aggregation cells",RECOMPUTED IN NOTEBOOK
