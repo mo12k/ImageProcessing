@@ -1,92 +1,46 @@
-# Fingerprint Enhancement Project - Start Here
+# Fingerprint Enhancement Project — Start Here
 
-This package contains a complete Jupyter Notebook implementation of the proposed fingerprint image enhancement study. It is designed for Anaconda Navigator and uses the SOCOFing dataset.
+## Final system files
 
-## Files
+- \`Fingerprint_Enhancement_System.ipynb\` — final presentation/demonstration notebook; loads saved large-validation evidence.
+- \`Fingerprint_Enhancement_System.py\` — single reusable processing module and future GUI API.
+- \`environment.yml\` — Conda environment definition.
 
-- `Fingerprint_Enhancement_System.ipynb` - main Jupyter Notebook to open and run.
-- `Fingerprint_Enhancement_System.py` - the same notebook in readable Python cell format; keep it as a backup.
-- `environment.yml` - creates a compatible Conda environment and avoids common NumPy binary-version errors.
-- `data/SOCOFing/` - place the extracted dataset here; the folder is created automatically when the notebook is first run.
-- `outputs/` - generated CSV, PDF, image, JSON and SVM model files.
+## Final methodology
 
-## Step 1 - Download the dataset
-
-Download SOCOFing from:
-
-https://www.kaggle.com/datasets/ruizgara/socofing
-
-Extract the download. Copy the dataset into this project so that this path exists:
-
-```text
-Fingerprint_Enhancement_Project/
-  data/
-    SOCOFing/
-      Real/
-        1__M_Left_index_finger.BMP
-        ...
-      Altered/
-        Altered-Easy/
-        Altered-Medium/
-        Altered-Hard/
-```
-
-The notebook also accepts an extra nested `SOCOFing/SOCOFing/Real` folder. Do not place the full external dataset in the submitted assignment ZIP because the specification requests a citation instead.
-
-## Step 2 - Create the environment in Anaconda Navigator
-
-1. Open **Anaconda Navigator**.
-2. Select **Environments** on the left.
-3. Select **Import** at the bottom.
-4. Select `environment.yml` from this folder.
-5. Keep the name `fingerprint-enhancement` and select **Import**.
-6. Wait until the installation finishes.
-
-The supplied environment uses NumPy 1.26.4, so it avoids the error saying that a module compiled with NumPy 1.x cannot run with NumPy 2.x.
-
-## Step 3 - Launch and run Jupyter
-
-1. Return to **Home** in Anaconda Navigator.
-2. Choose `fingerprint-enhancement` from the environment menu.
-3. Launch **JupyterLab** or **Notebook**.
-4. Browse to this folder and open `Fingerprint_Enhancement_System.ipynb`.
-5. Select **Kernel > Restart Kernel and Run All Cells** for the current development subset only.
-
-Near the beginning, confirm that the notebook prints:
-
-```text
-SOCOFing detected successfully.
-```
-
-If it prints `Synthetic DEMO images will be used`, the dataset path is wrong. The synthetic fallback only proves that the code works and must not be used as the final assignment result.
-
-## Step 4 - Collect reviewed results
-
-The notebook runs in development mode by default and does not overwrite final-looking result files unless `EXPORT_FINAL_RESULTS = True` is deliberately set for an approved run. Review the dashboard, method table, graphs and extracted minutiae before exporting. The `outputs` folder may contain preserved diagnostic/final evidence:
-
-- `batch_metrics.csv`
-- `summary_metrics.csv`
-- `fingerprint_enhancement_report.pdf`
-- `example_minutiae_overlay.png`
-- `experiment_metadata.json`
-
-Use the real SOCOFing batch outputs in the report. Report matching score as a **matching score**, not as classification accuracy. Minutiae counts should be described as detected ridge endings and detected bifurcations unless ground-truth minutiae annotations are added. The optional SVM quality classifier is separate from the main classical image-processing comparison and is disabled by default.
-
-## Contribution mapping
-
-| Member | Main notebook sections |
+| Member | Final technique |
 |---|---|
-| Member 1 | Section 4: M1 - Wiener + CLAHE Enhancement |
-| Member 2 | Section 5: M2 - Gabor / Modified Gabor Ridge Enhancement |
-| Member 3 | Section 6: M3 - Morphological Ridge Restoration |
-| Member 4 | Section 7: M4 - Thinning & Minutiae Extraction |
-| Whole team | Sections 8-13: controls, baselines, Team Hybrid Pipeline, batch evaluation, optional SVM and reporting |
+| Member 1 | Non-Local Means (NLM) Denoising |
+| Member 2 | Modified / Orientation-Adaptive Gabor Filtering |
+| Member 3 | Total Variation Restoration |
+| Member 4 | Coherence-Guided Directional Diffusion |
 
-Experimental controls and baselines are reported separately from individual member techniques:
+The final recommended grayscale method is **OpenCV Non-Local Means, h = 0.06**. Its uint8 conversion and 7/21 windows are frozen. CLAHE remains a conventional baseline; it is not Member 1's final technique.
 
-- Degraded Input
-- Global HE Baseline
-- CLAHE Baseline
-- Team Hybrid Pipeline
+## Final validation
 
-Each member should understand and be able to explain their functions, parameters, inputs, outputs and limitations during the demonstration.
+- Fresh hold-out: 100 Real images, mean PSNR 29.6443 dB; 99/100 above 28.17 dB.
+- Large robustness evaluation: 500 Real images, mean PSNR **29.6303 dB**; **500/500** above the **28.17 dB** benchmark.
+- Original Altered evaluation: 1,500 images; coherence and fragmentation improved overall, with mild contrast reduction.
+- No tested hybrid outperformed NLM alone.
+
+## Experimental / evidence scripts
+
+- \`screening24_master_audit.py\`
+- \`direct24_original_altered_experiment.py\`
+- \`hybrid24_compatibility_experiment.py\`
+- \`focused_psnr_audit_optimisation.py\`
+- \`member_allocation_consolidation.py\`
+- \`member_fixed_comparison.py\`
+- \`final_holdout_validation.py\`
+- \`final_large_validation.py\`
+
+These remain at the project root because they use sibling imports and project-root-relative data/output paths. They are preserved evidence, not the final application API. Do not rerun large experiments from the presentation notebook.
+
+## Running the final notebook
+
+Create/import the environment from \`environment.yml\`, open \`Fingerprint_Enhancement_System.ipynb\`, and use **Restart Kernel and Run All Cells**. The notebook reads saved CSV/JSON evidence and performs only one optional representative-image demonstration.
+
+## GUI integration
+
+A future GUI should import \`enhance_fingerprint\` or \`apply_final_enhancement\` from \`Fingerprint_Enhancement_System.py\`. The next phase is GUI/dashboard prototype development—not another enhancement experiment.

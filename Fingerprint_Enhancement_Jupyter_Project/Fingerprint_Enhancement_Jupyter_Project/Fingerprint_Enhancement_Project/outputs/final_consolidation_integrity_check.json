@@ -1,0 +1,162 @@
+{
+  "regression_passed": true,
+  "max_pixel_difference": 0.0,
+  "evidence_hashes_unchanged": true,
+  "evidence_hash_checks": [
+    {
+      "path": "outputs/final_large_validation_report.md",
+      "exists": true,
+      "expected_sha256": "d067129c275efe3a4b9ba2324e34b24893b9f289432ebca3d88bbc37b17d9345",
+      "actual_sha256": "d067129c275efe3a4b9ba2324e34b24893b9f289432ebca3d88bbc37b17d9345",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/final_holdout_report.md",
+      "exists": true,
+      "expected_sha256": "cc5f90740e86971b0b18b0872e8ccdd05dd96e3930330ca55069091de2b28bf8",
+      "actual_sha256": "cc5f90740e86971b0b18b0872e8ccdd05dd96e3930330ca55069091de2b28bf8",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/member_compatibility_report.md",
+      "exists": true,
+      "expected_sha256": "76cf35bc60d81ff48c332cc8a4831c5d2f504bf0453ee1720130a1928bd1ac4b",
+      "actual_sha256": "76cf35bc60d81ff48c332cc8a4831c5d2f504bf0453ee1720130a1928bd1ac4b",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/focused_psnr_audit_report.md",
+      "exists": true,
+      "expected_sha256": "fa5260d45a31076131ca346094b54f771c959410781ed49f13295fdef49adbee",
+      "actual_sha256": "fa5260d45a31076131ca346094b54f771c959410781ed49f13295fdef49adbee",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/final_large_real_per_image.csv",
+      "exists": true,
+      "expected_sha256": "30ca9af95b403a66fddb28cc22f020370b110c64ee8f45eb99f84a336d2e9b07",
+      "actual_sha256": "30ca9af95b403a66fddb28cc22f020370b110c64ee8f45eb99f84a336d2e9b07",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/final_large_real_statistics.json",
+      "exists": true,
+      "expected_sha256": "f01b2ece1bf29347130b2ad39be2738fbb11ce736f09d9a40b636e4281fe4517",
+      "actual_sha256": "f01b2ece1bf29347130b2ad39be2738fbb11ce736f09d9a40b636e4281fe4517",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/final_large_altered_summary.csv",
+      "exists": true,
+      "expected_sha256": "1a8fe60dc28ffb01796a2b77ec04e9f6a74d8540c490d753ae7dc0a16d6c58e2",
+      "actual_sha256": "1a8fe60dc28ffb01796a2b77ec04e9f6a74d8540c490d753ae7dc0a16d6c58e2",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/final_holdout_per_image.csv",
+      "exists": true,
+      "expected_sha256": "a518ef42dc05f52e7565c413d2326cd139a6b61051cea32f7da24c2242f595e8",
+      "actual_sha256": "a518ef42dc05f52e7565c413d2326cd139a6b61051cea32f7da24c2242f595e8",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/final_holdout_statistics.json",
+      "exists": true,
+      "expected_sha256": "229c37fb6cb6136ce537dfdaccb9cb148dbef379d662f1ae74e49dc867f0cf87",
+      "actual_sha256": "229c37fb6cb6136ce537dfdaccb9cb148dbef379d662f1ae74e49dc867f0cf87",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/member4_controlled_summary.csv",
+      "exists": true,
+      "expected_sha256": "bd76c3098af68b449da5322af8573fea5fb68a45c880f9471d9914019e8cbe31",
+      "actual_sha256": "bd76c3098af68b449da5322af8573fea5fb68a45c880f9471d9914019e8cbe31",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/member_compatibility_summary.csv",
+      "exists": true,
+      "expected_sha256": "58e15799d1c95b2a22ddedb3bd0cd72b0d239bd4cae74b70b07638282e7170d2",
+      "actual_sha256": "58e15799d1c95b2a22ddedb3bd0cd72b0d239bd4cae74b70b07638282e7170d2",
+      "unchanged": true
+    },
+    {
+      "path": "outputs/focused_psnr_audit_test_summary.csv",
+      "exists": true,
+      "expected_sha256": "ccd5553a2fd86b91dc682ed4961471f8c44bdfb58d9f7acca39f31d63c71efb7",
+      "actual_sha256": "ccd5553a2fd86b91dc682ed4961471f8c44bdfb58d9f7acca39f31d63c71efb7",
+      "unchanged": true
+    },
+    {
+      "path": "screening24_master_audit.py",
+      "exists": true,
+      "expected_sha256": "cdb4acf840d3a79934f724fd7812fd5e6635c10aa52fa6cdcc9af745695c21c4",
+      "actual_sha256": "cdb4acf840d3a79934f724fd7812fd5e6635c10aa52fa6cdcc9af745695c21c4",
+      "unchanged": true
+    },
+    {
+      "path": "direct24_original_altered_experiment.py",
+      "exists": true,
+      "expected_sha256": "5bf3b781a4d233e474ae946727d8c47a68d19480df46ada362f18e8b25dc8eb0",
+      "actual_sha256": "5bf3b781a4d233e474ae946727d8c47a68d19480df46ada362f18e8b25dc8eb0",
+      "unchanged": true
+    },
+    {
+      "path": "hybrid24_compatibility_experiment.py",
+      "exists": true,
+      "expected_sha256": "9bb31f53e5464e0b602aeccffd05a955be0b331e1dffc66b87013afb5b250241",
+      "actual_sha256": "9bb31f53e5464e0b602aeccffd05a955be0b331e1dffc66b87013afb5b250241",
+      "unchanged": true
+    },
+    {
+      "path": "focused_psnr_audit_optimisation.py",
+      "exists": true,
+      "expected_sha256": "51d691233545e221b4c1d9e92bb540b952d6e1f0662dc92c234028110fd960bf",
+      "actual_sha256": "51d691233545e221b4c1d9e92bb540b952d6e1f0662dc92c234028110fd960bf",
+      "unchanged": true
+    },
+    {
+      "path": "member_allocation_consolidation.py",
+      "exists": true,
+      "expected_sha256": "993d52cc04197c596fb10ca29b5991043d2329921a3d42fa1c8e69c1ac442e81",
+      "actual_sha256": "993d52cc04197c596fb10ca29b5991043d2329921a3d42fa1c8e69c1ac442e81",
+      "unchanged": true
+    },
+    {
+      "path": "member_fixed_comparison.py",
+      "exists": true,
+      "expected_sha256": "b5b4b092dd02dc17c0750f4fab08d660b9939c8d9fac2bf26d0e67fac9b83045",
+      "actual_sha256": "b5b4b092dd02dc17c0750f4fab08d660b9939c8d9fac2bf26d0e67fac9b83045",
+      "unchanged": true
+    },
+    {
+      "path": "final_holdout_validation.py",
+      "exists": true,
+      "expected_sha256": "241719818f2bcc29e4e1a016943256c23d1fd0f15e76790c229dae9116f5075f",
+      "actual_sha256": "241719818f2bcc29e4e1a016943256c23d1fd0f15e76790c229dae9116f5075f",
+      "unchanged": true
+    },
+    {
+      "path": "final_large_validation.py",
+      "exists": true,
+      "expected_sha256": "8cfe5eff82427fb8b57aa74c8b0e4860551469d18ba211e5c865919bf491a94f",
+      "actual_sha256": "8cfe5eff82427fb8b57aa74c8b0e4860551469d18ba211e5c865919bf491a94f",
+      "unchanged": true
+    }
+  ],
+  "notebook_json_valid": true,
+  "notebook_code_cell_syntax_errors": [],
+  "python_compile_errors": [],
+  "required_outputs_present": {
+    "final_consolidation_repository_audit.md": true,
+    "final_consolidation_prechange_hashes.json": true,
+    "final_consolidation_outdated_claims_audit.csv": true,
+    "final_consolidation_regression_test.csv": true,
+    "final_consolidation_regression_report.md": true,
+    "final_gui_readiness_check.md": true
+  },
+  "obsolete_final_claims_in_final_core_or_readme": false,
+  "experiment_scripts_moved": false,
+  "large_experiments_rerun": false,
+  "all_checks_passed": true
+}

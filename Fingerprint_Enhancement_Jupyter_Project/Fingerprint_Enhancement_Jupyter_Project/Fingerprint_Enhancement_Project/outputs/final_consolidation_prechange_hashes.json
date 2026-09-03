@@ -1,0 +1,127 @@
+﻿{
+    "created_at":  "2026-09-03T17:20:06.2071106+08:00",
+    "algorithm":  "SHA-256",
+    "purpose":  "Pre-change preservation record for final consolidation",
+    "files":  [
+                  {
+                      "path":  "outputs/final_large_validation_report.md",
+                      "sha256":  "d067129c275efe3a4b9ba2324e34b24893b9f289432ebca3d88bbc37b17d9345",
+                      "bytes":  5691,
+                      "last_write_time":  "2026-09-03T16:58:38.9835174+08:00"
+                  },
+                  {
+                      "path":  "outputs/final_holdout_report.md",
+                      "sha256":  "cc5f90740e86971b0b18b0872e8ccdd05dd96e3930330ca55069091de2b28bf8",
+                      "bytes":  6287,
+                      "last_write_time":  "2026-09-03T16:16:21.8597020+08:00"
+                  },
+                  {
+                      "path":  "outputs/member_compatibility_report.md",
+                      "sha256":  "76cf35bc60d81ff48c332cc8a4831c5d2f504bf0453ee1720130a1928bd1ac4b",
+                      "bytes":  12232,
+                      "last_write_time":  "2026-09-03T15:55:04.1886366+08:00"
+                  },
+                  {
+                      "path":  "outputs/focused_psnr_audit_report.md",
+                      "sha256":  "fa5260d45a31076131ca346094b54f771c959410781ed49f13295fdef49adbee",
+                      "bytes":  20777,
+                      "last_write_time":  "2026-09-03T15:55:04.1497400+08:00"
+                  },
+                  {
+                      "path":  "outputs/final_large_real_per_image.csv",
+                      "sha256":  "30ca9af95b403a66fddb28cc22f020370b110c64ee8f45eb99f84a336d2e9b07",
+                      "bytes":  124219,
+                      "last_write_time":  "2026-09-03T16:50:25.0683575+08:00"
+                  },
+                  {
+                      "path":  "outputs/final_large_real_statistics.json",
+                      "sha256":  "f01b2ece1bf29347130b2ad39be2738fbb11ce736f09d9a40b636e4281fe4517",
+                      "bytes":  3063,
+                      "last_write_time":  "2026-09-03T16:50:25.0708494+08:00"
+                  },
+                  {
+                      "path":  "outputs/final_large_altered_summary.csv",
+                      "sha256":  "1a8fe60dc28ffb01796a2b77ec04e9f6a74d8540c490d753ae7dc0a16d6c58e2",
+                      "bytes":  1782,
+                      "last_write_time":  "2026-09-03T16:55:49.3947192+08:00"
+                  },
+                  {
+                      "path":  "outputs/final_holdout_per_image.csv",
+                      "sha256":  "a518ef42dc05f52e7565c413d2326cd139a6b61051cea32f7da24c2242f595e8",
+                      "bytes":  36035,
+                      "last_write_time":  "2026-09-03T16:15:55.2740305+08:00"
+                  },
+                  {
+                      "path":  "outputs/final_holdout_statistics.json",
+                      "sha256":  "229c37fb6cb6136ce537dfdaccb9cb148dbef379d662f1ae74e49dc867f0cf87",
+                      "bytes":  3576,
+                      "last_write_time":  "2026-09-03T16:15:55.2770200+08:00"
+                  },
+                  {
+                      "path":  "outputs/member4_controlled_summary.csv",
+                      "sha256":  "bd76c3098af68b449da5322af8573fea5fb68a45c880f9471d9914019e8cbe31",
+                      "bytes":  4297,
+                      "last_write_time":  "2026-09-03T15:55:04.1866408+08:00"
+                  },
+                  {
+                      "path":  "outputs/member_compatibility_summary.csv",
+                      "sha256":  "58e15799d1c95b2a22ddedb3bd0cd72b0d239bd4cae74b70b07638282e7170d2",
+                      "bytes":  20274,
+                      "last_write_time":  "2026-09-03T15:55:04.1896324+08:00"
+                  },
+                  {
+                      "path":  "outputs/focused_psnr_audit_test_summary.csv",
+                      "sha256":  "ccd5553a2fd86b91dc682ed4961471f8c44bdfb58d9f7acca39f31d63c71efb7",
+                      "bytes":  21429,
+                      "last_write_time":  "2026-09-03T15:55:04.1507376+08:00"
+                  },
+                  {
+                      "path":  "screening24_master_audit.py",
+                      "sha256":  "cdb4acf840d3a79934f724fd7812fd5e6635c10aa52fa6cdcc9af745695c21c4",
+                      "bytes":  112218,
+                      "last_write_time":  "2026-09-03T15:55:04.2085814+08:00"
+                  },
+                  {
+                      "path":  "direct24_original_altered_experiment.py",
+                      "sha256":  "5bf3b781a4d233e474ae946727d8c47a68d19480df46ada362f18e8b25dc8eb0",
+                      "bytes":  49045,
+                      "last_write_time":  "2026-09-03T15:55:04.0568870+08:00"
+                  },
+                  {
+                      "path":  "hybrid24_compatibility_experiment.py",
+                      "sha256":  "9bb31f53e5464e0b602aeccffd05a955be0b331e1dffc66b87013afb5b250241",
+                      "bytes":  61647,
+                      "last_write_time":  "2026-09-03T15:55:04.0578918+08:00"
+                  },
+                  {
+                      "path":  "focused_psnr_audit_optimisation.py",
+                      "sha256":  "51d691233545e221b4c1d9e92bb540b952d6e1f0662dc92c234028110fd960bf",
+                      "bytes":  66053,
+                      "last_write_time":  "2026-09-03T15:55:04.0578918+08:00"
+                  },
+                  {
+                      "path":  "member_allocation_consolidation.py",
+                      "sha256":  "993d52cc04197c596fb10ca29b5991043d2329921a3d42fa1c8e69c1ac442e81",
+                      "bytes":  51908,
+                      "last_write_time":  "2026-09-03T15:55:04.0588858+08:00"
+                  },
+                  {
+                      "path":  "member_fixed_comparison.py",
+                      "sha256":  "b5b4b092dd02dc17c0750f4fab08d660b9939c8d9fac2bf26d0e67fac9b83045",
+                      "bytes":  67940,
+                      "last_write_time":  "2026-09-03T15:55:04.0588858+08:00"
+                  },
+                  {
+                      "path":  "final_holdout_validation.py",
+                      "sha256":  "241719818f2bcc29e4e1a016943256c23d1fd0f15e76790c229dae9116f5075f",
+                      "bytes":  28802,
+                      "last_write_time":  "2026-09-03T16:14:50.6090498+08:00"
+                  },
+                  {
+                      "path":  "final_large_validation.py",
+                      "sha256":  "8cfe5eff82427fb8b57aa74c8b0e4860551469d18ba211e5c865919bf491a94f",
+                      "bytes":  26948,
+                      "last_write_time":  "2026-09-03T16:58:38.9835174+08:00"
+                  }
+              ]
+}
