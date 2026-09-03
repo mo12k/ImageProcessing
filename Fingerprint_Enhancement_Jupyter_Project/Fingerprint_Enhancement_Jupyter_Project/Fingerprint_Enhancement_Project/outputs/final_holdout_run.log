@@ -1,0 +1,8 @@
+2026-09-03T16:15:39.225553+08:00 start
+locked holdout list: 100 of 5455 unused Real images
+controlled mean PSNR=29.644319
+above benchmark=99/100
+altered rows=60
+integrity=True
+runtime_seconds=42.634
+2026-09-03T16:16:21.860672+08:00 complete

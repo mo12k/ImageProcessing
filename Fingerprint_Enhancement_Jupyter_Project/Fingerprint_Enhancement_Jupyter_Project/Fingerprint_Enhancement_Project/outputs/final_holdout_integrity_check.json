@@ -1,0 +1,25 @@
+{
+  "checks": {
+    "holdout_row_count_matches_selected": true,
+    "no_duplicate_holdout_filenames": true,
+    "no_overlap_with_prior_real_images": true,
+    "nlm_h_exactly_0_06": true,
+    "opencv_backend_used": true,
+    "severity_exactly_0_55": true,
+    "sigma_exactly_0_04825": true,
+    "metric_data_range_exactly_1": true,
+    "mse_psnr_internal_consistency_max_abs_db_error_below_1e_9": true,
+    "altered_counts_20_each": true,
+    "all_required_intermediate_files_nonempty": true
+  },
+  "all_checks_passed": true,
+  "holdout_rows": 100,
+  "excluded_unique_images": 545,
+  "total_real_images": 6000,
+  "available_unused_real_images": 5455,
+  "selected_images": 100,
+  "duplicate_count": 0,
+  "overlap_filenames": [],
+  "max_abs_psnr_formula_error_db": 7.105427357601002e-15,
+  "python_process_note": "This script is the only validation Python process; process-exit checked externally after completion."
+}

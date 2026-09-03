@@ -1,0 +1,546 @@
+filename,reason_excluded,previous_experiment
+100__M_Left_index_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Left_little_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Left_middle_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Left_ring_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Left_thumb_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Right_index_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Right_little_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Right_middle_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Right_ring_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+100__M_Right_thumb_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Left_index_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Left_little_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Left_middle_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Left_ring_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Left_thumb_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Right_index_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Right_little_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Right_middle_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Right_ring_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+101__M_Right_thumb_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+102__M_Left_index_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+102__M_Left_little_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+102__M_Left_middle_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+102__M_Left_ring_finger.BMP,controlled algorithm comparison; parameter selection,advanced development parameter configurations; original 500-reference batch experiment
+102__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+102__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+102__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+102__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+102__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+102__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Left_middle_finger.BMP,controlled algorithm comparison; held-out testing,focused_psnr_audit TEST; original 500-reference batch experiment
+103__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+103__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+104__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+105__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+106__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+107__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+108__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+109__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+10__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+110__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+111__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Left_middle_finger.BMP,controlled algorithm comparison; controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; original 500-reference batch experiment; screening24
+112__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+112__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+113__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+114__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+115__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+116__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+117__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+118__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+119__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+11__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+120__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+121__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+122__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+123__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+124__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+125__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+126__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+127__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+128__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+129__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Left_middle_finger.BMP,compatibility decision-making; controlled algorithm comparison; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison; original 500-reference batch experiment
+12__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+12__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+130__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+131__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+132__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+133__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+134__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+135__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+136__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+137__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+138__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+139__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+13__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+140__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+141__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+142__F_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+143__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+144__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Left_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Left_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Left_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Left_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Left_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Right_index_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Right_little_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Right_middle_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Right_ring_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+145__M_Right_thumb_finger.BMP,controlled algorithm comparison,original 500-reference batch experiment
+148__M_Right_ring_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+158__M_Right_middle_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+159__M_Right_thumb_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+183__M_Left_ring_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+184__M_Right_index_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+195__M_Right_index_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+216__M_Right_ring_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+241__M_Right_thumb_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+296__M_Left_index_finger.BMP,held-out testing,focused_psnr_audit TEST
+318__F_Left_little_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+337__F_Right_index_finger.BMP,held-out testing,focused_psnr_audit TEST
+34__M_Right_ring_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+352__M_Left_ring_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+355__M_Right_middle_finger.BMP,held-out testing,focused_psnr_audit TEST
+371__M_Right_index_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+379__F_Left_ring_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+384__F_Left_middle_finger.BMP,held-out testing,focused_psnr_audit TEST
+399__M_Right_ring_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+410__M_Right_ring_finger.BMP,held-out testing,focused_psnr_audit TEST
+412__M_Left_middle_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+422__M_Left_index_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+445__M_Left_ring_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+455__M_Left_little_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+457__M_Right_index_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+466__F_Left_little_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+471__M_Left_little_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+480__M_Right_thumb_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+493__M_Left_little_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+494__F_Left_thumb_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+506__M_Right_ring_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+514__F_Left_middle_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+516__M_Right_little_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+52__M_Right_little_finger.BMP,held-out testing,focused_psnr_audit TEST
+533__M_Left_thumb_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+533__M_Right_ring_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+537__M_Right_thumb_finger.BMP,held-out testing,focused_psnr_audit TEST
+543__M_Right_middle_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+559__M_Right_index_finger.BMP,held-out testing,focused_psnr_audit TEST
+576__M_Left_little_finger.BMP,held-out testing,focused_psnr_audit TEST
+576__M_Left_middle_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+576__M_Right_middle_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+598__M_Right_little_finger.BMP,compatibility decision-making; member comparison development; parameter selection,focused_psnr_audit DEV; member compatibility experiment; member fixed comparison
+74__F_Right_ring_finger.BMP,held-out testing,focused_psnr_audit TEST
+75__F_Left_middle_finger.BMP,controlled hybrid comparison; screening and parameter selection,hybrid24 controlled; screening24
+86__M_Right_index_finger.BMP,held-out testing,focused_psnr_audit TEST
