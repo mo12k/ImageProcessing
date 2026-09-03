@@ -1,2 +1,0 @@
-large_count,large_mean_psnr,large_psnr_sd,large_above_threshold_percentage,fresh_holdout_count,fresh_holdout_mean_psnr,fresh_holdout_psnr_sd,fresh_holdout_above_threshold_percentage,mean_psnr_difference_large_minus_holdout,psnr_sd_difference_large_minus_holdout,above_threshold_percentage_difference_points,datasets_merged,interpretation
-500,29.63029354748012,0.6246403593241537,100.0,100,29.644318692233004,0.6757495923855598,99.0,-0.014025144752881857,-0.05110923306140602,1.0,False,Fresh 100 = generalisation evidence; canonical 500 = large-scale robustness evidence

@@ -3,4 +3,4 @@ Member comparison — best,M1 NLM,29.436598143337637,12
 Compatibility — best,C0 NLM,29.436598143337637,12
 Fresh hold-out,99/100 above 28.17,29.644318692233004,100
 Final robustness,500/500 above 28.17,29.63029354748012,500
-Original Altered,Δcoh=+0.05724; Δfrag=-0.12772; Δcontrast=-0.00566,,1500
+Original Altered,Δcoh=+0.05724; Δfrag=-0.11585; Δcontrast=-0.00566,,1500

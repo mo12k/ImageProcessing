@@ -10,6 +10,7 @@ dependencies:
   - seaborn>=0.13,<1
   - scipy>=1.11,<2
   - scikit-image>=0.23,<0.26
+  - opencv>=4.8,<5
   - pywavelets>=1.5,<2
   - scikit-learn>=1.4,<2
   - pillow>=10,<12

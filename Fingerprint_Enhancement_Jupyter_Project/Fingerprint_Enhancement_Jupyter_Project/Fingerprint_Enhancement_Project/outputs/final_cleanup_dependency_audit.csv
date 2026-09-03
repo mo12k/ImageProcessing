@@ -1,0 +1,228 @@
+path,type,used_by_final_ipynb,used_by_final_py,required_to_run,historical_only,safe_to_delete,reason
+.ipynb_checkpoints,directory,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.ipynb_checkpoints/Fingerprint_Enhancement_System-checkpoint.ipynb,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.ipython,directory,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.ipython/profile_default,directory,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.ipython/profile_default/startup,directory,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.ipython/profile_default/startup/README,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.jupyter-config,directory,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+.jupyter-config/migrated,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__,directory,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/build_selfcontained_notebook.cpython-311.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/direct24_original_altered_experiment.cpython-314.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/Fingerprint_Enhancement_System.cpython-311.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/focused_psnr_audit_optimisation.cpython-311.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/focused_psnr_audit_optimisation.cpython-314.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/member_fixed_comparison.cpython-314.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+__pycache__/screening24_master_audit.cpython-314.pyc,file,No,No,No,Yes,Yes,"Runtime/cache artefact, not required by final execution."
+backups,directory,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155,directory,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/batch_metrics.csv,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/example_minutiae_overlay.png,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/experiment_metadata.json,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/fingerprint_enhancement_report.pdf,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/Fingerprint_Enhancement_System.ipynb,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/Fingerprint_Enhancement_System.py,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/audit_preserve_2026-09-01_184155/summary_metrics.csv,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/Fingerprint_Enhancement_System_before_selfcontained_rebuild.ipynb,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/Fingerprint_Enhancement_System_preconsolidation_full.ipynb,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/source_truth_repair_2026-09-01_1530,directory,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/source_truth_repair_2026-09-01_1530/Fingerprint_Enhancement_System-checkpoint.ipynb,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/source_truth_repair_2026-09-01_1530/Fingerprint_Enhancement_System.current.ipynb,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+backups/source_truth_repair_2026-09-01_1530/Fingerprint_Enhancement_System.current.py,file,No,No,No,Yes,Yes,Internal rollback copy; external archive preserves it before deletion.
+build_selfcontained_notebook.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+data,directory,Yes,No,Yes,No,No,Dataset input required for notebook recomputation.
+data/SOCOFing/Altered,directory,Yes,No,Yes,No,No,Dataset input required for notebook recomputation.
+data/SOCOFing/PLACE_DATASET_HERE.txt,file,Yes,No,Yes,No,No,Dataset input required for notebook recomputation.
+data/SOCOFing/Real,directory,Yes,No,Yes,No,No,Dataset input required for notebook recomputation.
+direct24_original_altered_experiment.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+environment.yml,file,No,No,Yes,No,No,"Documents reproducible dependencies, including OpenCV."
+final_holdout_validation.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+final_large_validation.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+finalise_selfcontained_notebook.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+Fingerprint_Enhancement_System.ipynb,file,Yes,No,Yes,No,No,Primary academic assignment notebook; must remain.
+Fingerprint_Enhancement_System.py,file,No,Yes,Yes,No,No,Final reusable core preserved for future GUI/backend work.
+FOCUSED_AUDIT_REPORT.md,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+focused_psnr_audit_optimisation.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+hybrid24_compatibility_experiment.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+member_allocation_consolidation.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+member_fixed_comparison.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+outputs,directory,No,No,No,No,No,Directory kept for fresh notebook outputs and cleanup audit files; old contents removed.
+outputs/advanced_dev_batch_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_dev_metadata.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_dev_minutiae_counts.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_dev_parameter_search.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_dev_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_dev_stage_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_dev_summary_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/advanced_development_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/baseline_method_classification.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/batch_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_family_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_hybrid_stage_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_metadata.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_per_image_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_per_severity_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_runtime.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_visual_easy_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_visual_hard_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/direct24_visual_medium_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/example_minutiae_overlay.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/experiment_metadata.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_cleanup_dependency_audit.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/final_cleanup_reproduction_check.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/final_cleanup_static_checks.json,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/final_consolidation_integrity_check.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_consolidation_outdated_claims_audit.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_consolidation_prechange_hashes.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_consolidation_regression_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_consolidation_regression_test.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_consolidation_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_consolidation_repository_audit.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_file_cleanup_recommendation.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_gui_readiness_check.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_controlled_best.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_controlled_lower_quartile.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_controlled_median.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_controlled_selection_first.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_controlled_upper_quartile.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_controlled_worst.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_excluded_images.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_image_list.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_integrity_check.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_locked_method.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_outlier_analysis.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_protocol.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_runtime.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_statistics.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_holdout_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_easy_representative.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_easy_strongest.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_easy_weakest.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_hard_representative.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_hard_strongest.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_hard_weakest.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_medium_representative.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_medium_strongest.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_medium_weakest.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_outliers.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_altered_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_integrity_check.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_locked_method.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_protocol.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_best.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_image_list.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_median.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_near_threshold.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_normal_lower.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_normal_upper.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_outliers.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_statistics.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_real_worst.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_runtime.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_validation_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_large_vs_holdout_comparison.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_member_allocation_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_easy_1.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_easy_2.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_hard_1.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_hard_2.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_medium_1.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_medium_2.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_nlm_altered_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_notebook_external_result_dependency_audit.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_notebook_independence_check.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_notebook_prechange_hashes.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_notebook_recovery_audit.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_notebook_reproduction_check.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_selfcontained_notebook_integrity.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/final_selfcontained_notebook_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/fingerprint_enhancement_report.pdf,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_altered_montage.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_altered_structure.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_degradation_stage_audit.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_dev_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_dev_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_dynamic_ranges.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_metadata.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_selected_from_dev.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_test_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/focused_psnr_audit_test_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_controlled_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_controlled_reference_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_controlled_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_direct_easy_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_direct_hard_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_direct_medium_comparison.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_direct_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_direct_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_finalists.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_metadata.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_runtime.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/hybrid24_stage_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member4_altered_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member4_altered_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member4_comparison_interpretation.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member4_controlled_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member4_controlled_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_compatibility_per_image.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_compatibility_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_compatibility_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_compatibility_runtime.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_compatibility_stage_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_compatibility_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_existing_evidence.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_fixed_parameters.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_implementation_audit.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_m2_m4_verification.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_technique_explanations.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_technique_registry.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/member_technique_registry.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/notebook_altered_1500_per_image.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/notebook_altered_1500_summary.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/notebook_compatibility.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/notebook_final_500_per_image.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/notebook_final_results_table.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/notebook_fresh_holdout_per_image.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/notebook_member_comparison.csv,file,No,No,No,No,No,Fresh notebook/audit output retained.
+outputs/screening24_combinations.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_dataset_quality.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_degradation_ablation.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_family_summary.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_A_dataset_quality.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_B_preprocessing.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_C_m1_screening.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_D_m2_ridge_enhancement.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_E_m3_results.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_F_m4_results.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_G_team_hybrid.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_figure_H_tutor_benchmark.png,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_member_results.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_metadata.json,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_minutiae.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_preprocessing.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_report.md,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_run.log,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_single_techniques.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/screening24_stage_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/summary_metrics.csv,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+outputs/svm_quality_model.joblib,file,No,No,No,Yes,Yes,Historical generated output; final notebook recomputes results and does not read this file.
+README_FIRST.md,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+screening24_master_audit.py,file,No,No,No,Yes,Yes,Development/historical file not referenced by final notebook or final core script.
+specification,directory,No,No,No,Yes,Yes,"Local assignment-specification copy, not required by final notebook or core script."
+specification/202605 BMDS2133 Image Processing Assignment Specification with Marking Rubric.pdf,file,No,No,No,Yes,Yes,"Local assignment-specification copy, not required by final notebook or core script."
+specification/fingerprint enhancement.pdf,file,No,No,No,Yes,Yes,"Local assignment-specification copy, not required by final notebook or core script."
+README.md,missing,No,No,No,No,No,Requested audit target is not present in this project root.

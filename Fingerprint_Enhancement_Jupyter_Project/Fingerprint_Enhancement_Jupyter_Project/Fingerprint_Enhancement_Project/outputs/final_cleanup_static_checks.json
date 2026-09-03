@@ -1,0 +1,11 @@
+{
+  "legacy_result_read_tokens_in_final_notebook": [],
+  "legacy_result_file_names_in_final_notebook": [],
+  "legacy_development_script_names_in_final_notebook": [],
+  "legacy_result_read_tokens_in_final_py": [],
+  "nlm_h_frozen": true,
+  "opencv_nlm_visible": true,
+  "member_sections_have_required_format": true,
+  "notebook_error_outputs": 0,
+  "all_reproduction_checkpoints_pass": true
+}
