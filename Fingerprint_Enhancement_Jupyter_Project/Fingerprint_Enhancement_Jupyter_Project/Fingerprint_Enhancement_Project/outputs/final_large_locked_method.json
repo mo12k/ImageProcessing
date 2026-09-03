@@ -1,0 +1,24 @@
+{
+  "pipeline": "P0 -> Non-Local Means",
+  "h_normalized": 0.06,
+  "opencv_h_uint8_units": 15.3,
+  "function": "cv2.fastNlMeansDenoising",
+  "backend_required": "OpenCV",
+  "opencv_available": true,
+  "templateWindowSize": 7,
+  "searchWindowSize": 21,
+  "input_conversion": "clip [0,1], round(image*255), uint8",
+  "output_conversion": "uint8 / 255 to float32 clipped [0,1]",
+  "P0": {
+    "grayscale": "PIL convert L",
+    "resize": [
+      256,
+      256
+    ],
+    "resize_implementation": "skimage.transform.resize anti_aliasing=True preserve_range=True",
+    "normalization": "1st/99th percentile linear normalization then clip [0,1]"
+  },
+  "fallback_permitted": false,
+  "verified_equal_to": "outputs/final_holdout_locked_method.json",
+  "verification": "exact recovered frozen configuration; no changes"
+}

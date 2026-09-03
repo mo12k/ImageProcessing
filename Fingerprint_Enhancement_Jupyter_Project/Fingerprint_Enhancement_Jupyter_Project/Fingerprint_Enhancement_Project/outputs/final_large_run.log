@@ -1,0 +1,9 @@
+2026-09-03T16:49:32.795294+08:00 start
+locks verified
+canonical Real list locked: 500
+Altered deterministic sample: 1500
+mean PSNR: 29.630294
+above benchmark: 500/500
+integrity: True
+runtime seconds: 379.542
+2026-09-03T16:55:52.337844+08:00 complete

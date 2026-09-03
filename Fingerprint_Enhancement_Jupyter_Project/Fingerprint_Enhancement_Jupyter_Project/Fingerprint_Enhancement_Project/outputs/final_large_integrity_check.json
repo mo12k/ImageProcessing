@@ -1,0 +1,30 @@
+{
+  "checks": {
+    "exactly_500_controlled_rows": true,
+    "no_duplicate_real_filenames": true,
+    "method_verified_before_run": true,
+    "h_exactly_0_06": true,
+    "opencv_backend_unchanged": true,
+    "protocol_verified_before_run": true,
+    "severity_unchanged": true,
+    "metric_data_range_unchanged": true,
+    "mse_psnr_consistency_below_1e_9_db": true,
+    "no_prior_evidence_overwritten": true,
+    "no_result_based_removal": true,
+    "altered_counts_500_each": true,
+    "required_intermediate_outputs_nonempty": true
+  },
+  "all_checks_passed": true,
+  "protected_files_changed": [],
+  "max_abs_psnr_formula_error_db": 7.105427357601002e-15,
+  "controlled_rows": 500,
+  "controlled_unique_filenames": 500,
+  "altered_counts": {
+    "Easy": 500,
+    "Hard": 500,
+    "Medium": 500
+  },
+  "py_compile": "checked externally after script generation",
+  "python_process": "validation process exits on completion; externally verify no unexpected process",
+  "task_pycache": "cleaned externally after verification"
+}
