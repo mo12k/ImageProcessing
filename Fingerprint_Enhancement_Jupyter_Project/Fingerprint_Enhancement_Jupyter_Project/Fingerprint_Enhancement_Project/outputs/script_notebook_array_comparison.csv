@@ -1,0 +1,10 @@
+array,exists_in_both,same_shape,exact_equal,max_abs_diff
+clean_0,True,True,True,0.0
+clean_1,True,True,True,0.0
+clean_2,True,True,True,0.0
+degraded_0,True,True,True,0.0
+degraded_1,True,True,True,0.0
+degraded_2,True,True,True,0.0
+enhanced_0,True,True,True,0.0
+enhanced_1,True,True,True,0.0
+enhanced_2,True,True,True,0.0

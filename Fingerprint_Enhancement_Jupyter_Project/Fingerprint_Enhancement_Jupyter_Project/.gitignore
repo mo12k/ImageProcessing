@@ -1,0 +1,4 @@
+.micromamba/
+.tools/
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/

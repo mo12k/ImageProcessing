@@ -1,0 +1,5 @@
+split,count,representative_path
+Real,6000,data\SOCOFing\Real\100__M_Left_index_finger.BMP
+Easy,17931,data\SOCOFing\Altered\Altered-Easy\100__M_Left_index_finger_CR.BMP
+Medium,17067,data\SOCOFing\Altered\Altered-Medium\100__M_Left_index_finger_CR.BMP
+Hard,14272,data\SOCOFing\Altered\Altered-Hard\100__M_Left_index_finger_CR.BMP
