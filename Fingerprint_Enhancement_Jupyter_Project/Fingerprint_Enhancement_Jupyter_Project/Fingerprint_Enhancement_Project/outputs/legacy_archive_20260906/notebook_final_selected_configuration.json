@@ -1,0 +1,36 @@
+{
+  "controlled_degradation": {
+    "gaussian_sigma": 0.04825,
+    "noise_seed_base": 20260903,
+    "purpose": "paired full-reference Real evaluation only"
+  },
+  "frozen_before_validation": true,
+  "name": "C0 M1 NLM",
+  "parameters": {
+    "M1 NLM": {
+      "h": 0.07
+    },
+    "M2 Modified Gabor": {
+      "blend": 0.12,
+      "frequencies": [
+        0.075,
+        0.095,
+        0.115,
+        0.14
+      ],
+      "orientation_bins": 8
+    },
+    "M3 TV": {
+      "weight": 0.02
+    },
+    "M4 Directional Diffusion": {
+      "iterations": 2,
+      "step": 0.12
+    }
+  },
+  "preprocessing": "P0: grayscale, resize to 256x256, float32 [0,1], percentile normalisation",
+  "selection_rule": "Development-only ranking: highest mean PSNR, then highest mean SSIM, then lowest mean MSE.",
+  "stages": [
+    "NLM"
+  ]
+}

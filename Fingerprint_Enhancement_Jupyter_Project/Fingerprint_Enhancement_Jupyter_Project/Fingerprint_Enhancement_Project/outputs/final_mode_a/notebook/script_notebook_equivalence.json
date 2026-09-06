@@ -1,0 +1,130 @@
+{
+  "all_passed": true,
+  "ignored_fields": [
+    "runtime columns",
+    "runtime keys",
+    "seconds"
+  ],
+  "records": [
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "dataset_inventory.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "real_subject_counts.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "dataset_split_manifest.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "development_baseline_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member1_parameter_search.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member1_parameter_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member2_parameter_search.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member2_parameter_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member3_parameter_search.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member3_parameter_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member4_parameter_search.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "member4_parameter_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "development_member_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "development_member_comparison.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "validation_baseline_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "validation_member_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "validation_member_comparison.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "altered_structural_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "altered_structural_summary.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime keys",
+      "file": "dataset_split_audit.json",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime keys",
+      "file": "final_selected_configuration.json",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime keys",
+      "file": "validation_summary.json",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime keys",
+      "file": "environment_report.json",
+      "status": "PASS"
+    },
+    {
+      "detail": "script=8, notebook=8",
+      "file": "figures",
+      "status": "PASS"
+    }
+  ]
+}

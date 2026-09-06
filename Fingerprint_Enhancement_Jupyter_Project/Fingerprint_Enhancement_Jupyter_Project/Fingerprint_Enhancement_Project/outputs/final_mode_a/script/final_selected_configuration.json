@@ -1,0 +1,62 @@
+{
+  "all_member_parameters": {
+    "M1 NLM": {
+      "h": 0.07
+    },
+    "M2 Modified Gabor": {
+      "blend": 0.12,
+      "frequencies": [
+        0.075,
+        0.095,
+        0.115,
+        0.14
+      ],
+      "orientation_bins": 8
+    },
+    "M3 TV": {
+      "weight": 0.02
+    },
+    "M4 Directional Diffusion": {
+      "iterations": 2,
+      "step": 0.12
+    }
+  },
+  "controlled_degradation": {
+    "gaussian_sigma": 0.04825,
+    "noise_seed_base": 20260903,
+    "purpose": "paired full-reference Real evaluation",
+    "renormalise_after_noise": false,
+    "same_degraded_input_for_all_members": true
+  },
+  "development_images": 500,
+  "frozen_before_validation": true,
+  "p0": {
+    "excluded": [
+      "denoising",
+      "CLAHE",
+      "histogram equalisation",
+      "Gabor enhancement",
+      "TV denoising",
+      "directional diffusion",
+      "morphology",
+      "thresholding",
+      "sharpening"
+    ],
+    "purpose": "neutral image standardisation only",
+    "steps": [
+      "grayscale conversion",
+      "resize to 256x256",
+      "dtype conversion",
+      "intensity normalisation to [0,1]"
+    ]
+  },
+  "ranking_rule": "Highest development mean PSNR, then highest development mean SSIM, then lowest development mean MSE.",
+  "selected_member": "M1 NLM",
+  "selected_method": "M1 NLM",
+  "selected_parameters": {
+    "h": 0.07
+  },
+  "selected_using": "Development Set only: 500 Real images from 50 subjects.",
+  "subject_disjoint": true,
+  "validation_images": 1000
+}

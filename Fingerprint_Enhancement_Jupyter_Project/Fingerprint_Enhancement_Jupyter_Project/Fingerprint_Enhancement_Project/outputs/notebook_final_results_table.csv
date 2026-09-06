@@ -1,6 +1,0 @@
-experiment,result,PSNR_dB,count
-Member comparison - best,M1 NLM,29.436598143337637,12
-Compatibility - best,C0 NLM,29.436598143337637,12
-Fresh holdout,99/100 above 28.17,29.644318692233004,100
-Final robustness,500/500 above 28.17,29.63029354748012,500
-Original Altered,delta_coh=+0.05724; delta_frag=-1.20783; delta_contrast=-0.00566,,1500

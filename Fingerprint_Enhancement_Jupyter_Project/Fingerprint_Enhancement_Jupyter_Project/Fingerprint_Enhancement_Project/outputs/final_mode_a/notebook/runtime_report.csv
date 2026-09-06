@@ -1,0 +1,11 @@
+stage,seconds
+dataset audit and subject-disjoint split,51.96871009998722
+P0 loading and controlled degradation cache,82.3546199000557
+M1 NLM parameter search,192.81172960001277
+M2 Modified Gabor parameter search,1647.3666386000114
+M3 TV parameter search,112.67019239999354
+M4 Directional Diffusion parameter search,412.2825007000356
+development four-member comparison,711.9013795000501
+validation four-member comparison,1454.7604439000133
+supplementary altered structural evaluation,283.85855649999576
+complete workflow,4962.938423000043
