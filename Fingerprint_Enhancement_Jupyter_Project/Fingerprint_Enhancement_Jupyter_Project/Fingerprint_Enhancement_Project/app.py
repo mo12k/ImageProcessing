@@ -586,28 +586,6 @@ def render_bulk(configuration: dict[str, Any]) -> None:
     )
 
 
-def render_about(configuration: dict[str, Any]) -> None:
-    with st.expander("About the System"):
-        st.write(
-            "This prototype is an application layer for the completed BMDS2133 experiment. "
-            "It enhances fingerprint ridge visibility; it does not perform fingerprint identity recognition."
-        )
-        st.markdown(
-            """
-Input Fingerprint
--> Neutral Preprocessing (P0)
--> Selected Image Processing Technique
--> Enhanced Fingerprint
--> Evaluation / Feature Readiness
-"""
-        )
-        st.write(
-            "Development-set benchmarking selected the frozen parameters before validation. "
-            "The GUI applies that validated implementation to user-supplied images and does not retrain, re-optimise or rerun the experiment."
-        )
-        st.write(f"Available techniques: {', '.join(configuration['methods'])}.")
-
-
 def main() -> None:
     st.markdown(
         """
@@ -643,8 +621,6 @@ div[data-testid="stMetric"] {
         render_single_or_compare(configuration)
     with bulk_tab:
         render_bulk(configuration)
-
-    render_about(configuration)
 
 
 if __name__ == "__main__":
