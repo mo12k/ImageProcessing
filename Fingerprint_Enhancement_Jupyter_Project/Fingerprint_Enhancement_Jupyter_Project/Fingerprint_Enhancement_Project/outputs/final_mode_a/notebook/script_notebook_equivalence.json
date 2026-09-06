@@ -28,6 +28,21 @@
     },
     {
       "detail": "matched ignoring runtime columns",
+      "file": "gabor_screening_parameter_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "gabor_screening_parameter_summary.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
+      "file": "gabor_diagnostic_metrics.csv",
+      "status": "PASS"
+    },
+    {
+      "detail": "matched ignoring runtime columns",
       "file": "member1_parameter_search.csv",
       "status": "PASS"
     },
@@ -122,7 +137,7 @@
       "status": "PASS"
     },
     {
-      "detail": "script=8, notebook=8",
+      "detail": "script=10, notebook=10",
       "file": "figures",
       "status": "PASS"
     }

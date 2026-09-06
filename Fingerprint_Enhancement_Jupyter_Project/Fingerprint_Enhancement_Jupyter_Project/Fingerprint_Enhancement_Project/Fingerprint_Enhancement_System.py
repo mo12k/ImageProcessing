@@ -86,11 +86,52 @@ NLM_SEARCH_WINDOW_SIZE = 21
 SUPPORTED_EXTENSIONS = {".bmp", ".png", ".jpg", ".jpeg", ".tif", ".tiff"}
 
 NLM_H_CANDIDATES = [0.03, 0.04, 0.05, 0.06, 0.07, 0.08]
-GABOR_CANDIDATES = [
-    {"frequencies": (0.075, 0.095, 0.115, 0.140), "orientation_bins": 8, "blend": 0.12},
-    {"frequencies": (0.075, 0.095, 0.115, 0.140), "orientation_bins": 8, "blend": 0.18},
-    {"frequencies": (0.075, 0.095, 0.115, 0.140), "orientation_bins": 12, "blend": 0.18},
-]
+def _make_gabor_candidates() -> list[dict[str, Any]]:
+    base_frequencies = (0.075, 0.095, 0.115, 0.140)
+    broad_frequencies = (0.070, 0.085, 0.105, 0.125, 0.150)
+    candidates: list[dict[str, Any]] = []
+
+    def add(
+        frequencies: tuple[float, ...],
+        orientation_bins: int,
+        strength: float,
+        orientation_offset: float,
+        sigma_scale: float,
+        gamma: float = 0.5,
+        detail_clip: float = 0.10,
+    ) -> None:
+        params = {
+            "frequencies": frequencies,
+            "orientation_bins": orientation_bins,
+            "strength": strength,
+            "orientation_offset": orientation_offset,
+            "sigma_scale": sigma_scale,
+            "gamma": gamma,
+            "detail_clip": detail_clip,
+        }
+        if params not in candidates:
+            candidates.append(params)
+
+    for offset in (0.0, math.pi / 2):
+        for strength in (0.0, 0.01, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12):
+            add(base_frequencies, 12, strength, offset, 0.55)
+        for bins in (8, 16):
+            for strength in (0.04, 0.08):
+                add(base_frequencies, bins, strength, offset, 0.55)
+        for strength in (0.04, 0.08):
+            add(broad_frequencies, 12, strength, offset, 0.55)
+        for sigma_scale in (0.50, 0.65):
+            add(base_frequencies, 12, 0.04, offset, sigma_scale)
+    return candidates
+
+
+GABOR_CANDIDATES = _make_gabor_candidates()
+GABOR_SCREENING_COUNT = 50
+GABOR_STAGE2_CANDIDATES = 3
+GABOR_SUPPORT_CACHE_LIMIT = 650
+GABOR_SUPPORT_CACHE: dict[tuple[str, tuple[float, ...]], tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]] = {}
+GABOR_RESPONSE_CACHE_LIMIT = 650
+GABOR_RESPONSE_CACHE: dict[tuple[str, tuple[float, ...], int, float, float, float, float], tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]] = {}
 TV_CANDIDATES = [{"weight": 0.01}, {"weight": 0.02}, {"weight": 0.04}, {"weight": 0.06}]
 DIFFUSION_CANDIDATES = [
     {"iterations": 2, "step": 0.12},
@@ -213,6 +254,7 @@ def estimate_orientation_field(
     smoothing_sigma: float = 3.0,
     orientation_smoothing_sigma: float = 2.0,
 ) -> tuple[np.ndarray, np.ndarray]:
+    """Estimate local ridge-normal orientation and coherence from image gradients."""
     base = _metric_image(image)
     gx, gy = filters.sobel_h(base), filters.sobel_v(base)
     gxx = ndi.gaussian_filter(gx * gx, smoothing_sigma)
@@ -225,7 +267,11 @@ def estimate_orientation_field(
     return orientation.astype(np.float32), coherence.astype(np.float32)
 
 
-def estimate_local_frequency_map(
+def _periodic_orientation_distance(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    return np.abs((a - b + np.pi / 2) % np.pi - np.pi / 2)
+
+
+def estimate_local_frequency_map_legacy(
     image: np.ndarray,
     mask: np.ndarray,
     block_size: int = 32,
@@ -259,28 +305,162 @@ def estimate_local_frequency_map(
     return freq_map, confidence
 
 
+def estimate_local_frequency_map(
+    image: np.ndarray,
+    mask: np.ndarray,
+    orientation: np.ndarray | None = None,
+    coherence: np.ndarray | None = None,
+    block_size: int = 32,
+    frequencies: tuple[float, ...] = (0.075, 0.095, 0.115, 0.140),
+) -> tuple[np.ndarray, np.ndarray]:
+    base = _metric_image(image)
+    mask = np.asarray(mask, bool)
+    if orientation is None or coherence is None:
+        orientation, coherence = estimate_orientation_field(base)
+    freq_map = np.full_like(base, float(np.median(frequencies)), dtype=np.float32)
+    confidence = np.zeros_like(base, dtype=np.float32)
+    yy, xx = np.mgrid[0:block_size, 0:block_size].astype(np.float32)
+    yy -= (block_size - 1) / 2.0
+    xx -= (block_size - 1) / 2.0
+    window = np.hanning(block_size).astype(np.float32)
+    fft_freqs = np.fft.rfftfreq(block_size, d=1.0)
+    min_frequency = max(0.055, min(frequencies) * 0.80)
+    max_frequency = min(0.180, max(frequencies) * 1.25)
+    valid_fft = (fft_freqs >= min_frequency) & (fft_freqs <= max_frequency)
+    for row in range(0, base.shape[0] - block_size + 1, block_size // 2):
+        for col in range(0, base.shape[1] - block_size + 1, block_size // 2):
+            block_mask = mask[row : row + block_size, col : col + block_size]
+            if float(np.mean(block_mask)) < 0.25:
+                continue
+            block = base[row : row + block_size, col : col + block_size]
+            if float(np.std(block[block_mask])) < 0.012:
+                continue
+            block_orientation = orientation[row : row + block_size, col : col + block_size]
+            block_coherence = np.clip(coherence[row : row + block_size, col : col + block_size], 0.0, 1.0)
+            weights = block_mask.astype(np.float32) * np.maximum(block_coherence, 0.05)
+            vector = np.sum(weights * np.exp(2j * block_orientation))
+            if abs(vector) < 1e-6:
+                continue
+            normal_theta = 0.5 * math.atan2(float(vector.imag), float(vector.real))
+            coords = xx * math.cos(normal_theta) + yy * math.sin(normal_theta)
+            scaled = np.clip(np.round(coords + (block_size - 1) / 2.0).astype(int), 0, block_size - 1)
+            profile_sum = np.bincount(scaled.ravel(), weights=(block * weights).ravel(), minlength=block_size).astype(np.float32)
+            profile_weight = np.bincount(scaled.ravel(), weights=weights.ravel(), minlength=block_size).astype(np.float32)
+            valid_profile = profile_weight > 1e-4
+            if int(valid_profile.sum()) < block_size // 2:
+                continue
+            profile = profile_sum / np.maximum(profile_weight, 1e-4)
+            profile = profile - float(np.mean(profile[valid_profile]))
+            profile = profile * window
+            spectrum = np.abs(np.fft.rfft(profile))
+            spectrum[~valid_fft] = 0.0
+            if float(np.max(spectrum)) <= 1e-8:
+                continue
+            observed = float(fft_freqs[int(np.argmax(spectrum))])
+            nearest = min(frequencies, key=lambda frequency: abs(frequency - observed))
+            conf = float(np.max(spectrum) / (np.median(spectrum[valid_fft]) + 1e-8))
+            region = np.s_[row : row + block_size, col : col + block_size]
+            freq_map[region] = nearest
+            confidence[region] = max(float(np.mean(confidence[region])), min(conf / 18, 1))
+    return freq_map, confidence
+
+
+def _gabor_support(
+    image: np.ndarray,
+    frequencies: tuple[float, ...],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    base = _metric_image(image)
+    cache_key = (hashlib.sha256(np.ascontiguousarray(base).tobytes()).hexdigest(), tuple(float(frequency) for frequency in frequencies))
+    cached = GABOR_SUPPORT_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    mask = _fingerprint_mask(base)
+    orientation, coherence = estimate_orientation_field(base)
+    freq_map, freq_conf = estimate_local_frequency_map(base, mask, orientation, coherence, frequencies=frequencies)
+    support = (base, mask, orientation, coherence, freq_map, freq_conf)
+    if len(GABOR_SUPPORT_CACHE) >= GABOR_SUPPORT_CACHE_LIMIT:
+        GABOR_SUPPORT_CACHE.pop(next(iter(GABOR_SUPPORT_CACHE)))
+    GABOR_SUPPORT_CACHE[cache_key] = support
+    return support
+
+
+def _gabor_response_components(
+    image: np.ndarray,
+    frequencies: tuple[float, ...],
+    orientation_bins: int,
+    orientation_offset: float,
+    sigma_scale: float,
+    gamma: float,
+    detail_clip: float,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    base = _metric_image(image)
+    cache_key = (
+        hashlib.sha256(np.ascontiguousarray(base).tobytes()).hexdigest(),
+        tuple(float(frequency) for frequency in frequencies),
+        int(orientation_bins),
+        float(orientation_offset),
+        float(sigma_scale),
+        float(gamma),
+        float(detail_clip),
+    )
+    cached = GABOR_RESPONSE_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    base, mask, orientation, coherence, freq_map, freq_conf = _gabor_support(base, frequencies)
+    bins = np.linspace(0, np.pi, int(orientation_bins), endpoint=False)
+    gabor_theta = (orientation + float(orientation_offset)) % np.pi
+    oi = np.argmin(_periodic_orientation_distance(gabor_theta[..., None], bins[None, None, :]), axis=2)
+    fi = np.argmin(np.abs(freq_map[..., None] - np.asarray(frequencies, dtype=np.float32)[None, None, :]), axis=2)
+    selected = np.zeros_like(base, dtype=np.float32)
+    for f_index, frequency in enumerate(frequencies):
+        for o_index, theta in enumerate(bins):
+            response = cv2.filter2D(
+                base,
+                cv2.CV_32F,
+                _gabor_kernel(float(frequency), float(theta), float(sigma_scale), float(gamma)),
+                borderType=cv2.BORDER_REFLECT,
+            )
+            selector = (oi == o_index) & (fi == f_index) & mask
+            selected[selector] = response[selector]
+    local_mean = ndi.uniform_filter(base, 17, mode="reflect")
+    local_std = np.sqrt(np.maximum(ndi.uniform_filter(base * base, 17, mode="reflect") - local_mean * local_mean, 0.0))
+    contrast_weight = np.clip(local_std / 0.08, 0.0, 1.0)
+    confidence_weight = (
+        mask.astype(np.float32)
+        * np.clip((coherence - 0.10) / 0.45, 0.0, 1.0)
+        * np.clip((freq_conf - 0.05) / 0.55, 0.0, 1.0)
+        * contrast_weight
+    )
+    detail = np.clip(selected, -float(detail_clip), float(detail_clip))
+    components = (base, mask, detail, confidence_weight)
+    if len(GABOR_RESPONSE_CACHE) >= GABOR_RESPONSE_CACHE_LIMIT:
+        GABOR_RESPONSE_CACHE.pop(next(iter(GABOR_RESPONSE_CACHE)))
+    GABOR_RESPONSE_CACHE[cache_key] = components
+    return components
+
+
 @lru_cache(maxsize=128)
-def _gabor_kernel(frequency: float, theta: float) -> np.ndarray:
+def _gabor_kernel(frequency: float, theta: float, sigma_scale: float = 0.55, gamma: float = 0.5) -> np.ndarray:
     wavelength = 1.0 / float(frequency)
     ksize = max(9, int(round(wavelength * 2.0)) | 1)
-    sigma = 0.55 * wavelength
-    kernel = cv2.getGaborKernel((ksize, ksize), sigma, float(theta), wavelength, 0.5, 0, ktype=cv2.CV_32F)
+    sigma = float(sigma_scale) * wavelength
+    kernel = cv2.getGaborKernel((ksize, ksize), sigma, float(theta), wavelength, float(gamma), 0, ktype=cv2.CV_32F)
     kernel -= float(kernel.mean())
     denom = float(np.sum(np.abs(kernel)))
     return kernel / denom if denom > 1e-8 else kernel
 
 
-def apply_modified_gabor(
+def apply_modified_gabor_legacy(
     image: np.ndarray,
     frequencies: tuple[float, ...] = (0.075, 0.095, 0.115, 0.140),
     orientation_bins: int = 8,
     blend: float = 0.18,
 ) -> np.ndarray:
-    """Modified Gabor: orientation-adaptive local ridge filtering."""
+    """Legacy M2 implementation retained for deterministic old-vs-new diagnostics."""
     base = _metric_image(image)
     mask = _fingerprint_mask(base)
     orientation, coherence = estimate_orientation_field(base)
-    freq_map, freq_conf = estimate_local_frequency_map(base, mask, frequencies=frequencies)
+    freq_map, freq_conf = estimate_local_frequency_map_legacy(base, mask, frequencies=frequencies)
     bins = np.linspace(0, np.pi, int(orientation_bins), endpoint=False)
     oi = np.argmin(np.abs(np.angle(np.exp(1j * (orientation[..., None] - bins[None, None, :])))), axis=2)
     fi = np.argmin(np.abs(freq_map[..., None] - np.asarray(frequencies)[None, None, :]), axis=2)
@@ -295,6 +475,33 @@ def apply_modified_gabor(
     confidence_weight = np.clip(0.30 + 0.70 * coherence, 0, 1) * np.clip(0.40 + 0.60 * freq_conf, 0, 1)
     weight = float(blend) * confidence_weight * mask
     return _metric_image((1 - weight) * base + weight * ridge)
+
+
+def apply_modified_gabor(
+    image: np.ndarray,
+    frequencies: tuple[float, ...] = (0.075, 0.095, 0.115, 0.140),
+    orientation_bins: int = 12,
+    strength: float = 0.04,
+    orientation_offset: float = 0.0,
+    sigma_scale: float = 0.55,
+    gamma: float = 0.5,
+    detail_clip: float = 0.10,
+) -> np.ndarray:
+    """Modified Gabor: adaptive signed residual filtering with foreground confidence."""
+    base = _metric_image(image)
+    if float(strength) == 0.0:
+        return base.copy()
+    base, mask, detail, confidence_weight = _gabor_response_components(
+        base,
+        frequencies,
+        int(orientation_bins),
+        float(orientation_offset),
+        float(sigma_scale),
+        float(gamma),
+        float(detail_clip),
+    )
+    enhanced = base + float(strength) * confidence_weight * detail
+    return _metric_image(np.where(mask, enhanced, base))
 
 
 def _oriented_kernel(theta: float) -> np.ndarray:
@@ -579,6 +786,7 @@ def summarise_method_metrics(per_image: pd.DataFrame, group_column: str) -> pd.D
             mean_delta_psnr=("delta_psnr", "mean"),
             mean_delta_ssim=("delta_ssim", "mean"),
             mean_delta_mse=("delta_mse", "mean"),
+            mean_absolute_change=("mean_absolute_change", "mean"),
             runtime_seconds_total=("runtime_seconds", "sum"),
             runtime_seconds_mean=("runtime_seconds", "mean"),
         )
@@ -605,6 +813,7 @@ def run_parameter_search(
             enhanced = runner(pair["degraded"], params)
             runtime = perf_counter() - started
             metrics = full_reference_metrics(pair["clean"], enhanced)
+            mean_absolute_change = float(np.mean(np.abs(_metric_image(enhanced) - pair["degraded"])))
             return {
                 "filename": pair["path"].name,
                 "subject_id": pair["subject_id"],
@@ -620,6 +829,7 @@ def run_parameter_search(
                 "delta_psnr": metrics["psnr"] - pair["baseline"]["psnr"],
                 "delta_ssim": metrics["ssim"] - pair["baseline"]["ssim"],
                 "delta_mse": metrics["mse"] - pair["baseline"]["mse"],
+                "mean_absolute_change": mean_absolute_change,
                 "runtime_seconds": runtime,
             }
 
@@ -640,22 +850,89 @@ def run_parameter_search(
     return per_image, summary, selected_params, perf_counter() - started_search
 
 
-def run_all_parameter_searches(pairs: list[dict[str, Any]], progress: bool = False) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame], dict[str, dict[str, Any]], pd.DataFrame]:
+def _params_from_parameter_rows(per_image: pd.DataFrame, candidate: str) -> dict[str, Any]:
+    params = json.loads(per_image.loc[per_image.candidate.eq(candidate), "parameters_json"].iloc[0])
+    if "frequencies" in params:
+        params["frequencies"] = tuple(params["frequencies"])
+    return params
+
+
+def gabor_screening_subset(pairs: list[dict[str, Any]], count: int = GABOR_SCREENING_COUNT) -> list[dict[str, Any]]:
+    scored = sorted(
+        pairs,
+        key=lambda pair: hashlib.sha256(f"{SPLIT_SEED}:gabor-screen:{pair['path'].name}".encode("utf-8")).hexdigest(),
+    )
+    return scored[: min(int(count), len(scored))]
+
+
+def run_gabor_parameter_search_two_stage(
+    pairs: list[dict[str, Any]],
+    progress: bool = False,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any], float, pd.DataFrame, pd.DataFrame]:
+    started = perf_counter()
+    screening_pairs = gabor_screening_subset(pairs)
+    if progress:
+        print(f"  M2 Modified Gabor stage 1 screening: {len(screening_pairs)} development images, {len(GABOR_CANDIDATES)} candidates", flush=True)
+    screening_metrics, screening_summary, _, _ = run_parameter_search(
+        screening_pairs,
+        "M2 Modified Gabor",
+        GABOR_CANDIDATES,
+        member_functions()["M2 Modified Gabor"],
+        progress,
+    )
+    identity_mask = screening_metrics["parameters_json"].map(lambda value: float(json.loads(value).get("strength", 0.0)) == 0.0)
+    identity_rows = screening_metrics[identity_mask]
+    if not identity_rows.empty:
+        max_identity_error = float(identity_rows[["delta_psnr", "delta_ssim", "delta_mse", "mean_absolute_change"]].abs().max().max())
+        if max_identity_error > 1e-9:
+            raise AssertionError(f"Gabor identity-strength diagnostic failed; max metric/change error={max_identity_error:g}.")
+    identity_candidates = {
+        candidate
+        for candidate in screening_summary["candidate"]
+        if float(_params_from_parameter_rows(screening_metrics, str(candidate)).get("strength", 0.0)) == 0.0
+    }
+    non_identity = screening_summary[~screening_summary["candidate"].isin(identity_candidates)].copy()
+    non_identity = non_identity.sort_values(["mean_psnr", "mean_ssim", "mean_mse"], ascending=[False, False, True])
+    top_candidates = list(non_identity.head(GABOR_STAGE2_CANDIDATES)["candidate"])
+    stage2_grid = [_params_from_parameter_rows(screening_metrics, candidate) for candidate in top_candidates]
+    if progress:
+        print(f"  M2 Modified Gabor stage 2 full-development evaluation: {len(stage2_grid)} candidates", flush=True)
+    full_metrics, full_summary, selected_params, _ = run_parameter_search(
+        pairs,
+        "M2 Modified Gabor",
+        stage2_grid,
+        member_functions()["M2 Modified Gabor"],
+        progress,
+    )
+    if float(selected_params.get("strength", 0.0)) <= 0.0:
+        raise AssertionError("Final M2 Modified Gabor strength must be > 0.")
+    return full_metrics, full_summary, selected_params, perf_counter() - started, screening_metrics, screening_summary
+
+
+def run_all_parameter_searches(
+    pairs: list[dict[str, Any]], progress: bool = False
+) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame], dict[str, dict[str, Any]], pd.DataFrame, dict[str, pd.DataFrame]]:
     funcs = member_functions()
     grids = parameter_grids()
     per_image_tables = {}
     summary_tables = {}
+    diagnostic_tables = {}
     selected = {}
     runtime_rows = []
     for member_name in ("M1 NLM", "M2 Modified Gabor", "M3 TV", "M4 Directional Diffusion"):
         if progress:
             print(f"Parameter search: {member_name}", flush=True)
-        per_image, summary, params, elapsed = run_parameter_search(pairs, member_name, grids[member_name], funcs[member_name], progress)
+        if member_name == "M2 Modified Gabor":
+            per_image, summary, params, elapsed, screening_metrics, screening_summary = run_gabor_parameter_search_two_stage(pairs, progress)
+            diagnostic_tables["gabor_screening_parameter_metrics"] = screening_metrics
+            diagnostic_tables["gabor_screening_parameter_summary"] = screening_summary
+        else:
+            per_image, summary, params, elapsed = run_parameter_search(pairs, member_name, grids[member_name], funcs[member_name], progress)
         per_image_tables[member_name] = per_image
         summary_tables[member_name] = summary
         selected[member_name] = params
         runtime_rows.append({"stage": f"{member_name} parameter search", "seconds": elapsed})
-    return per_image_tables, summary_tables, selected, pd.DataFrame(runtime_rows)
+    return per_image_tables, summary_tables, selected, pd.DataFrame(runtime_rows), diagnostic_tables
 
 
 def evaluate_members(
@@ -676,6 +953,7 @@ def evaluate_members(
             enhanced = funcs[member_name](pair["degraded"], params)
             runtime = perf_counter() - started
             metrics = full_reference_metrics(pair["clean"], enhanced)
+            mean_absolute_change = float(np.mean(np.abs(_metric_image(enhanced) - pair["degraded"])))
             return {
                 "split": split,
                 "filename": pair["path"].name,
@@ -691,6 +969,7 @@ def evaluate_members(
                 "delta_psnr": metrics["psnr"] - pair["baseline"]["psnr"],
                 "delta_ssim": metrics["ssim"] - pair["baseline"]["ssim"],
                 "delta_mse": metrics["mse"] - pair["baseline"]["mse"],
+                "mean_absolute_change": mean_absolute_change,
                 "runtime_seconds": runtime,
             }
 
@@ -732,6 +1011,7 @@ def summarise_baseline_for_comparison(baseline: pd.DataFrame) -> pd.DataFrame:
         "mean_delta_psnr": np.nan,
         "mean_delta_ssim": np.nan,
         "mean_delta_mse": np.nan,
+        "mean_absolute_change": 0.0,
         "runtime_seconds_total": 0.0,
         "runtime_seconds_mean": 0.0,
     }
@@ -764,8 +1044,7 @@ def run_altered_structural_evaluation(
 ) -> tuple[pd.DataFrame, pd.DataFrame, float]:
     started_eval = perf_counter()
     funcs = member_functions()
-    method = frozen_config.selected_method
-    params = frozen_config.selected_parameters
+    all_params = frozen_config.all_member_parameters
     rows = []
     for offset, severity in enumerate(("Altered-Easy", "Altered-Medium", "Altered-Hard")):
         candidates = sorted(dataset_paths[severity], key=lambda path: path.name.lower())
@@ -774,35 +1053,97 @@ def run_altered_structural_evaluation(
         rng = np.random.default_rng(ALTERED_SEED + offset)
         selected_paths = [candidates[int(index)] for index in rng.permutation(len(candidates))[:ALTERED_PER_SEVERITY_COUNT]]
         if progress:
-            print(f"  {severity}: processing {len(selected_paths)} images", flush=True)
-        def evaluate_path(path: Path) -> dict[str, Any]:
+            print(f"  {severity}: processing {len(selected_paths)} images for all four frozen methods", flush=True)
+
+        def evaluate_path(path: Path) -> list[dict[str, Any]]:
             before = load_fingerprint(path)
-            after = funcs[method](before, params)
             before_metrics = structural_metrics(before)
-            after_metrics = structural_metrics(after)
-            return {
-                "severity": severity,
-                "filename": path.name,
-                "paired_clean_reference_available": False,
-                **{f"{key}_before": value for key, value in before_metrics.items()},
-                **{f"{key}_after": value for key, value in after_metrics.items()},
-                **{f"delta_{key}": after_metrics[key] - before_metrics[key] for key in before_metrics},
-            }
+            path_rows = []
+            for method in ("M1 NLM", "M2 Modified Gabor", "M3 TV", "M4 Directional Diffusion"):
+                params = all_params[method]
+                after = funcs[method](before, params)
+                after_metrics = structural_metrics(after)
+                path_rows.append(
+                    {
+                        "severity": severity,
+                        "filename": path.name,
+                        "method": method,
+                        "parameters_json": json.dumps(_json_ready(params), sort_keys=True),
+                        "paired_clean_reference_available": False,
+                        **{f"{key}_before": value for key, value in before_metrics.items()},
+                        **{f"{key}_after": value for key, value in after_metrics.items()},
+                        **{f"delta_{key}": after_metrics[key] - before_metrics[key] for key in before_metrics},
+                    }
+                )
+            return path_rows
 
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            rows.extend(executor.map(evaluate_path, selected_paths))
+            for path_rows in executor.map(evaluate_path, selected_paths):
+                rows.extend(path_rows)
     per_image = pd.DataFrame(rows)
     summary_rows = []
-    for label, group in list(per_image.groupby("severity")) + [("Overall", per_image)]:
+    grouped = [(f"{severity} | {method}", group) for (severity, method), group in per_image.groupby(["severity", "method"])]
+    grouped.extend([(f"Overall | {method}", group) for method, group in per_image.groupby("method")])
+    for label, group in grouped:
+        severity_label, method_label = label.split(" | ", 1)
         summary_rows.append(
             {
-                "severity": label,
+                "severity": severity_label,
+                "method": method_label,
                 "count": len(group),
                 "paired_clean_reference_available": False,
                 **{f"mean_{column}": group[column].mean() for column in group.columns if column.endswith("_before") or column.endswith("_after") or column.startswith("delta_")},
             }
         )
     return per_image, pd.DataFrame(summary_rows), perf_counter() - started_eval
+
+
+def deterministic_development_sample(pairs: list[dict[str, Any]], label: str, count: int = 6) -> list[dict[str, Any]]:
+    scored = sorted(
+        pairs,
+        key=lambda pair: hashlib.sha256(f"{SPLIT_SEED}:{label}:{pair['path'].name}".encode("utf-8")).hexdigest(),
+    )
+    return scored[: min(int(count), len(scored))]
+
+
+def run_gabor_diagnostics(
+    pairs: list[dict[str, Any]],
+    selected_params: dict[str, Any],
+    sample_count: int = 8,
+) -> pd.DataFrame:
+    rows = []
+    legacy_params = {
+        "frequencies": tuple(selected_params.get("frequencies", (0.075, 0.095, 0.115, 0.140))),
+        "orientation_bins": int(selected_params.get("orientation_bins", 8)),
+        "blend": 0.18,
+    }
+    for pair in deterministic_development_sample(pairs, "gabor-diagnostic", sample_count):
+        variants = {
+            "degraded_baseline": pair["degraded"],
+            "legacy_modified_gabor": apply_modified_gabor_legacy(pair["degraded"], **legacy_params),
+            "corrected_modified_gabor": apply_modified_gabor(pair["degraded"], **selected_params),
+        }
+        for variant, enhanced in variants.items():
+            metrics = full_reference_metrics(pair["clean"], enhanced)
+            change = np.abs(_metric_image(enhanced) - pair["degraded"])
+            rows.append(
+                {
+                    "filename": pair["path"].name,
+                    "subject_id": pair["subject_id"],
+                    "variant": variant,
+                    "input_mean": float(np.mean(pair["degraded"])),
+                    "input_std": float(np.std(pair["degraded"])),
+                    "enhanced_mean": float(np.mean(enhanced)),
+                    "enhanced_std": float(np.std(enhanced)),
+                    "mean_absolute_change": float(np.mean(change)),
+                    "psnr": metrics["psnr"],
+                    "ssim": metrics["ssim"],
+                    "mse": metrics["mse"],
+                    "pct_pixels_changed_gt_0_05": float(np.mean(change > 0.05) * 100.0),
+                    "pct_pixels_changed_gt_0_10": float(np.mean(change > 0.10) * 100.0),
+                }
+            )
+    return pd.DataFrame(rows)
 
 
 def save_csv(df: pd.DataFrame, path: Path) -> Path:
@@ -887,19 +1228,99 @@ def plot_development_example(
     selected_parameters: dict[str, dict[str, Any]],
     path: Path,
 ) -> Path:
-    index = figure_sample_index(len(pairs))
-    pair = pairs[index]
+    sample = deterministic_development_sample(pairs, "member-visual-comparison", 3)
     funcs = member_functions()
-    images = [("Clean P0 reference", pair["clean"]), ("Degraded baseline", pair["degraded"])]
-    for member_name in ("M1 NLM", "M2 Modified Gabor", "M3 TV", "M4 Directional Diffusion"):
-        images.append((member_name, funcs[member_name](pair["degraded"], selected_parameters[member_name])))
-    fig, axes = plt.subplots(2, 3, figsize=(12, 8))
-    for ax, (title, image) in zip(axes.ravel(), images):
-        ax.imshow(image, cmap="gray", vmin=0, vmax=1)
-        ax.set_title(title)
-        ax.axis("off")
-    fig.suptitle(f"Deterministic demonstration sample: {pair['path'].name}", y=0.98)
-    fig.subplots_adjust(top=0.88, hspace=0.28, wspace=0.08)
+    columns = ["Clean P0", "Degraded", "M1 NLM", "M2 Modified Gabor", "M3 TV", "M4 Directional Diffusion"]
+    fig, axes = plt.subplots(len(sample), len(columns), figsize=(15, 3.2 * len(sample)))
+    axes = np.atleast_2d(axes)
+    for row, pair in enumerate(sample):
+        images = [pair["clean"], pair["degraded"]]
+        for member_name in columns[2:]:
+            images.append(funcs[member_name](pair["degraded"], selected_parameters[member_name]))
+        for col, (title, image) in enumerate(zip(columns, images)):
+            ax = axes[row, col]
+            ax.imshow(image, cmap="gray", vmin=0, vmax=1)
+            ax.set_title(title if row == 0 else pair["path"].name, fontsize=9)
+            ax.axis("off")
+    fig.suptitle("Deterministic Development visual comparison", y=0.995)
+    fig.subplots_adjust(top=0.92, hspace=0.12, wspace=0.05)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
+    return path
+
+
+def plot_gabor_orientation_diagnostic(
+    pairs: list[dict[str, Any]],
+    selected_params: dict[str, Any],
+    path: Path,
+) -> Path:
+    sample = deterministic_development_sample(pairs, "gabor-orientation-figure", 3)
+    legacy_params = {
+        "frequencies": tuple(selected_params.get("frequencies", (0.075, 0.095, 0.115, 0.140))),
+        "orientation_bins": int(selected_params.get("orientation_bins", 8)),
+        "blend": 0.18,
+    }
+    columns = ["Degraded", "Mask", "Ridge-normal orientation", "Legacy Gabor", "Corrected Gabor", "Clean P0"]
+    fig, axes = plt.subplots(len(sample), len(columns), figsize=(15, 3.2 * len(sample)))
+    axes = np.atleast_2d(axes)
+    for row, pair in enumerate(sample):
+        mask = _fingerprint_mask(pair["degraded"])
+        orientation, _ = estimate_orientation_field(pair["degraded"])
+        orientation_vis = np.where(mask, (orientation % np.pi) / np.pi, np.nan)
+        images = [
+            (pair["degraded"], "gray", 0, 1),
+            (mask.astype(np.float32), "gray", 0, 1),
+            (orientation_vis, "hsv", 0, 1),
+            (apply_modified_gabor_legacy(pair["degraded"], **legacy_params), "gray", 0, 1),
+            (apply_modified_gabor(pair["degraded"], **selected_params), "gray", 0, 1),
+            (pair["clean"], "gray", 0, 1),
+        ]
+        for col, (image, cmap, vmin, vmax) in enumerate(images):
+            ax = axes[row, col]
+            ax.imshow(image, cmap=cmap, vmin=vmin, vmax=vmax)
+            ax.set_title(columns[col] if row == 0 else pair["path"].name, fontsize=9)
+            ax.axis("off")
+    fig.suptitle("Development-only Modified Gabor orientation diagnostic", y=0.995)
+    fig.subplots_adjust(top=0.92, hspace=0.12, wspace=0.05)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, dpi=160)
+    plt.close(fig)
+    return path
+
+
+def plot_gabor_error_diagnostic(
+    pairs: list[dict[str, Any]],
+    selected_params: dict[str, Any],
+    path: Path,
+) -> Path:
+    sample = deterministic_development_sample(pairs, "gabor-error-figure", 3)
+    legacy_params = {
+        "frequencies": tuple(selected_params.get("frequencies", (0.075, 0.095, 0.115, 0.140))),
+        "orientation_bins": int(selected_params.get("orientation_bins", 8)),
+        "blend": 0.18,
+    }
+    columns = ["Clean P0", "Degraded", "Legacy Gabor", "Corrected Gabor", "Legacy abs error", "Corrected abs error"]
+    fig, axes = plt.subplots(len(sample), len(columns), figsize=(15, 3.2 * len(sample)))
+    axes = np.atleast_2d(axes)
+    for row, pair in enumerate(sample):
+        legacy = apply_modified_gabor_legacy(pair["degraded"], **legacy_params)
+        corrected = apply_modified_gabor(pair["degraded"], **selected_params)
+        images = [
+            (pair["clean"], "gray", 0, 1),
+            (pair["degraded"], "gray", 0, 1),
+            (legacy, "gray", 0, 1),
+            (corrected, "gray", 0, 1),
+            (np.abs(legacy - pair["clean"]), "magma", 0, 0.25),
+            (np.abs(corrected - pair["clean"]), "magma", 0, 0.25),
+        ]
+        for col, (image, cmap, vmin, vmax) in enumerate(images):
+            ax = axes[row, col]
+            ax.imshow(image, cmap=cmap, vmin=vmin, vmax=vmax)
+            ax.set_title(columns[col] if row == 0 else pair["path"].name, fontsize=9)
+            ax.axis("off")
+    fig.suptitle("Development-only legacy vs corrected Modified Gabor error diagnostic", y=0.995)
+    fig.subplots_adjust(top=0.92, hspace=0.12, wspace=0.05)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=160)
     plt.close(fig)
@@ -965,8 +1386,9 @@ def run_complete_workflow(
 
     if progress:
         print("[1/6] Development parameter searches on 500 images", flush=True)
-    parameter_per_image, parameter_summaries, selected_parameters, parameter_runtime = run_all_parameter_searches(development_pairs, progress)
+    parameter_per_image, parameter_summaries, selected_parameters, parameter_runtime, diagnostic_tables = run_all_parameter_searches(development_pairs, progress)
     runtime_rows.extend(parameter_runtime.to_dict("records"))
+    gabor_diagnostics = run_gabor_diagnostics(development_pairs, selected_parameters["M2 Modified Gabor"])
 
     if progress:
         print("[2/6] Development comparison with baseline control", flush=True)
@@ -994,6 +1416,13 @@ def run_complete_workflow(
         "development_images": DEVELOPMENT_COUNT,
         "validation_images": VALIDATION_COUNT,
         "subject_disjoint": True,
+        "modified_gabor_audit": {
+            "legacy_implementation_retained_as": "apply_modified_gabor_legacy",
+            "orientation_field_convention": "ridge-normal / dominant gradient direction",
+            "cv2_gabor_theta_tested": ["theta", "theta + pi/2"],
+            "final_strength_gt_zero": float(selected_parameters["M2 Modified Gabor"].get("strength", 0.0)) > 0.0,
+            "validation_used_for_tuning": False,
+        },
     }
 
     if progress:
@@ -1020,6 +1449,9 @@ def run_complete_workflow(
     save_csv(split_manifest, output_dir / "dataset_split_manifest.csv")
     save_json(split_audit, output_dir / "dataset_split_audit.json")
     save_csv(development_baseline, output_dir / "development_baseline_metrics.csv")
+    save_csv(diagnostic_tables["gabor_screening_parameter_metrics"], output_dir / "gabor_screening_parameter_metrics.csv")
+    save_csv(diagnostic_tables["gabor_screening_parameter_summary"], output_dir / "gabor_screening_parameter_summary.csv")
+    save_csv(gabor_diagnostics, output_dir / "gabor_diagnostic_metrics.csv")
     for member_name, summary in parameter_summaries.items():
         number = member_name.split()[0].lower().replace("m", "member")
         save_csv(summary, output_dir / f"{number}_parameter_search.csv")
@@ -1038,6 +1470,8 @@ def run_complete_workflow(
     figure_paths: list[Path] = []
     if make_plots:
         figure_paths.append(plot_development_example(development_pairs, selected_parameters, figures_dir / "example_clean_degraded_members.png"))
+        figure_paths.append(plot_gabor_orientation_diagnostic(development_pairs, selected_parameters["M2 Modified Gabor"], figures_dir / "gabor_orientation_diagnostic.png"))
+        figure_paths.append(plot_gabor_error_diagnostic(development_pairs, selected_parameters["M2 Modified Gabor"], figures_dir / "gabor_legacy_corrected_error.png"))
         figure_paths.append(plot_parameter_summary(parameter_summaries["M1 NLM"], "Member 1 NLM parameter search", figures_dir / "member1_parameter_search.png"))
         figure_paths.append(plot_parameter_summary(parameter_summaries["M2 Modified Gabor"], "Member 2 Modified Gabor parameter search", figures_dir / "member2_parameter_search.png"))
         figure_paths.append(plot_parameter_summary(parameter_summaries["M3 TV"], "Member 3 TV parameter search", figures_dir / "member3_parameter_search.png"))
@@ -1070,6 +1504,8 @@ def run_complete_workflow(
         "validation_baseline": validation_baseline,
         "parameter_per_image": parameter_per_image,
         "parameter_summaries": parameter_summaries,
+        "diagnostic_tables": diagnostic_tables,
+        "gabor_diagnostics": gabor_diagnostics,
         "selected_parameters": selected_parameters,
         "development_metrics": development_metrics,
         "development_comparison": development_comparison,

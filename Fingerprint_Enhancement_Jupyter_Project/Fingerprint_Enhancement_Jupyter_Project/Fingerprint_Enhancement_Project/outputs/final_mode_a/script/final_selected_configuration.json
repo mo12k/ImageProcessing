@@ -4,14 +4,18 @@
       "h": 0.07
     },
     "M2 Modified Gabor": {
-      "blend": 0.12,
+      "detail_clip": 0.1,
       "frequencies": [
         0.075,
         0.095,
         0.115,
         0.14
       ],
-      "orientation_bins": 8
+      "gamma": 0.5,
+      "orientation_bins": 12,
+      "orientation_offset": 1.5707963267948966,
+      "sigma_scale": 0.55,
+      "strength": 0.12
     },
     "M3 TV": {
       "weight": 0.02
@@ -30,6 +34,16 @@
   },
   "development_images": 500,
   "frozen_before_validation": true,
+  "modified_gabor_audit": {
+    "cv2_gabor_theta_tested": [
+      "theta",
+      "theta + pi/2"
+    ],
+    "final_strength_gt_zero": true,
+    "legacy_implementation_retained_as": "apply_modified_gabor_legacy",
+    "orientation_field_convention": "ridge-normal / dominant gradient direction",
+    "validation_used_for_tuning": false
+  },
   "p0": {
     "excluded": [
       "denoising",
