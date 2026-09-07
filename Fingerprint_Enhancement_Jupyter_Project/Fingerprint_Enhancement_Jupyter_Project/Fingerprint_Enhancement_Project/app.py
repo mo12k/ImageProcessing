@@ -7,17 +7,35 @@ import json
 import re
 import zipfile
 from dataclasses import dataclass
+from datetime import datetime
 from html import escape
 from io import BytesIO
 from pathlib import Path
 from textwrap import dedent
-from time import perf_counter
 from typing import Any
 
 import numpy as np
 import pandas as pd
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
+
+try:
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4, landscape
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import inch
+    from reportlab.platypus import Image as ReportLabImage
+    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+except Exception as exc:
+    REPORTLAB_AVAILABLE = False
+    REPORTLAB_IMPORT_ERROR = exc
+    A4 = (595.2755905511812, 841.8897637795277)
+
+    def landscape(pagesize: tuple[float, float]) -> tuple[float, float]:
+        return (pagesize[1], pagesize[0])
+else:
+    REPORTLAB_AVAILABLE = True
+    REPORTLAB_IMPORT_ERROR = None
 
 st.set_page_config(
     page_title="Fingerprint Enhancement System",
@@ -38,15 +56,44 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 FROZEN_CONFIG_PATH = PROJECT_ROOT / "outputs" / "final_mode_a" / "script" / "final_selected_configuration.json"
 VALIDATION_COMPARISON_PATH = PROJECT_ROOT / "outputs" / "final_mode_a" / "script" / "validation_member_comparison.csv"
 COMPARE_ALL = "Compare All Techniques"
+PROJECT_TITLE = "BMDS2133 Fingerprint Enhancement System"
 SUPPORTED_TYPES = ["bmp", "png", "jpg", "jpeg", "tif", "tiff"]
+QUALITY_BENCHMARK_EXPLANATION = (
+    "These full-reference metrics are produced from a controlled synthetic degradation of the uploaded fingerprint. "
+    "They evaluate how the selected algorithm restores the artificially degraded copy and do not represent "
+    "ground-truth quality metrics for the original real-world upload."
+)
+BULK_QUALITY_BENCHMARK_EXPLANATION = (
+    "PSNR, SSIM and MSE shown below are obtained from a controlled synthetic degradation of each uploaded fingerprint. "
+    "They evaluate restoration of the artificially degraded copy and are not ground-truth quality measurements of "
+    "the original real-world uploaded fingerprints."
+)
 
 STRUCTURAL_LABELS = {
     "coherence": "Coherence",
     "contrast": "Contrast",
     "fragmentation": "Fragmentation",
     "continuity": "Continuity",
-    "ridge_coverage": "Ridge coverage",
+    "ridge_coverage": "Ridge Coverage",
 }
+
+FULL_REFERENCE_LABELS = {
+    "psnr": "PSNR",
+    "ssim": "SSIM",
+    "mse": "MSE",
+}
+
+BULK_BENCHMARK_COLUMNS = [
+    "Synthetic Baseline PSNR",
+    "Synthetic Enhanced PSNR",
+    "PSNR Improvement",
+    "Synthetic Baseline SSIM",
+    "Synthetic Enhanced SSIM",
+    "SSIM Improvement",
+    "Synthetic Baseline MSE",
+    "Synthetic Enhanced MSE",
+    "MSE Reduction",
+]
 
 
 @dataclass
@@ -217,7 +264,7 @@ def method_slug(method: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", method.lower()).strip("_")
 
 
-def apply_frozen_method(p0_image: np.ndarray, method: str, configuration: dict[str, Any]) -> tuple[np.ndarray, float]:
+def apply_frozen_method(p0_image: np.ndarray, method: str, configuration: dict[str, Any]) -> np.ndarray:
     fes = require_backend()
     functions = fes.member_functions()
 
@@ -227,9 +274,8 @@ def apply_frozen_method(p0_image: np.ndarray, method: str, configuration: dict[s
     if method not in configuration["all_member_parameters"]:
         raise ValueError(f"No frozen parameters were found for {method}.")
 
-    started = perf_counter()
     enhanced = functions[method](p0_image, configuration["all_member_parameters"][method])
-    return unit_float(enhanced), perf_counter() - started
+    return unit_float(enhanced)
 
 
 def calculate_structural_pair(p0_image: np.ndarray, enhanced: np.ndarray) -> tuple[dict[str, float], dict[str, float]]:
@@ -256,21 +302,587 @@ def structural_table(before: dict[str, float], after: dict[str, float]) -> pd.Da
     return pd.DataFrame(rows)
 
 
-def calculate_reference_metrics(reference_p0: np.ndarray, candidate: np.ndarray) -> dict[str, float]:
-    if reference_p0.shape != candidate.shape:
-        raise ValueError(
-            f"Reference dimensions after P0 are {reference_p0.shape}; enhanced dimensions are {candidate.shape}."
+def synthetic_benchmark_seed(fingerprint: UploadedFingerprint) -> int:
+    """Create a repeatable upload-specific seed based on the project's noise seed base."""
+    fes = require_backend()
+    seed_base = int(getattr(fes, "NOISE_SEED_BASE", 0))
+    split_seed = str(getattr(fes, "SPLIT_SEED", ""))
+    p0_bytes = np.ascontiguousarray(fingerprint.p0.astype(np.float32)).tobytes()
+    p0_digest = hashlib.sha256(p0_bytes).hexdigest()
+    digest_seed = int(hashlib.sha256(f"{split_seed}:synthetic-upload:{p0_digest}".encode("utf-8")).hexdigest()[:8], 16)
+    return (seed_base + digest_seed) % (2**32)
+
+
+def quality_benchmark_table(baseline: dict[str, float], enhanced: dict[str, float]) -> pd.DataFrame:
+    rows = []
+
+    for key, label in FULL_REFERENCE_LABELS.items():
+        baseline_value = float(baseline[key])
+        enhanced_value = float(enhanced[key])
+        rows.append(
+            {
+                "Metric": label,
+                "Synthetic Degraded": baseline_value,
+                "Enhanced": enhanced_value,
+                "Change": enhanced_value - baseline_value,
+            }
         )
 
-    return require_backend().full_reference_metrics(reference_p0, candidate)
+    return pd.DataFrame(rows)
 
 
-def format_reference_metrics(metrics: dict[str, float]) -> dict[str, str]:
+def calculate_synthetic_benchmark(
+    fingerprint: UploadedFingerprint,
+    method: str,
+    configuration: dict[str, Any],
+    synthetic_degraded: np.ndarray | None = None,
+) -> dict[str, Any]:
+    """Run the controlled synthetic degradation benchmark for one frozen method."""
+    fes = require_backend()
+    seed = synthetic_benchmark_seed(fingerprint)
+    reference = fingerprint.p0
+    degraded = synthetic_degraded if synthetic_degraded is not None else fes.controlled_degradation(reference, seed)
+    enhanced = apply_frozen_method(degraded, method, configuration)
+
+    baseline_metrics = fes.full_reference_metrics(reference, degraded)
+    enhanced_metrics = fes.full_reference_metrics(reference, enhanced)
+
     return {
-        "PSNR": f"{metrics['psnr']:.3f} dB",
-        "SSIM": f"{metrics['ssim']:.4f}",
-        "MSE": f"{metrics['mse']:.6f}",
+        "seed": seed,
+        "synthetic_degraded": degraded,
+        "synthetic_enhanced": enhanced,
+        "baseline_metrics": baseline_metrics,
+        "enhanced_metrics": enhanced_metrics,
+        "table": quality_benchmark_table(baseline_metrics, enhanced_metrics),
     }
+
+
+def comparison_quality_benchmark_table(benchmarks: dict[str, dict[str, Any]]) -> pd.DataFrame:
+    rows = []
+
+    for method, benchmark in benchmarks.items():
+        row = {"Technique": method}
+        baseline = benchmark["baseline_metrics"]
+        enhanced = benchmark["enhanced_metrics"]
+        for key, label in FULL_REFERENCE_LABELS.items():
+            row[f"Synthetic Degraded {label}"] = float(baseline[key])
+            row[f"Enhanced {label}"] = float(enhanced[key])
+            row[f"{label} Change"] = float(enhanced[key]) - float(baseline[key])
+        rows.append(row)
+
+    return pd.DataFrame(rows)
+
+
+def bulk_quality_benchmark_row(
+    batch_item: int,
+    filename: str,
+    status: str,
+    benchmark: dict[str, Any] | None,
+) -> dict[str, Any]:
+    row = {
+        "Batch Item": batch_item,
+        "File": filename,
+        "Status": status,
+        **{column: np.nan for column in BULK_BENCHMARK_COLUMNS},
+    }
+
+    if benchmark is None:
+        return row
+
+    baseline = benchmark["baseline_metrics"]
+    enhanced = benchmark["enhanced_metrics"]
+    row.update(
+        {
+            "Synthetic Baseline PSNR": float(baseline["psnr"]),
+            "Synthetic Enhanced PSNR": float(enhanced["psnr"]),
+            "PSNR Improvement": float(enhanced["psnr"]) - float(baseline["psnr"]),
+            "Synthetic Baseline SSIM": float(baseline["ssim"]),
+            "Synthetic Enhanced SSIM": float(enhanced["ssim"]),
+            "SSIM Improvement": float(enhanced["ssim"]) - float(baseline["ssim"]),
+            "Synthetic Baseline MSE": float(baseline["mse"]),
+            "Synthetic Enhanced MSE": float(enhanced["mse"]),
+            "MSE Reduction": float(baseline["mse"]) - float(enhanced["mse"]),
+        }
+    )
+    return row
+
+
+def bulk_export_table(result: dict[str, Any]) -> pd.DataFrame:
+    structural = result.get("structural_table", result["table"]).copy()
+    benchmark = result.get("benchmark_table")
+
+    if benchmark is None:
+        return structural
+
+    return benchmark.merge(structural, on=["Batch Item", "File", "Status"], how="outer")
+
+
+def synthetic_benchmark_winner(table: pd.DataFrame) -> pd.Series | None:
+    if table.empty:
+        return None
+
+    ranked = table.sort_values(["Enhanced PSNR", "Enhanced SSIM", "Enhanced MSE"], ascending=[False, False, True])
+    return ranked.iloc[0]
+
+
+def report_timestamp() -> str:
+    """Return a local timestamp string for generated exports."""
+    return datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+
+
+def dimensions_text(dimensions: tuple[int, int]) -> str:
+    """Format image dimensions consistently as width x height."""
+    return f"{dimensions[0]} x {dimensions[1]}"
+
+
+def dataframe_to_csv_bytes(table: pd.DataFrame) -> bytes:
+    """Encode a result table as UTF-8 CSV bytes for Streamlit downloads."""
+    return table.to_csv(index=False).encode("utf-8")
+
+
+def format_report_value(value: Any, decimals: int = 4) -> str:
+    """Format numeric values for compact PDF and CSV-adjacent display."""
+    if value is None:
+        return "Unavailable"
+
+    try:
+        if pd.isna(value):
+            return "Unavailable"
+    except TypeError:
+        pass
+
+    if isinstance(value, (float, np.floating)):
+        return f"{float(value):.{decimals}f}"
+
+    return str(value)
+
+
+def structural_change_summary(before: dict[str, float], after: dict[str, float]) -> str:
+    """Create a short descriptive summary of no-reference structural indicator changes."""
+    changes = {label: float(after[key]) - float(before[key]) for key, label in STRUCTURAL_LABELS.items()}
+    ordered = sorted(changes.items(), key=lambda item: abs(item[1]), reverse=True)
+    top = ", ".join(f"{label} {change:+.4f}" for label, change in ordered[:3])
+    return f"Largest structural indicator changes: {top}. These structural indicators are not PSNR, SSIM or MSE."
+
+
+def bulk_summary_statistics(result: dict[str, Any]) -> dict[str, Any]:
+    """Summarise processed, failed and structural changes for a batch result."""
+    table = result.get("structural_table", result["table"])
+    processed_mask = table["Status"].eq("Processed") if not table.empty else pd.Series(dtype=bool)
+    processed = int(processed_mask.sum())
+    failed = int(len(table) - processed)
+    processed_rows = table.loc[processed_mask]
+
+    stats = {
+        "chosen_technique": result["method"],
+        "uploaded_count": int(len(table)),
+        "processed_count": processed,
+        "failed_count": failed,
+        **{
+            f"mean_{key}_change": float(processed_rows[f"{label} Change"].mean()) if processed else np.nan
+            for key, label in STRUCTURAL_LABELS.items()
+        },
+    }
+
+    benchmark = result.get("benchmark_table")
+    if benchmark is not None and not benchmark.empty:
+        benchmark_rows = benchmark.loc[benchmark["Status"].eq("Processed")]
+        for column in BULK_BENCHMARK_COLUMNS:
+            stats[f"mean_{column}"] = float(benchmark_rows[column].mean()) if not benchmark_rows.empty else np.nan
+
+    return stats
+
+
+def bulk_summary_text(stats: dict[str, Any]) -> str:
+    """Create an automated natural-language summary for batch reporting."""
+    if stats["processed_count"] == 0:
+        return "No uploaded images were successfully processed, so no aggregate structural changes are available."
+
+    mean_changes = ", ".join(
+        f"{label.lower()} {format_report_value(stats[f'mean_{key}_change'])}"
+        for key, label in STRUCTURAL_LABELS.items()
+    )
+    return (
+        f"The batch successfully processed {stats['processed_count']} of {stats['uploaded_count']} fingerprint images "
+        f"with {stats['chosen_technique']}. Across successfully processed images, the mean structural changes were "
+        f"{mean_changes}."
+    )
+
+
+def bulk_benchmark_summary_rows(stats: dict[str, Any]) -> list[list[Any]]:
+    labels = [
+        ("Mean baseline PSNR", "mean_Synthetic Baseline PSNR"),
+        ("Mean enhanced PSNR", "mean_Synthetic Enhanced PSNR"),
+        ("Mean PSNR improvement", "mean_PSNR Improvement"),
+        ("Mean baseline SSIM", "mean_Synthetic Baseline SSIM"),
+        ("Mean enhanced SSIM", "mean_Synthetic Enhanced SSIM"),
+        ("Mean SSIM improvement", "mean_SSIM Improvement"),
+        ("Mean baseline MSE", "mean_Synthetic Baseline MSE"),
+        ("Mean enhanced MSE", "mean_Synthetic Enhanced MSE"),
+        ("Mean MSE reduction", "mean_MSE Reduction"),
+    ]
+    return [["Field", "Value"], *[[label, format_report_value(stats.get(key))] for label, key in labels]]
+
+
+def require_reportlab() -> None:
+    """Raise a readable error when PDF export dependencies are unavailable."""
+    if not REPORTLAB_AVAILABLE:
+        raise RuntimeError(f"ReportLab is unavailable: {REPORTLAB_IMPORT_ERROR}")
+
+
+def pdf_styles() -> dict[str, ParagraphStyle]:
+    """Build the small style set used by generated PDF reports."""
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name="Small", parent=styles["BodyText"], fontSize=8, leading=10))
+    styles.add(ParagraphStyle(name="Caption", parent=styles["Small"], textColor=colors.HexColor("#475569")))
+    styles.add(ParagraphStyle(name="Section", parent=styles["Heading2"], fontSize=12, leading=15, spaceBefore=8))
+    return styles
+
+
+def pdf_paragraph(text: Any, style: ParagraphStyle) -> Paragraph:
+    """Create a ReportLab paragraph with escaped text."""
+    return Paragraph(escape(str(text)), style)
+
+
+def pdf_image(image: np.ndarray, max_width: float, max_height: float) -> ReportLabImage:
+    """Create a ReportLab image flowable from a NumPy image without writing to disk."""
+    png_bytes = encode_display_png(image)
+
+    with Image.open(BytesIO(png_bytes)) as pil_image:
+        width, height = pil_image.size
+
+    scale = min(max_width / max(width, 1), max_height / max(height, 1))
+    return ReportLabImage(BytesIO(png_bytes), width=width * scale, height=height * scale)
+
+
+def pdf_table(
+    rows: list[list[Any]],
+    styles: dict[str, ParagraphStyle],
+    column_widths: list[float] | None = None,
+    font_size: int = 8,
+) -> Table:
+    """Create a wrapped, repeat-header table for PDF reports."""
+    body_style = styles["Small"]
+    table_rows = [[cell if hasattr(cell, "wrap") else pdf_paragraph(cell, body_style) for cell in row] for row in rows]
+    table = Table(table_rows, colWidths=column_widths, repeatRows=1)
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#e2e8f0")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor("#0f172a")),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, -1), font_size),
+                ("GRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#cbd5e1")),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f8fafc")]),
+                ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                ("TOPPADDING", (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ]
+        )
+    )
+    return table
+
+
+def dataframe_report_rows(table: pd.DataFrame, decimals: int = 4) -> list[list[str]]:
+    """Convert a dataframe to printable rows with unavailable values made explicit."""
+    if table.empty:
+        return [["Status"], ["No rows available"]]
+
+    rows = [list(table.columns)]
+
+    for row in table.itertuples(index=False, name=None):
+        rows.append([format_report_value(value, decimals) for value in row])
+
+    return rows
+
+
+def validation_evidence_table() -> pd.DataFrame:
+    """Return frozen validation evidence columns that are safe to show as dataset-level metrics."""
+    validation = load_validation_comparison()
+    columns = ["method", "images", "mean_psnr", "mean_ssim", "mean_mse"]
+    existing = [column for column in columns if column in validation.columns]
+    return validation[existing] if existing else pd.DataFrame()
+
+
+def build_report_document(
+    story: list[Any],
+    pagesize: tuple[float, float] = A4,
+    title: str = PROJECT_TITLE,
+) -> bytes:
+    """Render a ReportLab story into PDF bytes in memory."""
+    require_reportlab()
+    buffer = BytesIO()
+    document = SimpleDocTemplate(
+        buffer,
+        pagesize=pagesize,
+        title=title,
+        rightMargin=0.45 * inch,
+        leftMargin=0.45 * inch,
+        topMargin=0.45 * inch,
+        bottomMargin=0.45 * inch,
+    )
+    document.build(story)
+    return buffer.getvalue()
+
+
+def build_single_analysis_pdf(result: dict[str, Any], configuration: dict[str, Any]) -> bytes:
+    """Build a single-image analysis PDF report entirely in memory."""
+    require_reportlab()
+    styles = pdf_styles()
+    fingerprint = result["fingerprint"]
+    method = result["method"]
+    structural_rows = dataframe_report_rows(structural_table(result["before_structural"], result["after_structural"]))
+    validation_evidence = validation_evidence_table()
+
+    story: list[Any] = [
+        pdf_paragraph(PROJECT_TITLE, styles["Title"]),
+        pdf_paragraph(f"Generated: {report_timestamp()}", styles["Caption"]),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Analysis Details", styles["Section"]),
+        pdf_table(
+            [
+                ["Field", "Value"],
+                ["Uploaded filename", fingerprint.name],
+                ["Selected enhancement technique", method],
+                ["Project-recommended frozen technique", configuration["selected_method"]],
+                ["Input dimensions", dimensions_text(fingerprint.raw_dimensions)],
+                ["Processed dimensions", dimensions_text(fingerprint.processed_dimensions)],
+            ],
+            styles,
+            [2.2 * inch, 4.6 * inch],
+        ),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Images", styles["Section"]),
+        pdf_table(
+            [
+                ["Original Input", "P0 Preprocessed", "Enhanced Image"],
+                [
+                    pdf_image(fingerprint.original_gray, 2.0 * inch, 2.0 * inch),
+                    pdf_image(fingerprint.p0, 2.0 * inch, 2.0 * inch),
+                    pdf_image(result["enhanced"], 2.0 * inch, 2.0 * inch),
+                ],
+            ],
+            styles,
+            [2.15 * inch, 2.15 * inch, 2.15 * inch],
+        ),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("No-Reference Structural Indicators", styles["Section"]),
+        pdf_table(structural_rows, styles),
+        pdf_paragraph(
+            "These structural indicators describe changes in fingerprint ridge structure. "
+            "They are not PSNR, SSIM, MSE or recognition accuracy.",
+            styles["Caption"],
+        ),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Structural Interpretation", styles["Section"]),
+        pdf_paragraph(structural_change_summary(result["before_structural"], result["after_structural"]), styles["BodyText"]),
+        pdf_paragraph(
+            "Full-reference metrics such as PSNR, SSIM and MSE are evaluated separately using the project's "
+            "controlled Development and Validation experiments and are not calculated for arbitrary user-uploaded "
+            "fingerprints without ground truth.",
+            styles["BodyText"],
+        ),
+    ]
+
+    if result.get("quality_benchmark"):
+        benchmark = result["quality_benchmark"]
+        story.extend(
+            [
+                Spacer(1, 0.12 * inch),
+                pdf_paragraph("Controlled Quality Benchmark", styles["Section"]),
+                pdf_table(dataframe_report_rows(benchmark["table"]), styles),
+                pdf_paragraph(QUALITY_BENCHMARK_EXPLANATION, styles["Caption"]),
+            ]
+        )
+
+    if not validation_evidence.empty:
+        story.extend(
+            [
+                Spacer(1, 0.12 * inch),
+                pdf_paragraph("Project Validation Evidence", styles["Section"]),
+                pdf_table(dataframe_report_rows(validation_evidence), styles),
+                pdf_paragraph(
+                    "These are dataset-level frozen validation benchmark results, not metrics for the current uploaded image.",
+                    styles["Caption"],
+                ),
+            ]
+        )
+
+    return build_report_document(story, title="Fingerprint Analysis Report")
+
+
+def build_comparison_report_pdf(result: dict[str, Any], configuration: dict[str, Any]) -> bytes:
+    """Build a compare-all PDF report entirely in memory."""
+    require_reportlab()
+    styles = pdf_styles()
+    fingerprint = result["fingerprint"]
+    table = result["table"].copy()
+    validation_evidence = validation_evidence_table()
+
+    story: list[Any] = [
+        pdf_paragraph(PROJECT_TITLE, styles["Title"]),
+        pdf_paragraph("Comparison Report", styles["Heading1"]),
+        pdf_paragraph(f"Generated: {report_timestamp()}", styles["Caption"]),
+        pdf_paragraph(f"Uploaded filename: {fingerprint.name}", styles["BodyText"]),
+        pdf_paragraph(f"Project frozen recommended technique: {configuration['selected_method']}", styles["BodyText"]),
+        pdf_paragraph(
+            "The recommendation comes from the completed controlled Development and Validation benchmark.",
+            styles["Caption"],
+        ),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Original and P0", styles["Section"]),
+        pdf_table(
+            [
+                ["Original Input", "P0 Preprocessed"],
+                [
+                    pdf_image(fingerprint.original_gray, 2.6 * inch, 2.2 * inch),
+                    pdf_image(fingerprint.p0, 2.6 * inch, 2.2 * inch),
+                ],
+            ],
+            styles,
+            [3.0 * inch, 3.0 * inch],
+        ),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Technique Outputs", styles["Section"]),
+    ]
+
+    image_rows: list[list[Any]] = []
+    for method, method_result in result["results"].items():
+        image_rows.append(
+            [
+                method,
+                pdf_image(method_result["enhanced"], 1.55 * inch, 1.45 * inch),
+            ]
+        )
+
+    story.extend(
+        [
+            pdf_table([["Technique", "Enhanced Output"], *image_rows], styles, [2.5 * inch, 1.8 * inch]),
+            Spacer(1, 0.12 * inch),
+            pdf_paragraph("No-Reference Structural Comparison", styles["Section"]),
+            pdf_table(dataframe_report_rows(table), styles),
+            pdf_paragraph(
+                "Structural changes are no-reference indicators and are not PSNR, SSIM, MSE or recognition accuracy.",
+                styles["Caption"],
+            ),
+        ]
+    )
+
+    if result.get("quality_benchmark_table") is not None:
+        benchmark_table = result["quality_benchmark_table"]
+        winner = synthetic_benchmark_winner(benchmark_table)
+        story.extend(
+            [
+                Spacer(1, 0.12 * inch),
+                pdf_paragraph("Controlled Quality Benchmark", styles["Section"]),
+                pdf_table(dataframe_report_rows(benchmark_table), styles),
+                pdf_paragraph(QUALITY_BENCHMARK_EXPLANATION, styles["Caption"]),
+            ]
+        )
+        if winner is not None:
+            story.append(
+                pdf_paragraph(
+                    f"Synthetic Benchmark Winner: {winner['Technique']}. "
+                    f"The project overall recommended method remains {configuration['selected_method']}.",
+                    styles["BodyText"],
+                )
+            )
+
+    if not validation_evidence.empty:
+        story.extend(
+            [
+                Spacer(1, 0.12 * inch),
+                pdf_paragraph("Project Validation Evidence", styles["Section"]),
+                pdf_table(dataframe_report_rows(validation_evidence), styles),
+                pdf_paragraph(
+                    "These frozen PSNR, SSIM and MSE values are dataset-level benchmark results, not metrics for this upload.",
+                    styles["Caption"],
+                ),
+            ]
+        )
+
+    return build_report_document(story, pagesize=landscape(A4), title="Fingerprint Comparison Report")
+
+
+def build_bulk_report_pdf(result: dict[str, Any]) -> bytes:
+    """Build a batch processing PDF report entirely in memory."""
+    require_reportlab()
+    styles = pdf_styles()
+    stats = bulk_summary_statistics(result)
+    structural = result.get("structural_table", result["table"]).copy()
+    benchmark = result.get("benchmark_table")
+
+    summary_rows = [
+        ["Field", "Value"],
+        ["Chosen technique", stats["chosen_technique"]],
+        ["Uploaded files", stats["uploaded_count"]],
+        ["Processed count", stats["processed_count"]],
+        ["Failed count", stats["failed_count"]],
+    ]
+    summary_rows.extend(
+        [f"Mean {label.lower()} change", format_report_value(stats[f"mean_{key}_change"])]
+        for key, label in STRUCTURAL_LABELS.items()
+    )
+
+    story: list[Any] = [
+        pdf_paragraph(PROJECT_TITLE, styles["Title"]),
+        pdf_paragraph("Batch Report", styles["Heading1"]),
+        pdf_paragraph(f"Generated: {report_timestamp()}", styles["Caption"]),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Batch Summary", styles["Section"]),
+        pdf_table(summary_rows, styles, [2.2 * inch, 4.8 * inch]),
+        Spacer(1, 0.12 * inch),
+        pdf_paragraph("Automated Summary", styles["Section"]),
+        pdf_paragraph(bulk_summary_text(stats), styles["BodyText"]),
+        pdf_paragraph(
+            "Structural indicators describe changes in ridge structure. They are not PSNR, SSIM, MSE or recognition accuracy.",
+            styles["Caption"],
+        ),
+        Spacer(1, 0.12 * inch),
+    ]
+
+    if benchmark is not None:
+        story.extend(
+            [
+                pdf_paragraph("Controlled Quality Benchmark", styles["Section"]),
+                pdf_paragraph(BULK_QUALITY_BENCHMARK_EXPLANATION, styles["BodyText"]),
+                pdf_paragraph("Synthetic Benchmark Means", styles["Section"]),
+                pdf_table(bulk_benchmark_summary_rows(stats), styles, [2.4 * inch, 1.4 * inch]),
+                Spacer(1, 0.12 * inch),
+                pdf_paragraph("Per-File Benchmark Metrics", styles["Section"]),
+                pdf_table(dataframe_report_rows(benchmark), styles, font_size=7),
+                Spacer(1, 0.12 * inch),
+            ]
+        )
+
+    story.extend(
+        [
+            pdf_paragraph("Actual Image Structural Indicators", styles["Section"]),
+            pdf_table(dataframe_report_rows(structural), styles),
+        ]
+    )
+
+    return build_report_document(story, pagesize=landscape(A4), title="Fingerprint Batch Report")
+
+
+def render_pdf_download(label: str, data_factory: Any, file_name: str, key: str) -> None:
+    """Render a PDF download button and keep ReportLab failures graceful."""
+    try:
+        pdf_bytes = data_factory()
+    except RuntimeError as exc:
+        st.warning("PDF export is unavailable because ReportLab could not be imported.")
+        with st.expander("PDF export technical detail"):
+            st.code(str(exc))
+        return
+    except Exception as exc:
+        st.error("The PDF report could not be generated.")
+        with st.expander("PDF export technical detail"):
+            st.code(str(exc))
+        return
+
+    st.download_button(label, data=pdf_bytes, file_name=file_name, mime="application/pdf", key=key)
 
 
 def render_image_triplet(
@@ -347,85 +959,87 @@ def render_image_triplet(
     st.markdown(html, unsafe_allow_html=True)
 
 
-def render_reference_cards(reference_metrics: dict[str, float] | None, runtime: float, fingerprint: UploadedFingerprint) -> None:
-    cols = st.columns(5)
+def render_image_detail_cards(fingerprint: UploadedFingerprint) -> None:
+    cols = st.columns(2)
 
     cols[0].metric("Input Dimensions", f"{fingerprint.raw_dimensions[0]} x {fingerprint.raw_dimensions[1]}")
     cols[1].metric("Processed Dimensions", f"{fingerprint.processed_dimensions[0]} x {fingerprint.processed_dimensions[1]}")
-    cols[2].metric("Runtime", f"{runtime:.3f} s")
-
-    if reference_metrics:
-        formatted = format_reference_metrics(reference_metrics)
-        cols[3].metric("PSNR", formatted["PSNR"])
-        cols[4].metric("SSIM", formatted["SSIM"])
-        st.metric("MSE", formatted["MSE"])
-    else:
-        cols[3].metric("PSNR", "Unavailable")
-        cols[4].metric("SSIM", "Unavailable")
-        st.info("Reference-based PSNR, SSIM and MSE are unavailable because no ground-truth image was supplied.")
 
 
 def render_structural_metrics(before: dict[str, float], after: dict[str, float]) -> None:
-    st.subheader("No-Reference Structural Indicators")
-    st.caption("Computed using the existing project structural metric function. These are not PSNR, SSIM or MSE.")
+    st.subheader("Structural Indicators")
+    st.caption(
+        "These structural indicators describe changes in fingerprint ridge structure. "
+        "They are not PSNR, SSIM, MSE or recognition accuracy."
+    )
     st.dataframe(structural_table(before, after), width="stretch", hide_index=True)
+
+
+def render_controlled_quality_benchmark(benchmark: dict[str, Any]) -> None:
+    st.subheader("Controlled Quality Benchmark")
+    st.dataframe(benchmark["table"], width="stretch", hide_index=True)
+    st.caption(QUALITY_BENCHMARK_EXPLANATION)
+
+
+def render_comparison_quality_benchmark(result: dict[str, Any], configuration: dict[str, Any]) -> None:
+    benchmark_table = result.get("quality_benchmark_table")
+    if benchmark_table is None:
+        return
+
+    st.subheader("Controlled Quality Benchmark")
+    st.dataframe(benchmark_table, width="stretch", hide_index=True)
+    st.caption(QUALITY_BENCHMARK_EXPLANATION)
+
+    winner = synthetic_benchmark_winner(benchmark_table)
+    if winner is not None:
+        st.success(
+            f"Synthetic Benchmark Winner: {winner['Technique']}. "
+            f"The project overall recommended method remains {configuration['selected_method']}."
+        )
 
 
 def process_single(
     uploaded_file: Any,
-    reference_file: Any | None,
     method: str,
     configuration: dict[str, Any],
+    include_quality_benchmark: bool = False,
 ) -> dict[str, Any]:
     fingerprint = preprocess_upload(uploaded_file)
-    enhanced, runtime = apply_frozen_method(fingerprint.p0, method, configuration)
+    enhanced = apply_frozen_method(fingerprint.p0, method, configuration)
     before_structural, after_structural = calculate_structural_pair(fingerprint.p0, enhanced)
-
-    reference = preprocess_upload(reference_file) if reference_file is not None else None
-    reference_metrics = calculate_reference_metrics(reference.p0, enhanced) if reference else None
-    input_reference_metrics = calculate_reference_metrics(reference.p0, fingerprint.p0) if reference else None
+    benchmark = calculate_synthetic_benchmark(fingerprint, method, configuration) if include_quality_benchmark else None
 
     return {
         "fingerprint": fingerprint,
-        "reference": reference,
         "method": method,
         "enhanced": enhanced,
-        "runtime": runtime,
-        "reference_metrics": reference_metrics,
-        "input_reference_metrics": input_reference_metrics,
         "before_structural": before_structural,
         "after_structural": after_structural,
+        "quality_benchmark": benchmark,
     }
 
 
 def process_comparison(
     uploaded_file: Any,
-    reference_file: Any | None,
     configuration: dict[str, Any],
+    include_quality_benchmark: bool = False,
 ) -> dict[str, Any]:
     fingerprint = preprocess_upload(uploaded_file)
-    reference = preprocess_upload(reference_file) if reference_file is not None else None
     rows = []
     results = {}
+    benchmark_results = {}
+    synthetic_degraded = None
+
+    if include_quality_benchmark:
+        synthetic_degraded = require_backend().controlled_degradation(fingerprint.p0, synthetic_benchmark_seed(fingerprint))
 
     for method in configuration["methods"]:
-        enhanced, runtime = apply_frozen_method(fingerprint.p0, method, configuration)
+        enhanced = apply_frozen_method(fingerprint.p0, method, configuration)
         before_structural, after_structural = calculate_structural_pair(fingerprint.p0, enhanced)
 
         row = {
             "Technique": method,
-            "Runtime (s)": runtime,
         }
-
-        if reference is not None:
-            metrics = calculate_reference_metrics(reference.p0, enhanced)
-            row.update(
-                {
-                    "PSNR": metrics["psnr"],
-                    "SSIM": metrics["ssim"],
-                    "MSE": metrics["mse"],
-                }
-            )
 
         for key in STRUCTURAL_LABELS:
             row[f"{STRUCTURAL_LABELS[key]} Change"] = after_structural[key] - before_structural[key]
@@ -434,21 +1048,38 @@ def process_comparison(
 
         results[method] = {
             "enhanced": enhanced,
-            "runtime": runtime,
             "before_structural": before_structural,
             "after_structural": after_structural,
         }
 
-    return {
+        if include_quality_benchmark:
+            benchmark_results[method] = calculate_synthetic_benchmark(
+                fingerprint,
+                method,
+                configuration,
+                synthetic_degraded=synthetic_degraded,
+            )
+
+    comparison_result = {
         "fingerprint": fingerprint,
-        "reference": reference,
         "results": results,
         "table": pd.DataFrame(rows),
+        "quality_benchmarks": benchmark_results,
     }
+    if include_quality_benchmark:
+        comparison_result["quality_benchmark_table"] = comparison_quality_benchmark_table(benchmark_results)
+
+    return comparison_result
 
 
-def process_bulk(files: list[Any], method: str, configuration: dict[str, Any]) -> dict[str, Any]:
-    rows = []
+def process_bulk(
+    files: list[Any],
+    method: str,
+    configuration: dict[str, Any],
+    include_quality_benchmark: bool = False,
+) -> dict[str, Any]:
+    structural_rows = []
+    benchmark_rows = []
     results = {}
 
     for index, file in enumerate(files, start=1):
@@ -456,50 +1087,63 @@ def process_bulk(files: list[Any], method: str, configuration: dict[str, Any]) -
 
         try:
             fingerprint = preprocess_upload(file)
-            enhanced, runtime = apply_frozen_method(fingerprint.p0, method, configuration)
+            enhanced = apply_frozen_method(fingerprint.p0, method, configuration)
             before_structural, after_structural = calculate_structural_pair(fingerprint.p0, enhanced)
 
-            rows.append(
-                {
-                    "File": file.name,
-                    "Status": "Processed",
-                    "Input Dimensions": f"{fingerprint.raw_dimensions[0]} x {fingerprint.raw_dimensions[1]}",
-                    "Processed Dimensions": f"{fingerprint.processed_dimensions[0]} x {fingerprint.processed_dimensions[1]}",
-                    "Runtime (s)": runtime,
-                    "Coherence Change": after_structural["coherence"] - before_structural["coherence"],
-                    "Contrast Change": after_structural["contrast"] - before_structural["contrast"],
-                    "Continuity Change": after_structural["continuity"] - before_structural["continuity"],
-                }
-            )
+            row = {
+                "Batch Item": index,
+                "File": file.name,
+                "Status": "Processed",
+                "Input Dimensions": f"{fingerprint.raw_dimensions[0]} x {fingerprint.raw_dimensions[1]}",
+                "Processed Dimensions": f"{fingerprint.processed_dimensions[0]} x {fingerprint.processed_dimensions[1]}",
+            }
+            for key, label in STRUCTURAL_LABELS.items():
+                row[f"{label} Change"] = after_structural[key] - before_structural[key]
+            structural_rows.append(row)
+
+            benchmark = None
+            if include_quality_benchmark:
+                benchmark = calculate_synthetic_benchmark(fingerprint, method, configuration)
+                benchmark_rows.append(bulk_quality_benchmark_row(index, file.name, "Processed", benchmark))
 
             results[preview_key] = {
                 "source_name": file.name,
                 "fingerprint": fingerprint,
                 "enhanced": enhanced,
-                "runtime": runtime,
                 "before_structural": before_structural,
                 "after_structural": after_structural,
+                "quality_benchmark": benchmark,
             }
 
         except Exception as exc:
-            rows.append(
+            structural_rows.append(
                 {
+                    "Batch Item": index,
                     "File": file.name,
                     "Status": f"Failed: {exc}",
                     "Input Dimensions": "",
                     "Processed Dimensions": "",
-                    "Runtime (s)": np.nan,
-                    "Coherence Change": np.nan,
-                    "Contrast Change": np.nan,
-                    "Continuity Change": np.nan,
+                    **{f"{label} Change": np.nan for label in STRUCTURAL_LABELS.values()},
                 }
             )
+            if include_quality_benchmark:
+                benchmark_rows.append(bulk_quality_benchmark_row(index, file.name, f"Failed: {exc}", None))
 
-    return {
+    structural_table_df = pd.DataFrame(structural_rows)
+    result = {
         "method": method,
-        "table": pd.DataFrame(rows),
+        "table": structural_table_df,
+        "structural_table": structural_table_df,
         "results": results,
+        "include_quality_benchmark": include_quality_benchmark,
     }
+
+    if include_quality_benchmark:
+        benchmark_table_df = pd.DataFrame(benchmark_rows)
+        result["benchmark_table"] = benchmark_table_df
+        result["table"] = bulk_export_table(result)
+
+    return result
 
 
 def build_zip_download(results: dict[str, dict[str, Any]], method: str) -> bytes:
@@ -547,7 +1191,6 @@ def render_project_evidence(configuration: dict[str, Any]) -> None:
                     "mean_psnr",
                     "mean_ssim",
                     "mean_mse",
-                    "runtime_seconds_mean",
                 ]
                 existing = [column for column in columns if column in validation.columns]
                 st.dataframe(validation[existing], width="stretch", hide_index=True)
@@ -586,28 +1229,38 @@ def render_single_or_compare(configuration: dict[str, Any]) -> None:
         key="single_upload",
     )
 
-    reference_file = st.file_uploader(
-        "Upload Reference / Ground-Truth Image",
-        type=SUPPORTED_TYPES,
-        accept_multiple_files=False,
-        key="reference_upload",
-        help="Optional. Reference-based PSNR, SSIM and MSE are calculated only when this image is supplied.",
-    )
-
     method_options = configuration["methods"] + [COMPARE_ALL]
     selected = st.selectbox("Enhancement Technique", method_options, key="selected_method")
+    include_quality_benchmark = st.checkbox(
+        "Include Controlled Quality Benchmark",
+        value=False,
+        key="include_quality_benchmark",
+        help=(
+            "Runs a deterministic synthetic degradation benchmark using the uploaded fingerprint's P0 image "
+            "as a temporary reference."
+        ),
+    )
     action_label = "Compare techniques" if selected == COMPARE_ALL else "Enhance fingerprint"
-    current_signature = (file_signature(uploaded_file), file_signature(reference_file), selected)
+    current_signature = (file_signature(uploaded_file), selected, include_quality_benchmark)
 
     if st.button(action_label, type="primary", disabled=uploaded_file is None):
         try:
             with st.spinner("Processing fingerprint image..."):
                 if selected == COMPARE_ALL:
-                    st.session_state["comparison_result"] = process_comparison(uploaded_file, reference_file, configuration)
+                    st.session_state["comparison_result"] = process_comparison(
+                        uploaded_file,
+                        configuration,
+                        include_quality_benchmark=include_quality_benchmark,
+                    )
                     st.session_state["comparison_signature"] = current_signature
                     st.session_state.pop("single_result", None)
                 else:
-                    st.session_state["single_result"] = process_single(uploaded_file, reference_file, selected, configuration)
+                    st.session_state["single_result"] = process_single(
+                        uploaded_file,
+                        selected,
+                        configuration,
+                        include_quality_benchmark=include_quality_benchmark,
+                    )
                     st.session_state["single_signature"] = current_signature
                     st.session_state.pop("comparison_result", None)
 
@@ -623,7 +1276,7 @@ def render_single_or_compare(configuration: dict[str, Any]) -> None:
         and selected != COMPARE_ALL
         and st.session_state.get("single_signature") == current_signature
     ):
-        render_single_result(single_result)
+        render_single_result(single_result, configuration)
 
     comparison_result = st.session_state.get("comparison_result")
 
@@ -632,10 +1285,10 @@ def render_single_or_compare(configuration: dict[str, Any]) -> None:
         and selected == COMPARE_ALL
         and st.session_state.get("comparison_signature") == current_signature
     ):
-        render_comparison_result(comparison_result)
+        render_comparison_result(comparison_result, configuration)
 
 
-def render_single_result(result: dict[str, Any]) -> None:
+def render_single_result(result: dict[str, Any], configuration: dict[str, Any]) -> None:
     fingerprint = result["fingerprint"]
     method = result["method"]
     enhanced = result["enhanced"]
@@ -644,39 +1297,29 @@ def render_single_result(result: dict[str, Any]) -> None:
 
     st.subheader("Data Analysis Dashboard")
 
-    if result["reference"] and result["reference"].raw_dimensions != fingerprint.raw_dimensions:
-        st.warning(
-            "The reference image dimensions differ from the input image. "
-            "Metrics are calculated after both images are standardised with P0."
-        )
-
-    render_reference_cards(result["reference_metrics"], result["runtime"], fingerprint)
-
-    if result["reference_metrics"]:
-        st.caption("Reference metrics are calculated against the supplied ground-truth image after P0 standardisation.")
-
-        metrics_df = pd.DataFrame(
-            [
-                {"Image": "P0 Input", **result["input_reference_metrics"]},
-                {"Image": f"Enhanced - {method}", **result["reference_metrics"]},
-            ]
-        )
-
-        st.dataframe(metrics_df, width="stretch", hide_index=True)
-
+    render_image_detail_cards(fingerprint)
     render_structural_metrics(result["before_structural"], result["after_structural"])
+    if result.get("quality_benchmark"):
+        render_controlled_quality_benchmark(result["quality_benchmark"])
 
     st.download_button(
         "Download Enhanced PNG",
         data=encode_png(enhanced),
         file_name=f"enhanced_{method_slug(method)}.png",
         mime="image/png",
+        key="single_download_png",
+    )
+
+    render_pdf_download(
+        "Export Analysis Report (PDF)",
+        lambda: build_single_analysis_pdf(result, configuration),
+        file_name=f"analysis_report_{method_slug(method)}.pdf",
+        key="single_export_pdf",
     )
 
 
-def render_comparison_result(result: dict[str, Any]) -> None:
+def render_comparison_result(result: dict[str, Any], configuration: dict[str, Any]) -> None:
     fingerprint = result["fingerprint"]
-    reference = result["reference"]
 
     st.subheader("Original and P0")
 
@@ -706,7 +1349,7 @@ def render_comparison_result(result: dict[str, Any]) -> None:
         for column, (method, method_result) in zip(cols, result_items[index: index + 2]):
             column.image(
                 image_to_uint8(method_result["enhanced"]),
-                caption=f"{method} ({method_result['runtime']:.3f} s)",
+                caption=method,
                 width="stretch",
                 clamp=True,
             )
@@ -715,22 +1358,38 @@ def render_comparison_result(result: dict[str, Any]) -> None:
 
     table = result["table"].copy()
 
-    if reference and reference.raw_dimensions != fingerprint.raw_dimensions:
-        st.warning(
-            "The reference image dimensions differ from the input image. "
-            "Metrics are calculated after both images are standardised with P0."
-        )
-
-    if reference is None:
-        st.info("Reference-based PSNR, SSIM and MSE are unavailable because no ground-truth image was supplied.")
-
     st.dataframe(table, width="stretch", hide_index=True)
+    st.caption(
+        "These structural indicators describe changes in fingerprint ridge structure. "
+        "They are not PSNR, SSIM, MSE or recognition accuracy."
+    )
+    st.info(
+        f"Project Recommended Technique: {configuration['selected_method']}. "
+        "This recommendation comes from the completed frozen Development/Validation benchmark."
+    )
+    render_comparison_quality_benchmark(result, configuration)
+
+    st.download_button(
+        "Export Comparison Table (CSV)",
+        data=dataframe_to_csv_bytes(table),
+        file_name="comparison_table.csv",
+        mime="text/csv",
+        key="comparison_export_csv",
+    )
 
     st.download_button(
         "Download All Enhanced PNGs",
         data=build_comparison_zip(result["results"]),
         file_name="enhanced_all_techniques.zip",
         mime="application/zip",
+        key="comparison_download_zip",
+    )
+
+    render_pdf_download(
+        "Export Comparison Report (PDF)",
+        lambda: build_comparison_report_pdf(result, configuration),
+        file_name="comparison_report.pdf",
+        key="comparison_export_pdf",
     )
 
 
@@ -749,12 +1408,26 @@ def render_bulk(configuration: dict[str, Any]) -> None:
         st.success(f"Total uploaded images: {len(uploaded_files)}")
 
     method = st.selectbox("Bulk Enhancement Technique", configuration["methods"], key="bulk_method")
-    current_signature = (files_signature(uploaded_files), method)
+    include_quality_benchmark = st.checkbox(
+        "Include Controlled Quality Benchmark",
+        value=False,
+        key="bulk_include_quality_benchmark",
+        help=(
+            "Runs a deterministic synthetic degradation benchmark for each uploaded fingerprint using its own P0 image "
+            "as a temporary reference."
+        ),
+    )
+    current_signature = (files_signature(uploaded_files), method, include_quality_benchmark)
 
     if st.button("Process batch", disabled=not uploaded_files):
         try:
             with st.spinner("Processing uploaded fingerprints..."):
-                st.session_state["bulk_result"] = process_bulk(uploaded_files, method, configuration)
+                st.session_state["bulk_result"] = process_bulk(
+                    uploaded_files,
+                    method,
+                    configuration,
+                    include_quality_benchmark=include_quality_benchmark,
+                )
                 st.session_state["bulk_signature"] = current_signature
 
         except Exception as exc:
@@ -768,7 +1441,29 @@ def render_bulk(configuration: dict[str, Any]) -> None:
         return
 
     st.subheader("Batch Summary")
-    st.dataframe(bulk_result["table"], width="stretch", hide_index=True)
+    if bulk_result.get("benchmark_table") is not None:
+        st.subheader("Controlled Quality Benchmark")
+        st.write(BULK_QUALITY_BENCHMARK_EXPLANATION)
+        st.dataframe(bulk_result["benchmark_table"], width="stretch", hide_index=True)
+        st.subheader("Actual Image Structural Indicators")
+        st.dataframe(bulk_result["structural_table"], width="stretch", hide_index=True)
+    else:
+        st.dataframe(bulk_result["table"], width="stretch", hide_index=True)
+
+    st.download_button(
+        "Export Batch Summary (CSV)",
+        data=dataframe_to_csv_bytes(bulk_export_table(bulk_result)),
+        file_name=f"batch_summary_{method_slug(bulk_result['method'])}.csv",
+        mime="text/csv",
+        key="bulk_export_csv",
+    )
+
+    render_pdf_download(
+        "Export Batch Report (PDF)",
+        lambda: build_bulk_report_pdf(bulk_result),
+        file_name=f"batch_report_{method_slug(bulk_result['method'])}.pdf",
+        key="bulk_export_pdf",
+    )
 
     if not bulk_result["results"]:
         return
@@ -788,6 +1483,7 @@ def render_bulk(configuration: dict[str, Any]) -> None:
         data=build_zip_download(bulk_result["results"], bulk_result["method"]),
         file_name=f"enhanced_batch_{method_slug(bulk_result['method'])}.zip",
         mime="application/zip",
+        key="bulk_download_zip",
     )
 
 

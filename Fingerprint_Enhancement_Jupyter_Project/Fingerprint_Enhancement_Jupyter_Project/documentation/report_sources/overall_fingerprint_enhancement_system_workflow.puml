@@ -1,0 +1,116 @@
+@startuml
+title Overall Fingerprint Enhancement System Workflow
+start
+:Fingerprint Dataset / User Image Input;
+if (Operating Mode?) then (Experimental Study)
+    partition "Dataset Preparation" {
+        :Load SOCOFing dataset;
+        :Identify subject IDs from filename prefix;
+        :Apply SHA-256 deterministic subject-level split;
+        fork
+            :Development Set\n500 images / 50 subjects;
+        fork again
+            :Validation Set\n1000 images / 100 unseen subjects;
+        end fork
+        :Verify zero subject overlap\nand zero image overlap;
+    }
+    partition "Neutral Preprocessing (P0)" {
+        :Convert to grayscale if required;
+        :Resize to 256 x 256;
+        :Convert datatype;
+        :Normalise intensity to [0,1];
+        :Generate neutral P0 image;
+    }
+    partition "Controlled Experimental Degradation" {
+        :Add Gaussian noise\nsigma 0.04825;
+        :Clip to [0,1]\nwithout renormalising after noise;
+        note right
+        Used only for objective
+        enhancement experiments.
+        It is NOT normal preprocessing.
+        end note
+    }
+    partition "Development and Technique Investigation" {
+        :Use Development Set;
+        fork
+            :Apply M1 NLM;
+        fork again
+            :Apply M2 Modified Gabor;
+        fork again
+            :Apply M3 TV;
+        fork again
+            :Apply M4 Directional Diffusion;
+        end fork
+        :Calculate PSNR, SSIM, MSE, runtime\nand mean absolute change;
+        :Compare degraded baseline\nagainst M1, M2, M3 and M4;
+        :Investigate candidate parameters;
+        :Select by mean PSNR, then SSIM, then MSE;
+        :Freeze final configuration for each technique;
+    }
+    partition "Independent Validation" {
+        :Use unseen Validation Set;
+        :Apply identical P0 preprocessing;
+        :Apply identical controlled degradation;
+        :Apply ONLY frozen M1-M4 configurations;
+        :Do NOT perform further tuning;
+        :Calculate validation metrics;
+        :Compare technique performance;
+        :Analyse generalisation and trade-offs;
+    }
+    partition "Experimental Outputs" {
+        :Save CSV / JSON results;
+        :Save plots and visual comparisons;
+        :Save frozen configurations;
+    }
+else (Streamlit Application)
+    partition "User Interface" {
+        :User uploads fingerprint image(s);
+        if (Valid BMP/PNG/JPG/TIFF image?) then (Yes)
+            :Load image;
+        else (No)
+            :Display graceful error message;
+            stop
+        endif
+    }
+    partition "Application Preprocessing" {
+        :Apply neutral P0 preprocessing;
+    }
+    partition "Technique Selection" {
+        if (Compare All selected?) then (Yes)
+            fork
+                :Apply frozen M1 NLM;
+            fork again
+                :Apply frozen M2 Modified Gabor;
+            fork again
+                :Apply frozen M3 TV;
+            fork again
+                :Apply frozen M4 Directional Diffusion;
+            end fork
+        else (Single Technique)
+            :Apply selected frozen technique;
+        endif
+    }
+    partition "Evaluation" {
+        if (Reference image supplied?) then (Yes)
+            :Preprocess reference consistently;
+            :Calculate PSNR, SSIM and MSE;
+        else (No)
+            :Do NOT fabricate reference metrics;
+            :Display no-reference structural indicators;
+        endif
+    }
+    partition "Results and Export" {
+        :Display original, P0 and processed images;
+        :Display comparison table and available metrics;
+        if (Multiple images?) then (Yes)
+            :Perform bulk processing;
+            :Use numbered output names to avoid collisions;
+            :Prepare ZIP output;
+        else (No)
+            :Prepare enhanced PNG output;
+        endif
+        :Allow result download;
+    }
+endif
+stop
+@enduml
