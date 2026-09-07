@@ -1,13 +1,16 @@
 """Streamlit prototype for the BMDS2133 Fingerprint Enhancement System."""
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import re
 import zipfile
 from dataclasses import dataclass
+from html import escape
 from io import BytesIO
 from pathlib import Path
+from textwrap import dedent
 from time import perf_counter
 from typing import Any
 
@@ -24,7 +27,7 @@ st.set_page_config(
 
 try:
     import Fingerprint_Enhancement_System as backend
-except Exception as exc:  # pragma: no cover - rendered as a Streamlit setup error.
+except Exception as exc:
     backend = None
     BACKEND_IMPORT_ERROR = exc
 else:
@@ -76,25 +79,31 @@ def clean_params(params: dict[str, Any]) -> dict[str, Any]:
 @st.cache_resource(show_spinner=False)
 def load_frozen_configuration() -> dict[str, Any]:
     fes = require_backend()
+
     if not FROZEN_CONFIG_PATH.is_file():
         raise FileNotFoundError(f"Frozen configuration file not found: {FROZEN_CONFIG_PATH}")
 
     config = json.loads(FROZEN_CONFIG_PATH.read_text(encoding="utf-8"))
     backend_methods = fes.member_functions()
+
     all_params = {
         method: clean_params(params)
         for method, params in config.get("all_member_parameters", {}).items()
         if method in backend_methods
     }
+
     ordered_methods = [method for method in backend_methods if method in all_params]
     missing_methods = [method for method in backend_methods if method not in all_params]
+
     if missing_methods:
         raise ValueError(f"Frozen parameters are missing for: {', '.join(missing_methods)}.")
+
     if not ordered_methods:
         raise ValueError("No frozen member parameters match the backend method names.")
 
     selected_method = str(config.get("selected_method", ordered_methods[0]))
     selected_parameters = clean_params(config.get("selected_parameters", all_params.get(selected_method, {})))
+
     return {
         "raw": config,
         "methods": ordered_methods,
@@ -127,6 +136,7 @@ def decode_uploaded_image(file: Any) -> tuple[np.ndarray, tuple[int, int], str]:
         raise ValueError("No image file was supplied.")
 
     suffix = Path(file.name).suffix.lower()
+
     if suffix and suffix not in require_backend().SUPPORTED_EXTENSIONS:
         raise ValueError(f"Unsupported file type '{suffix}'. Please upload BMP, PNG, JPG, JPEG or TIFF.")
 
@@ -140,6 +150,7 @@ def decode_uploaded_image(file: Any) -> tuple[np.ndarray, tuple[int, int], str]:
         raise ValueError("The uploaded image appears to be corrupted or incomplete.") from exc
 
     array = np.asarray(grayscale)
+
     if array.ndim != 2 or min(array.shape) <= 0:
         raise ValueError("The image must contain a valid two-dimensional fingerprint image.")
 
@@ -151,6 +162,7 @@ def preprocess_upload(file: Any) -> UploadedFingerprint:
     fes = require_backend()
     original, raw_dimensions, _ = decode_uploaded_image(file)
     p0 = fes.preprocess_p0(original)
+
     return UploadedFingerprint(
         name=file.name,
         digest=file_signature(file),
@@ -176,6 +188,31 @@ def encode_png(image: np.ndarray) -> bytes:
     return buffer.getvalue()
 
 
+def encode_display_png(image: np.ndarray) -> bytes:
+    """Encode uint8 or float image safely for HTML preview."""
+    array = np.asarray(image)
+
+    if array.dtype == np.uint8:
+        output = array
+    else:
+        array = np.asarray(image, dtype=np.float32)
+        array = np.nan_to_num(array, nan=0.0, posinf=1.0, neginf=0.0)
+
+        if array.max() > 1.5:
+            output = np.clip(array, 0, 255).astype(np.uint8)
+        else:
+            output = np.round(np.clip(array, 0.0, 1.0) * 255.0).astype(np.uint8)
+
+    buffer = BytesIO()
+    Image.fromarray(output, mode="L").save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def image_data_uri(image: np.ndarray) -> str:
+    encoded = base64.b64encode(encode_display_png(image)).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
 def method_slug(method: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", method.lower()).strip("_")
 
@@ -183,8 +220,10 @@ def method_slug(method: str) -> str:
 def apply_frozen_method(p0_image: np.ndarray, method: str, configuration: dict[str, Any]) -> tuple[np.ndarray, float]:
     fes = require_backend()
     functions = fes.member_functions()
+
     if method not in functions:
         raise ValueError(f"Unknown enhancement technique: {method}")
+
     if method not in configuration["all_member_parameters"]:
         raise ValueError(f"No frozen parameters were found for {method}.")
 
@@ -200,9 +239,11 @@ def calculate_structural_pair(p0_image: np.ndarray, enhanced: np.ndarray) -> tup
 
 def structural_table(before: dict[str, float], after: dict[str, float]) -> pd.DataFrame:
     rows = []
+
     for key, label in STRUCTURAL_LABELS.items():
         before_value = float(before[key])
         after_value = float(after[key])
+
         rows.append(
             {
                 "Metric": label,
@@ -211,6 +252,7 @@ def structural_table(before: dict[str, float], after: dict[str, float]) -> pd.Da
                 "Change": after_value - before_value,
             }
         )
+
     return pd.DataFrame(rows)
 
 
@@ -219,6 +261,7 @@ def calculate_reference_metrics(reference_p0: np.ndarray, candidate: np.ndarray)
         raise ValueError(
             f"Reference dimensions after P0 are {reference_p0.shape}; enhanced dimensions are {candidate.shape}."
         )
+
     return require_backend().full_reference_metrics(reference_p0, candidate)
 
 
@@ -230,18 +273,87 @@ def format_reference_metrics(metrics: dict[str, float]) -> dict[str, str]:
     }
 
 
-def render_image_triplet(original: np.ndarray, p0: np.ndarray, enhanced: np.ndarray, method: str) -> None:
-    original_col, p0_col, enhanced_col = st.columns(3)
-    original_col.image(original, caption="Original Input", use_container_width=True, clamp=True)
-    p0_col.image(image_to_uint8(p0), caption="Preprocessed / P0", use_container_width=True, clamp=True)
-    enhanced_col.image(image_to_uint8(enhanced), caption=f"Enhanced Result - {method}", use_container_width=True, clamp=True)
+def render_image_triplet(
+    original: np.ndarray,
+    p0: np.ndarray,
+    enhanced: np.ndarray,
+    method: str,
+) -> None:
+    cards = [
+        {
+            "badge": "01",
+            "title": "Original Input",
+            "subtitle": "Uploaded fingerprint image",
+            "image": original,
+        },
+        {
+            "badge": "02",
+            "title": "Preprocessed / P0",
+            "subtitle": "Grayscale, resized and normalised",
+            "image": p0,
+        },
+        {
+            "badge": "03",
+            "title": "Enhanced Result",
+            "subtitle": method,
+            "image": enhanced,
+        },
+    ]
+
+    card_html_parts = []
+
+    for card in cards:
+        card_html_parts.append(
+            dedent(
+                f"""
+                <div class="fp-image-card">
+                    <div class="fp-image-card-header">
+                        <span class="fp-step-badge">{escape(card["badge"])}</span>
+                        <div>
+                            <div class="fp-card-title">{escape(card["title"])}</div>
+                            <div class="fp-card-subtitle">{escape(card["subtitle"])}</div>
+                        </div>
+                    </div>
+
+                    <div class="fp-image-frame">
+                        <img src="{image_data_uri(card["image"])}" alt="{escape(card["title"])}">
+                    </div>
+                </div>
+                """
+            ).strip()
+        )
+
+    card_html = "\n".join(card_html_parts)
+
+    html = dedent(
+        f"""
+        <div class="fp-visual-section">
+            <div class="fp-section-header">
+                <div>
+                    <div class="fp-section-kicker">Visual Output</div>
+                    <div class="fp-section-title">Before / After Visualisation</div>
+                </div>
+                <div class="fp-section-note">P0 &gt; Enhancement Pipeline</div>
+            </div>
+
+            <div class="fp-image-grid">
+        {card_html}
+            </div>
+        </div>
+        """
+    ).strip()
+    html = "\n".join(line.lstrip() for line in html.splitlines())
+
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_reference_cards(reference_metrics: dict[str, float] | None, runtime: float, fingerprint: UploadedFingerprint) -> None:
     cols = st.columns(5)
+
     cols[0].metric("Input Dimensions", f"{fingerprint.raw_dimensions[0]} x {fingerprint.raw_dimensions[1]}")
     cols[1].metric("Processed Dimensions", f"{fingerprint.processed_dimensions[0]} x {fingerprint.processed_dimensions[1]}")
     cols[2].metric("Runtime", f"{runtime:.3f} s")
+
     if reference_metrics:
         formatted = format_reference_metrics(reference_metrics)
         cols[3].metric("PSNR", formatted["PSNR"])
@@ -256,7 +368,7 @@ def render_reference_cards(reference_metrics: dict[str, float] | None, runtime: 
 def render_structural_metrics(before: dict[str, float], after: dict[str, float]) -> None:
     st.subheader("No-Reference Structural Indicators")
     st.caption("Computed using the existing project structural metric function. These are not PSNR, SSIM or MSE.")
-    st.dataframe(structural_table(before, after), use_container_width=True, hide_index=True)
+    st.dataframe(structural_table(before, after), width="stretch", hide_index=True)
 
 
 def process_single(
@@ -286,7 +398,11 @@ def process_single(
     }
 
 
-def process_comparison(uploaded_file: Any, reference_file: Any | None, configuration: dict[str, Any]) -> dict[str, Any]:
+def process_comparison(
+    uploaded_file: Any,
+    reference_file: Any | None,
+    configuration: dict[str, Any],
+) -> dict[str, Any]:
     fingerprint = preprocess_upload(uploaded_file)
     reference = preprocess_upload(reference_file) if reference_file is not None else None
     rows = []
@@ -295,13 +411,27 @@ def process_comparison(uploaded_file: Any, reference_file: Any | None, configura
     for method in configuration["methods"]:
         enhanced, runtime = apply_frozen_method(fingerprint.p0, method, configuration)
         before_structural, after_structural = calculate_structural_pair(fingerprint.p0, enhanced)
-        row = {"Technique": method, "Runtime (s)": runtime}
+
+        row = {
+            "Technique": method,
+            "Runtime (s)": runtime,
+        }
+
         if reference is not None:
             metrics = calculate_reference_metrics(reference.p0, enhanced)
-            row.update({"PSNR": metrics["psnr"], "SSIM": metrics["ssim"], "MSE": metrics["mse"]})
+            row.update(
+                {
+                    "PSNR": metrics["psnr"],
+                    "SSIM": metrics["ssim"],
+                    "MSE": metrics["mse"],
+                }
+            )
+
         for key in STRUCTURAL_LABELS:
             row[f"{STRUCTURAL_LABELS[key]} Change"] = after_structural[key] - before_structural[key]
+
         rows.append(row)
+
         results[method] = {
             "enhanced": enhanced,
             "runtime": runtime,
@@ -320,12 +450,15 @@ def process_comparison(uploaded_file: Any, reference_file: Any | None, configura
 def process_bulk(files: list[Any], method: str, configuration: dict[str, Any]) -> dict[str, Any]:
     rows = []
     results = {}
+
     for index, file in enumerate(files, start=1):
         preview_key = f"{index}. {file.name}"
+
         try:
             fingerprint = preprocess_upload(file)
             enhanced, runtime = apply_frozen_method(fingerprint.p0, method, configuration)
             before_structural, after_structural = calculate_structural_pair(fingerprint.p0, enhanced)
+
             rows.append(
                 {
                     "File": file.name,
@@ -338,6 +471,7 @@ def process_bulk(files: list[Any], method: str, configuration: dict[str, Any]) -
                     "Continuity Change": after_structural["continuity"] - before_structural["continuity"],
                 }
             )
+
             results[preview_key] = {
                 "source_name": file.name,
                 "fingerprint": fingerprint,
@@ -346,6 +480,7 @@ def process_bulk(files: list[Any], method: str, configuration: dict[str, Any]) -
                 "before_structural": before_structural,
                 "after_structural": after_structural,
             }
+
         except Exception as exc:
             rows.append(
                 {
@@ -359,66 +494,98 @@ def process_bulk(files: list[Any], method: str, configuration: dict[str, Any]) -
                     "Continuity Change": np.nan,
                 }
             )
-    return {"method": method, "table": pd.DataFrame(rows), "results": results}
+
+    return {
+        "method": method,
+        "table": pd.DataFrame(rows),
+        "results": results,
+    }
 
 
 def build_zip_download(results: dict[str, dict[str, Any]], method: str) -> bytes:
     buffer = BytesIO()
+
     with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
         for index, (filename, result) in enumerate(results.items(), start=1):
             source_name = result.get("source_name", filename)
             stem = Path(source_name).stem or "fingerprint"
             output_name = f"{index:02d}_{stem}_enhanced_{method_slug(method)}.png"
             archive.writestr(output_name, encode_png(result["enhanced"]))
+
     return buffer.getvalue()
 
 
 def build_comparison_zip(results: dict[str, dict[str, Any]]) -> bytes:
     buffer = BytesIO()
+
     with zipfile.ZipFile(buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as archive:
         for method, result in results.items():
             archive.writestr(f"enhanced_{method_slug(method)}.png", encode_png(result["enhanced"]))
+
     return buffer.getvalue()
 
 
 def render_project_evidence(configuration: dict[str, Any]) -> None:
     raw = configuration["raw"]
     validation = load_validation_comparison()
+
     with st.sidebar:
         st.subheader("Frozen Project Evidence")
         st.write(f"Recommended Technique: **{configuration['selected_method']}**")
         st.caption("Selected using the completed development-set benchmark and confirmed with the validation protocol.")
         st.write(f"Development images: **{raw.get('development_images', 'n/a')}**")
         st.write(f"Validation images: **{raw.get('validation_images', 'n/a')}**")
+
         with st.expander("Frozen Parameters"):
             st.json(raw.get("all_member_parameters", {}))
+
         if not validation.empty:
             with st.expander("Validation Summary"):
-                columns = ["method", "images", "mean_psnr", "mean_ssim", "mean_mse", "runtime_seconds_mean"]
+                columns = [
+                    "method",
+                    "images",
+                    "mean_psnr",
+                    "mean_ssim",
+                    "mean_mse",
+                    "runtime_seconds_mean",
+                ]
                 existing = [column for column in columns if column in validation.columns]
-                st.dataframe(validation[existing], use_container_width=True, hide_index=True)
+                st.dataframe(validation[existing], width="stretch", hide_index=True)
 
 
 def render_header(configuration: dict[str, Any]) -> None:
-    st.title("Fingerprint Enhancement System")
-    st.markdown("#### Classical Image Processing for Ridge Enhancement")
-    st.write(
-        "Enhance low-quality fingerprint images and improve ridge visibility using classical image-processing techniques."
-    )
-    st.info(
-        f"The application uses frozen parameters from the completed experiment. "
-        f"Project-wide recommended technique: {configuration['selected_method']}."
-    )
+    html = dedent(
+        f"""
+        <div class="fp-hero">
+            <div>
+                <div class="fp-hero-kicker">BMDS2133 Image Processing</div>
+                <h1>Fingerprint Enhancement System</h1>
+                <p>
+                    Enhance low-quality fingerprint images and improve ridge visibility using classical
+                    image-processing techniques.
+                </p>
+            </div>
+            <div class="fp-hero-badge">
+                <span>Recommended Technique</span>
+                <strong>{escape(configuration["selected_method"])}</strong>
+            </div>
+        </div>
+        """
+    ).strip()
+
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def render_single_or_compare(configuration: dict[str, Any]) -> None:
     st.header("Image Enhancement")
+
     uploaded_file = st.file_uploader(
         "Upload Fingerprint Image",
         type=SUPPORTED_TYPES,
         accept_multiple_files=False,
         key="single_upload",
     )
+
     reference_file = st.file_uploader(
         "Upload Reference / Ground-Truth Image",
         type=SUPPORTED_TYPES,
@@ -443,12 +610,14 @@ def render_single_or_compare(configuration: dict[str, Any]) -> None:
                     st.session_state["single_result"] = process_single(uploaded_file, reference_file, selected, configuration)
                     st.session_state["single_signature"] = current_signature
                     st.session_state.pop("comparison_result", None)
+
         except Exception as exc:
             st.error("The image could not be processed. Please check the file and try again.")
             with st.expander("Technical detail"):
                 st.code(str(exc))
 
     single_result = st.session_state.get("single_result")
+
     if (
         single_result
         and selected != COMPARE_ALL
@@ -457,6 +626,7 @@ def render_single_or_compare(configuration: dict[str, Any]) -> None:
         render_single_result(single_result)
 
     comparison_result = st.session_state.get("comparison_result")
+
     if (
         comparison_result
         and selected == COMPARE_ALL
@@ -470,27 +640,32 @@ def render_single_result(result: dict[str, Any]) -> None:
     method = result["method"]
     enhanced = result["enhanced"]
 
-    st.subheader("Before / After Visualisation")
     render_image_triplet(fingerprint.original_gray, fingerprint.p0, enhanced, method)
 
     st.subheader("Data Analysis Dashboard")
+
     if result["reference"] and result["reference"].raw_dimensions != fingerprint.raw_dimensions:
         st.warning(
             "The reference image dimensions differ from the input image. "
             "Metrics are calculated after both images are standardised with P0."
         )
+
     render_reference_cards(result["reference_metrics"], result["runtime"], fingerprint)
+
     if result["reference_metrics"]:
         st.caption("Reference metrics are calculated against the supplied ground-truth image after P0 standardisation.")
+
         metrics_df = pd.DataFrame(
             [
                 {"Image": "P0 Input", **result["input_reference_metrics"]},
                 {"Image": f"Enhanced - {method}", **result["reference_metrics"]},
             ]
         )
-        st.dataframe(metrics_df, use_container_width=True, hide_index=True)
+
+        st.dataframe(metrics_df, width="stretch", hide_index=True)
 
     render_structural_metrics(result["before_structural"], result["after_structural"])
+
     st.download_button(
         "Download Enhanced PNG",
         data=encode_png(enhanced),
@@ -502,33 +677,54 @@ def render_single_result(result: dict[str, Any]) -> None:
 def render_comparison_result(result: dict[str, Any]) -> None:
     fingerprint = result["fingerprint"]
     reference = result["reference"]
+
     st.subheader("Original and P0")
+
     original_col, p0_col = st.columns(2)
-    original_col.image(fingerprint.original_gray, caption="Original Input", use_container_width=True, clamp=True)
-    p0_col.image(image_to_uint8(fingerprint.p0), caption="Preprocessed / P0", use_container_width=True, clamp=True)
+
+    original_col.image(
+        fingerprint.original_gray,
+        caption="Original Input",
+        width="stretch",
+        clamp=True,
+    )
+
+    p0_col.image(
+        image_to_uint8(fingerprint.p0),
+        caption="Preprocessed / P0",
+        width="stretch",
+        clamp=True,
+    )
 
     st.subheader("Technique Results")
+
     result_items = list(result["results"].items())
+
     for index in range(0, len(result_items), 2):
         cols = st.columns(2)
-        for column, (method, method_result) in zip(cols, result_items[index : index + 2]):
+
+        for column, (method, method_result) in zip(cols, result_items[index: index + 2]):
             column.image(
                 image_to_uint8(method_result["enhanced"]),
                 caption=f"{method} ({method_result['runtime']:.3f} s)",
-                use_container_width=True,
+                width="stretch",
                 clamp=True,
             )
 
     st.subheader("Comparison Dashboard")
+
     table = result["table"].copy()
+
     if reference and reference.raw_dimensions != fingerprint.raw_dimensions:
         st.warning(
             "The reference image dimensions differ from the input image. "
             "Metrics are calculated after both images are standardised with P0."
         )
+
     if reference is None:
         st.info("Reference-based PSNR, SSIM and MSE are unavailable because no ground-truth image was supplied.")
-    st.dataframe(table, use_container_width=True, hide_index=True)
+
+    st.dataframe(table, width="stretch", hide_index=True)
 
     st.download_button(
         "Download All Enhanced PNGs",
@@ -541,12 +737,17 @@ def render_comparison_result(result: dict[str, Any]) -> None:
 def render_bulk(configuration: dict[str, Any]) -> None:
     st.header("Bulk Processing")
     st.write("Upload multiple fingerprint images and apply one frozen enhancement technique to each file.")
+
     uploaded_files = st.file_uploader(
         "Upload Multiple Fingerprint Images",
         type=SUPPORTED_TYPES,
         accept_multiple_files=True,
         key="bulk_upload",
     )
+
+    if uploaded_files:
+        st.success(f"Total uploaded images: {len(uploaded_files)}")
+
     method = st.selectbox("Bulk Enhancement Technique", configuration["methods"], key="bulk_method")
     current_signature = (files_signature(uploaded_files), method)
 
@@ -555,22 +756,26 @@ def render_bulk(configuration: dict[str, Any]) -> None:
             with st.spinner("Processing uploaded fingerprints..."):
                 st.session_state["bulk_result"] = process_bulk(uploaded_files, method, configuration)
                 st.session_state["bulk_signature"] = current_signature
+
         except Exception as exc:
             st.error("The batch could not be processed.")
             with st.expander("Technical detail"):
                 st.code(str(exc))
 
     bulk_result = st.session_state.get("bulk_result")
+
     if not bulk_result or st.session_state.get("bulk_signature") != current_signature:
         return
 
     st.subheader("Batch Summary")
-    st.dataframe(bulk_result["table"], use_container_width=True, hide_index=True)
+    st.dataframe(bulk_result["table"], width="stretch", hide_index=True)
+
     if not bulk_result["results"]:
         return
 
     preview_name = st.selectbox("Preview Processed Result", list(bulk_result["results"]), key="bulk_preview")
     preview = bulk_result["results"][preview_name]
+
     render_image_triplet(
         preview["fingerprint"].original_gray,
         preview["fingerprint"].p0,
@@ -588,23 +793,227 @@ def render_bulk(configuration: dict[str, Any]) -> None:
 
 def main() -> None:
     st.markdown(
-        """
-<style>
-div[data-testid="stMetric"] {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    padding: 0.8rem;
-    border-radius: 8px;
-}
-.stTabs [data-baseweb="tab-list"] {
-    gap: 0.5rem;
-}
-</style>
-""",
+        dedent(
+            """
+            <style>
+            div[data-testid="stMetric"] {
+                background: #f8fafc;
+                border: 1px solid #e5e7eb;
+                padding: 0.9rem;
+                border-radius: 14px;
+            }
+
+            .stTabs [data-baseweb="tab-list"] {
+                gap: 0.5rem;
+            }
+
+            .fp-hero {
+                background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+                border: 1px solid #e2e8f0;
+                border-radius: 22px;
+                padding: 1.4rem 1.5rem;
+                margin-bottom: 1.4rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1.2rem;
+            }
+
+            .fp-hero-kicker {
+                color: #64748b;
+                font-size: 0.78rem;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 0.3rem;
+            }
+
+            .fp-hero h1 {
+                color: #0f172a;
+                font-size: 2.1rem;
+                line-height: 1.1;
+                margin: 0;
+                font-weight: 850;
+            }
+
+            .fp-hero p {
+                margin: 0.65rem 0 0 0;
+                color: #475569;
+                font-size: 1rem;
+                max-width: 760px;
+            }
+
+            .fp-hero-badge {
+                background: #ffffff;
+                border: 1px solid #dbe4f0;
+                border-radius: 18px;
+                padding: 0.9rem 1rem;
+                min-width: 230px;
+                box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+            }
+
+            .fp-hero-badge span {
+                display: block;
+                color: #64748b;
+                font-size: 0.76rem;
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+            }
+
+            .fp-hero-badge strong {
+                color: #0f172a;
+                font-size: 0.98rem;
+                line-height: 1.2;
+            }
+
+            .fp-visual-section {
+                margin-top: 0.8rem;
+                margin-bottom: 1.6rem;
+            }
+
+            .fp-section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .fp-section-kicker {
+                font-size: 0.78rem;
+                font-weight: 800;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #64748b;
+                margin-bottom: 0.15rem;
+            }
+
+            .fp-section-title {
+                font-size: 1.45rem;
+                font-weight: 850;
+                color: #0f172a;
+            }
+
+            .fp-section-note {
+                font-size: 0.85rem;
+                color: #475569;
+                background: #f1f5f9;
+                border: 1px solid #e2e8f0;
+                padding: 0.45rem 0.75rem;
+                border-radius: 999px;
+                white-space: nowrap;
+            }
+
+            .fp-image-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 1rem;
+            }
+
+            .fp-image-card {
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 18px;
+                padding: 0.9rem;
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+            }
+
+            .fp-image-card-header {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .fp-step-badge {
+                width: 2rem;
+                height: 2rem;
+                border-radius: 999px;
+                background: #0f172a;
+                color: #ffffff;
+                font-size: 0.8rem;
+                font-weight: 850;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .fp-card-title {
+                font-size: 0.95rem;
+                font-weight: 850;
+                color: #0f172a;
+                line-height: 1.2;
+            }
+
+            .fp-card-subtitle {
+                font-size: 0.78rem;
+                color: #64748b;
+                margin-top: 0.15rem;
+                line-height: 1.2;
+            }
+
+            .fp-image-frame {
+                background:
+                    linear-gradient(45deg, #f8fafc 25%, transparent 25%),
+                    linear-gradient(-45deg, #f8fafc 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #f8fafc 75%),
+                    linear-gradient(-45deg, transparent 75%, #f8fafc 75%);
+                background-size: 18px 18px;
+                background-position: 0 0, 0 9px, 9px -9px, -9px 0px;
+                border: 1px solid #e2e8f0;
+                border-radius: 14px;
+                padding: 0.6rem;
+                min-height: 230px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+            }
+
+            .fp-image-frame img {
+                width: 100%;
+                max-height: 260px;
+                object-fit: contain;
+                border-radius: 10px;
+                image-rendering: auto;
+            }
+
+            @media (max-width: 900px) {
+                .fp-hero {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                .fp-hero h1 {
+                    font-size: 1.7rem;
+                }
+
+                .fp-hero-badge {
+                    min-width: 0;
+                }
+
+                .fp-image-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .fp-section-header {
+                    align-items: flex-start;
+                    flex-direction: column;
+                }
+
+                .fp-section-note {
+                    white-space: normal;
+                }
+            }
+            </style>
+            """
+        ).strip(),
         unsafe_allow_html=True,
     )
 
     require_backend()
+
     try:
         configuration = load_frozen_configuration()
     except Exception as exc:
@@ -617,8 +1026,10 @@ div[data-testid="stMetric"] {
     render_header(configuration)
 
     enhancement_tab, bulk_tab = st.tabs(["Single Image / Compare All", "Bulk Processing"])
+
     with enhancement_tab:
         render_single_or_compare(configuration)
+
     with bulk_tab:
         render_bulk(configuration)
 
