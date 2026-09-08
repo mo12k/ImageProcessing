@@ -1,0 +1,14 @@
+{
+  "development_images": 500,
+  "development_subjects": 50,
+  "image_overlap": 0,
+  "images_per_subject_distribution": {
+    "10": 600
+  },
+  "real_image_count": 6000,
+  "split_seed": "BMDS2133-Fingerprint-ModeA-20260902",
+  "subject_overlap": 0,
+  "total_real_subjects": 600,
+  "validation_images": 1000,
+  "validation_subjects": 100
+}

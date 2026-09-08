@@ -1,0 +1,6 @@
+Download and extract SOCOFing so that a Real folder exists below this directory.
+
+Dataset: https://www.kaggle.com/datasets/ruizgara/socofing
+
+Expected example:
+data/SOCOFing/Real/1__M_Left_index_finger.BMP
