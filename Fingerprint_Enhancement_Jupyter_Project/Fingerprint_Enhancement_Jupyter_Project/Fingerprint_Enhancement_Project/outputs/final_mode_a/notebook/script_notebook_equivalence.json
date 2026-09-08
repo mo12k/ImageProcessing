@@ -1,145 +1,835 @@
 {
   "all_passed": true,
+  "final_selection": {
+    "notebook_selected_method": "M1 NLM",
+    "script_selected_method": "M1 NLM",
+    "status": "PASS"
+  },
   "ignored_fields": [
     "runtime columns",
     "runtime keys",
     "seconds"
   ],
+  "maximum_numeric_difference": {
+    "absolute_difference": 0.008196721311485078,
+    "allowed_tolerance": 0.013082786885245903,
+    "column": "continuity_after",
+    "file": "altered_structural_metrics.csv",
+    "notebook_value": 41.9344262295082,
+    "row": 110,
+    "script_value": 41.94262295081968
+  },
   "records": [
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "folder",
+        "image_count",
+        "representative_file"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=0",
       "file": "dataset_inventory.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 0.0,
+        "allowed_tolerance": 1.8004999999999998,
+        "column": "image_count",
+        "notebook_value": 6000.0,
+        "row": 0,
+        "script_value": 6000.0
+      },
+      "rows": 4,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "subject_id",
+        "real_image_count"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=0",
       "file": "real_subject_counts.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 0.0,
+        "allowed_tolerance": 0.0007999999999999999,
+        "column": "subject_id",
+        "notebook_value": 1.0,
+        "row": 0,
+        "script_value": 1.0
+      },
+      "rows": 600,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "split",
+        "deterministic_subject_score",
+        "subject_rank",
+        "path"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=0",
       "file": "dataset_split_manifest.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 0.0,
+        "allowed_tolerance": 0.11449999999999999,
+        "column": "subject_id",
+        "notebook_value": 380.0,
+        "row": 0,
+        "script_value": 380.0
+      },
+      "rows": 1500,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "split",
+        "filename",
+        "subject_id",
+        "noise_seed",
+        "psnr",
+        "ssim",
+        "mse"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=1.90258020449e-09",
       "file": "development_baseline_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 1.9025802044936313e-09,
+        "allowed_tolerance": 0.0007575864102226257,
+        "column": "ssim",
+        "notebook_value": 0.8586213674087524,
+        "row": 381,
+        "script_value": 0.8586213655061722
+      },
+      "rows": 500,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "candidate",
+        "member",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=5.86485870979e-09",
       "file": "gabor_screening_parameter_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 5.864858709792031e-09,
+        "allowed_tolerance": 0.0007103710975621491,
+        "column": "ssim",
+        "notebook_value": 0.7012369918738306,
+        "row": 1268,
+        "script_value": 0.7012369860089719
+      },
+      "rows": 1600,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "candidate",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=5.86485870979e-09",
       "file": "gabor_screening_parameter_summary.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 5.864858709792031e-09,
+        "allowed_tolerance": 0.0007103710975621491,
+        "column": "min_ssim",
+        "notebook_value": 0.7012369918738306,
+        "row": 3,
+        "script_value": 0.7012369860089719
+      },
+      "rows": 32,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "variant",
+        "input_mean",
+        "input_std",
+        "enhanced_mean",
+        "enhanced_std",
+        "mean_absolute_change",
+        "psnr",
+        "ssim",
+        "mse",
+        "pct_pixels_changed_gt_0_05",
+        "pct_pixels_changed_gt_0_10"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=5.96046447754e-08",
       "file": "gabor_diagnostic_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 5.960464477539063e-08,
+        "allowed_tolerance": 0.0006792235612869263,
+        "column": "input_mean",
+        "notebook_value": 0.5974118709564209,
+        "row": 3,
+        "script_value": 0.5974118113517761
+      },
+      "rows": 24,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "candidate",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=5.76400760455e-09",
       "file": "member1_parameter_search.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 5.7640076045473165e-09,
+        "allowed_tolerance": 0.0007915695166456222,
+        "column": "max_ssim",
+        "notebook_value": 0.9718983830547332,
+        "row": 4,
+        "script_value": 0.9718983888187408
+      },
+      "rows": 6,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "candidate",
+        "member",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=3.96054671281e-08",
       "file": "member1_parameter_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 3.960546712811208e-08,
+        "allowed_tolerance": 0.0007757822832877515,
+        "column": "delta_psnr",
+        "notebook_value": 0.9192742776258384,
+        "row": 2881,
+        "script_value": 0.9192742380203712
+      },
+      "rows": 3000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "candidate",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=7.51911954922e-09",
       "file": "member2_parameter_search.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 7.519119549215247e-09,
+        "allowed_tolerance": 0.009018554863588315,
+        "column": "max_psnr",
+        "notebook_value": 28.39518287862772,
+        "row": 2,
+        "script_value": 28.3951828711086
+      },
+      "rows": 3,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "candidate",
+        "member",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=2.84028054e-08",
       "file": "member2_parameter_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 2.8402805399990478e-08,
+        "allowed_tolerance": 0.0005000478615493774,
+        "column": "delta_ssim",
+        "notebook_value": 0.0001595100951194,
+        "row": 381,
+        "script_value": 0.0001595384979248
+      },
+      "rows": 1500,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "candidate",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=1.47353275731e-06",
       "file": "member3_parameter_search.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 1.4735327573123236e-06,
+        "allowed_tolerance": 0.0006274757276145972,
+        "column": "std_psnr",
+        "notebook_value": 0.4249176185159,
+        "row": 1,
+        "script_value": 0.4249190920486573
+      },
+      "rows": 4,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "candidate",
+        "member",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=0.000664020963487",
       "file": "member3_parameter_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 0.0006640209634873884,
+        "allowed_tolerance": 0.009192321265372123,
+        "column": "psnr",
+        "notebook_value": 28.97374019694359,
+        "row": 194,
+        "script_value": 28.97440421790708
+      },
+      "rows": 2000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "candidate",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=4.07776923339e-08",
       "file": "member4_parameter_search.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 4.077769233390427e-08,
+        "allowed_tolerance": 0.007432753931562917,
+        "column": "min_psnr",
+        "notebook_value": 23.1091797310987,
+        "row": 3,
+        "script_value": 23.10917977187639
+      },
+      "rows": 4,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "filename",
+        "subject_id",
+        "candidate",
+        "member",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=9.67874527191e-08",
       "file": "member4_parameter_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 9.678745271912703e-08,
+        "allowed_tolerance": 0.000757863149954772,
+        "column": "ssim",
+        "notebook_value": 0.8595438331825733,
+        "row": 1881,
+        "script_value": 0.8595437363951206
+      },
+      "rows": 2000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "split",
+        "filename",
+        "subject_id",
+        "method",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=6.63604736717e-08",
       "file": "development_member_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 6.63604736717005e-08,
+        "allowed_tolerance": 0.0007597004685116291,
+        "column": "ssim",
+        "notebook_value": 0.865668228372097,
+        "row": 1881,
+        "script_value": 0.8656681620116233
+      },
+      "rows": 2000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "method",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=8.91876217324e-09",
       "file": "development_member_comparison.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 8.918762173237837e-09,
+        "allowed_tolerance": 0.0007904110449084282,
+        "column": "max_ssim",
+        "notebook_value": 0.9680368163614274,
+        "row": 2,
+        "script_value": 0.9680368074426652
+      },
+      "rows": 5,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "split",
+        "filename",
+        "subject_id",
+        "noise_seed",
+        "psnr",
+        "ssim",
+        "mse"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=1.19331495796e-08",
       "file": "validation_baseline_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 1.1933149579590463e-08,
+        "allowed_tolerance": 0.008896155372555217,
+        "column": "psnr",
+        "notebook_value": 27.98718457518406,
+        "row": 661,
+        "script_value": 27.98718456325091
+      },
+      "rows": 1000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "split",
+        "filename",
+        "subject_id",
+        "method",
+        "parameters_json",
+        "baseline_psnr",
+        "baseline_ssim",
+        "baseline_mse",
+        "psnr",
+        "ssim",
+        "mse",
+        "delta_psnr",
+        "delta_ssim",
+        "delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=0.00063042058239",
       "file": "validation_member_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 0.0006304205823899345,
+        "allowed_tolerance": 0.001110981173074899,
+        "column": "delta_psnr",
+        "notebook_value": 2.036603910249664,
+        "row": 2816,
+        "script_value": 2.035973489667274
+      },
+      "rows": 4000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "method",
+        "images",
+        "mean_psnr",
+        "std_psnr",
+        "median_psnr",
+        "min_psnr",
+        "max_psnr",
+        "mean_ssim",
+        "std_ssim",
+        "median_ssim",
+        "min_ssim",
+        "max_ssim",
+        "mean_mse",
+        "std_mse",
+        "median_mse",
+        "min_mse",
+        "max_mse",
+        "mean_delta_psnr",
+        "mean_delta_ssim",
+        "mean_delta_mse",
+        "mean_absolute_change"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=8.67797755433e-07",
       "file": "validation_member_comparison.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 8.677977554327754e-07,
+        "allowed_tolerance": 0.00929634713856088,
+        "column": "mean_psnr",
+        "notebook_value": 29.321157128536267,
+        "row": 2,
+        "script_value": 29.321156260738512
+      },
+      "rows": 5,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "severity",
+        "filename",
+        "method",
+        "parameters_json",
+        "paired_clean_reference_available",
+        "coherence_before",
+        "contrast_before",
+        "fragmentation_before",
+        "continuity_before",
+        "ridge_coverage_before",
+        "coherence_after",
+        "contrast_after",
+        "fragmentation_after",
+        "continuity_after",
+        "ridge_coverage_after",
+        "delta_coherence",
+        "delta_contrast",
+        "delta_fragmentation",
+        "delta_continuity",
+        "delta_ridge_coverage"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=0.00819672131149",
       "file": "altered_structural_metrics.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 0.008196721311485078,
+        "allowed_tolerance": 0.013082786885245903,
+        "column": "continuity_after",
+        "notebook_value": 41.9344262295082,
+        "row": 110,
+        "script_value": 41.94262295081968
+      },
+      "rows": 6000,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime columns",
+      "columns": [
+        "severity",
+        "method",
+        "count",
+        "paired_clean_reference_available",
+        "mean_coherence_before",
+        "mean_contrast_before",
+        "mean_fragmentation_before",
+        "mean_continuity_before",
+        "mean_ridge_coverage_before",
+        "mean_coherence_after",
+        "mean_contrast_after",
+        "mean_fragmentation_after",
+        "mean_continuity_after",
+        "mean_ridge_coverage_after",
+        "mean_delta_coherence",
+        "mean_delta_contrast",
+        "mean_delta_fragmentation",
+        "mean_delta_continuity",
+        "mean_delta_ridge_coverage"
+      ],
+      "detail": "matched within numeric tolerance after runtime columns were ignored; max_abs_diff=1.63934426229e-05",
       "file": "altered_structural_summary.csv",
+      "kind": "csv",
+      "max_numeric_difference": {
+        "absolute_difference": 1.6393442622941734e-05,
+        "allowed_tolerance": 0.000817439130129423,
+        "column": "mean_delta_continuity",
+        "notebook_value": 1.05811404032212,
+        "row": 2,
+        "script_value": 1.058130433764743
+      },
+      "rows": 16,
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime keys",
+      "detail": "matched exactly after runtime keys were ignored",
+      "failure_type": null,
       "file": "dataset_split_audit.json",
+      "kind": "json",
+      "mismatches": [],
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime keys",
+      "detail": "matched exactly after runtime keys were ignored",
+      "failure_type": null,
       "file": "final_selected_configuration.json",
+      "kind": "json",
+      "mismatches": [],
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime keys",
+      "detail": "matched within numeric tolerance after runtime keys were ignored",
+      "failure_type": null,
       "file": "validation_summary.json",
+      "kind": "json",
+      "max_numeric_difference": {
+        "absolute_difference": 8.677977554327754e-07,
+        "notebook_value": 29.321157128536267,
+        "path": "/comparison[2]/mean_psnr",
+        "script_value": 29.321156260738512
+      },
+      "mismatches": [],
       "status": "PASS"
     },
     {
-      "detail": "matched ignoring runtime keys",
+      "detail": "environment provenance recorded; version differences do not fail equivalence",
       "file": "environment_report.json",
+      "kind": "json",
+      "provenance_differences": {
+        "matplotlib": {
+          "notebook_value": "3.11.0",
+          "script_value": "3.11.1"
+        },
+        "numpy": {
+          "notebook_value": "2.4.6",
+          "script_value": "1.26.4"
+        },
+        "opencv": {
+          "notebook_value": "5.0.0",
+          "script_value": "4.11.0"
+        },
+        "pandas": {
+          "notebook_value": "3.0.3",
+          "script_value": "3.0.5"
+        },
+        "python": {
+          "notebook_value": "3.14.6",
+          "script_value": "3.12.10"
+        },
+        "scipy": {
+          "notebook_value": "1.18.0",
+          "script_value": "1.17.1"
+        }
+      },
       "status": "PASS"
     },
     {
       "detail": "script=10, notebook=10",
+      "failure_type": null,
       "file": "figures",
+      "kind": "figures",
+      "notebook_figures": [
+        "baseline_vs_enhanced_improvement.png",
+        "development_comparison.png",
+        "example_clean_degraded_members.png",
+        "gabor_legacy_corrected_error.png",
+        "gabor_orientation_diagnostic.png",
+        "member1_parameter_search.png",
+        "member2_parameter_search.png",
+        "member3_parameter_search.png",
+        "member4_parameter_search.png",
+        "validation_comparison.png"
+      ],
+      "script_figures": [
+        "baseline_vs_enhanced_improvement.png",
+        "development_comparison.png",
+        "example_clean_degraded_members.png",
+        "gabor_legacy_corrected_error.png",
+        "gabor_orientation_diagnostic.png",
+        "member1_parameter_search.png",
+        "member2_parameter_search.png",
+        "member3_parameter_search.png",
+        "member4_parameter_search.png",
+        "validation_comparison.png"
+      ],
       "status": "PASS"
     }
-  ]
+  ],
+  "summary": {
+    "categorical_fields": "PASS",
+    "column_structure": "PASS",
+    "environment_provenance": "PASS",
+    "file_structure": "PASS",
+    "final_configuration": "PASS",
+    "final_selected_method": "PASS",
+    "numeric_metrics": "PASS",
+    "row_counts": "PASS"
+  },
+  "tolerances": {
+    "atol": 0.0005,
+    "rtol": 0.0003,
+    "rule": "numeric values must satisfy abs(script - notebook) <= atol + rtol * scale; delta_* columns use the paired before/after metric columns as scale when present"
+  }
 }

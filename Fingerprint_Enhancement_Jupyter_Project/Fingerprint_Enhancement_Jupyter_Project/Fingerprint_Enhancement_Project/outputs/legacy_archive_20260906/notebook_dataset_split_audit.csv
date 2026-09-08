@@ -1,7 +1,0 @@
-subset,count,unique_count,duplicates
-development,24,24,0
-holdout,100,100,0
-robustness,500,500,0
-overlap_development_holdout,0,0,0
-overlap_development_robustness,0,0,0
-overlap_holdout_robustness,0,0,0

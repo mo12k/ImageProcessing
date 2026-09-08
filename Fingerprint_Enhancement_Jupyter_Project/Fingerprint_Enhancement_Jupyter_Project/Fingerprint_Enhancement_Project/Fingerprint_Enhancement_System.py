@@ -1,11 +1,7 @@
 """BMDS2133 Fingerprint Enhancement System.
 
-Mode A comparative and enhancement study.
-
-The workflow uses four individual image-processing techniques.  The techniques
-are tuned on a subject-disjoint 500-image
-development set, frozen, and then evaluated on a separate 1000-image validation
-set from unseen subjects.
+This project compares four fingerprint image-processing techniques using
+development and validation datasets.
 """
 from __future__ import annotations
 
@@ -25,7 +21,6 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass
 from functools import lru_cache
 from pathlib import Path
-from time import perf_counter
 from typing import Any, Callable
 
 
@@ -456,7 +451,7 @@ def apply_modified_gabor_legacy(
     orientation_bins: int = 8,
     blend: float = 0.18,
 ) -> np.ndarray:
-    """Legacy M2 implementation retained for deterministic old-vs-new diagnostics."""
+    """Older M2 version kept for comparison with the corrected Gabor step."""
     base = _metric_image(image)
     mask = _fingerprint_mask(base)
     orientation, coherence = estimate_orientation_field(base)
@@ -787,8 +782,6 @@ def summarise_method_metrics(per_image: pd.DataFrame, group_column: str) -> pd.D
             mean_delta_ssim=("delta_ssim", "mean"),
             mean_delta_mse=("delta_mse", "mean"),
             mean_absolute_change=("mean_absolute_change", "mean"),
-            runtime_seconds_total=("runtime_seconds", "sum"),
-            runtime_seconds_mean=("runtime_seconds", "mean"),
         )
         .reset_index()
     )
@@ -801,17 +794,14 @@ def run_parameter_search(
     grid: list[dict[str, Any]],
     runner: Callable[[np.ndarray, dict[str, Any]], np.ndarray],
     progress: bool = False,
-) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any], float]:
-    started_search = perf_counter()
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     rows = []
     for grid_index, params in enumerate(grid, start=1):
         label = _candidate_label(member_name, params)
         if progress:
             print(f"  {member_name} candidate {grid_index}/{len(grid)}: {params}", flush=True)
         def evaluate_pair(pair: dict[str, Any]) -> dict[str, Any]:
-            started = perf_counter()
             enhanced = runner(pair["degraded"], params)
-            runtime = perf_counter() - started
             metrics = full_reference_metrics(pair["clean"], enhanced)
             mean_absolute_change = float(np.mean(np.abs(_metric_image(enhanced) - pair["degraded"])))
             return {
@@ -830,7 +820,6 @@ def run_parameter_search(
                 "delta_ssim": metrics["ssim"] - pair["baseline"]["ssim"],
                 "delta_mse": metrics["mse"] - pair["baseline"]["mse"],
                 "mean_absolute_change": mean_absolute_change,
-                "runtime_seconds": runtime,
             }
 
         if member_name in SERIAL_MEMBERS:
@@ -847,7 +836,7 @@ def run_parameter_search(
     selected_params = json.loads(per_image.loc[per_image.candidate.eq(selected_candidate), "parameters_json"].iloc[0])
     if "frequencies" in selected_params:
         selected_params["frequencies"] = tuple(selected_params["frequencies"])
-    return per_image, summary, selected_params, perf_counter() - started_search
+    return per_image, summary, selected_params
 
 
 def _params_from_parameter_rows(per_image: pd.DataFrame, candidate: str) -> dict[str, Any]:
@@ -868,12 +857,11 @@ def gabor_screening_subset(pairs: list[dict[str, Any]], count: int = GABOR_SCREE
 def run_gabor_parameter_search_two_stage(
     pairs: list[dict[str, Any]],
     progress: bool = False,
-) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any], float, pd.DataFrame, pd.DataFrame]:
-    started = perf_counter()
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any], pd.DataFrame, pd.DataFrame]:
     screening_pairs = gabor_screening_subset(pairs)
     if progress:
         print(f"  M2 Modified Gabor stage 1 screening: {len(screening_pairs)} development images, {len(GABOR_CANDIDATES)} candidates", flush=True)
-    screening_metrics, screening_summary, _, _ = run_parameter_search(
+    screening_metrics, screening_summary, _ = run_parameter_search(
         screening_pairs,
         "M2 Modified Gabor",
         GABOR_CANDIDATES,
@@ -897,7 +885,7 @@ def run_gabor_parameter_search_two_stage(
     stage2_grid = [_params_from_parameter_rows(screening_metrics, candidate) for candidate in top_candidates]
     if progress:
         print(f"  M2 Modified Gabor stage 2 full-development evaluation: {len(stage2_grid)} candidates", flush=True)
-    full_metrics, full_summary, selected_params, _ = run_parameter_search(
+    full_metrics, full_summary, selected_params = run_parameter_search(
         pairs,
         "M2 Modified Gabor",
         stage2_grid,
@@ -906,33 +894,31 @@ def run_gabor_parameter_search_two_stage(
     )
     if float(selected_params.get("strength", 0.0)) <= 0.0:
         raise AssertionError("Final M2 Modified Gabor strength must be > 0.")
-    return full_metrics, full_summary, selected_params, perf_counter() - started, screening_metrics, screening_summary
+    return full_metrics, full_summary, selected_params, screening_metrics, screening_summary
 
 
 def run_all_parameter_searches(
     pairs: list[dict[str, Any]], progress: bool = False
-) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame], dict[str, dict[str, Any]], pd.DataFrame, dict[str, pd.DataFrame]]:
+) -> tuple[dict[str, pd.DataFrame], dict[str, pd.DataFrame], dict[str, dict[str, Any]], dict[str, pd.DataFrame]]:
     funcs = member_functions()
     grids = parameter_grids()
     per_image_tables = {}
     summary_tables = {}
     diagnostic_tables = {}
     selected = {}
-    runtime_rows = []
     for member_name in ("M1 NLM", "M2 Modified Gabor", "M3 TV", "M4 Directional Diffusion"):
         if progress:
             print(f"Parameter search: {member_name}", flush=True)
         if member_name == "M2 Modified Gabor":
-            per_image, summary, params, elapsed, screening_metrics, screening_summary = run_gabor_parameter_search_two_stage(pairs, progress)
+            per_image, summary, params, screening_metrics, screening_summary = run_gabor_parameter_search_two_stage(pairs, progress)
             diagnostic_tables["gabor_screening_parameter_metrics"] = screening_metrics
             diagnostic_tables["gabor_screening_parameter_summary"] = screening_summary
         else:
-            per_image, summary, params, elapsed = run_parameter_search(pairs, member_name, grids[member_name], funcs[member_name], progress)
+            per_image, summary, params = run_parameter_search(pairs, member_name, grids[member_name], funcs[member_name], progress)
         per_image_tables[member_name] = per_image
         summary_tables[member_name] = summary
         selected[member_name] = params
-        runtime_rows.append({"stage": f"{member_name} parameter search", "seconds": elapsed})
-    return per_image_tables, summary_tables, selected, pd.DataFrame(runtime_rows), diagnostic_tables
+    return per_image_tables, summary_tables, selected, diagnostic_tables
 
 
 def evaluate_members(
@@ -940,8 +926,7 @@ def evaluate_members(
     selected_parameters: dict[str, dict[str, Any]],
     split: str,
     progress: bool = False,
-) -> tuple[pd.DataFrame, pd.DataFrame, float]:
-    started_eval = perf_counter()
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     funcs = member_functions()
     rows = []
     for member_name in ("M1 NLM", "M2 Modified Gabor", "M3 TV", "M4 Directional Diffusion"):
@@ -949,9 +934,7 @@ def evaluate_members(
             print(f"  {split} evaluation: {member_name}", flush=True)
         params = selected_parameters[member_name]
         def evaluate_pair(pair: dict[str, Any]) -> dict[str, Any]:
-            started = perf_counter()
             enhanced = funcs[member_name](pair["degraded"], params)
-            runtime = perf_counter() - started
             metrics = full_reference_metrics(pair["clean"], enhanced)
             mean_absolute_change = float(np.mean(np.abs(_metric_image(enhanced) - pair["degraded"])))
             return {
@@ -970,7 +953,6 @@ def evaluate_members(
                 "delta_ssim": metrics["ssim"] - pair["baseline"]["ssim"],
                 "delta_mse": metrics["mse"] - pair["baseline"]["mse"],
                 "mean_absolute_change": mean_absolute_change,
-                "runtime_seconds": runtime,
             }
 
         if member_name in SERIAL_MEMBERS:
@@ -986,7 +968,7 @@ def evaluate_members(
     baseline = baseline_metrics_table(pairs, split)
     baseline_summary = summarise_baseline_for_comparison(baseline)
     comparison = pd.concat([baseline_summary, member_summary.rename(columns={"method": "method"})], ignore_index=True, sort=False)
-    return per_image, comparison, perf_counter() - started_eval
+    return per_image, comparison
 
 
 def summarise_baseline_for_comparison(baseline: pd.DataFrame) -> pd.DataFrame:
@@ -1012,8 +994,6 @@ def summarise_baseline_for_comparison(baseline: pd.DataFrame) -> pd.DataFrame:
         "mean_delta_ssim": np.nan,
         "mean_delta_mse": np.nan,
         "mean_absolute_change": 0.0,
-        "runtime_seconds_total": 0.0,
-        "runtime_seconds_mean": 0.0,
     }
     return pd.DataFrame([row])
 
@@ -1041,8 +1021,7 @@ def run_altered_structural_evaluation(
     dataset_paths: dict[str, list[Path]],
     frozen_config: FrozenConfiguration,
     progress: bool = False,
-) -> tuple[pd.DataFrame, pd.DataFrame, float]:
-    started_eval = perf_counter()
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     funcs = member_functions()
     all_params = frozen_config.all_member_parameters
     rows = []
@@ -1053,7 +1032,7 @@ def run_altered_structural_evaluation(
         rng = np.random.default_rng(ALTERED_SEED + offset)
         selected_paths = [candidates[int(index)] for index in rng.permutation(len(candidates))[:ALTERED_PER_SEVERITY_COUNT]]
         if progress:
-            print(f"  {severity}: processing {len(selected_paths)} images for all four frozen methods", flush=True)
+            print(f"  {severity}: processing {len(selected_paths)} images for all four methods", flush=True)
 
         def evaluate_path(path: Path) -> list[dict[str, Any]]:
             before = load_fingerprint(path)
@@ -1095,7 +1074,7 @@ def run_altered_structural_evaluation(
                 **{f"mean_{column}": group[column].mean() for column in group.columns if column.endswith("_before") or column.endswith("_after") or column.startswith("delta_")},
             }
         )
-    return per_image, pd.DataFrame(summary_rows), perf_counter() - started_eval
+    return per_image, pd.DataFrame(summary_rows)
 
 
 def deterministic_development_sample(pairs: list[dict[str, Any]], label: str, count: int = 6) -> list[dict[str, Any]]:
@@ -1242,7 +1221,7 @@ def plot_development_example(
             ax.imshow(image, cmap="gray", vmin=0, vmax=1)
             ax.set_title(title if row == 0 else pair["path"].name, fontsize=9)
             ax.axis("off")
-    fig.suptitle("Deterministic Development visual comparison", y=0.995)
+    fig.suptitle("Development visual comparison", y=0.995)
     fig.subplots_adjust(top=0.92, hspace=0.12, wspace=0.05)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=160)
@@ -1281,7 +1260,7 @@ def plot_gabor_orientation_diagnostic(
             ax.imshow(image, cmap=cmap, vmin=vmin, vmax=vmax)
             ax.set_title(columns[col] if row == 0 else pair["path"].name, fontsize=9)
             ax.axis("off")
-    fig.suptitle("Development-only Modified Gabor orientation diagnostic", y=0.995)
+    fig.suptitle("Modified Gabor orientation check", y=0.995)
     fig.subplots_adjust(top=0.92, hspace=0.12, wspace=0.05)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=160)
@@ -1319,7 +1298,7 @@ def plot_gabor_error_diagnostic(
             ax.imshow(image, cmap=cmap, vmin=vmin, vmax=vmax)
             ax.set_title(columns[col] if row == 0 else pair["path"].name, fontsize=9)
             ax.axis("off")
-    fig.suptitle("Development-only legacy vs corrected Modified Gabor error diagnostic", y=0.995)
+    fig.suptitle("Modified Gabor old vs corrected error comparison", y=0.995)
     fig.subplots_adjust(top=0.92, hspace=0.12, wspace=0.05)
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=160)
@@ -1350,7 +1329,6 @@ def run_complete_workflow(
     make_plots: bool = True,
     progress: bool = True,
 ) -> dict[str, Any]:
-    workflow_start = perf_counter()
     root_path = Path(root).resolve()
     output_dir = root_path / "outputs" / "final_mode_a" / output_subdir
     figures_dir = output_dir / "figures"
@@ -1358,42 +1336,31 @@ def run_complete_workflow(
         reset_active_output_dir(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     figures_dir.mkdir(parents=True, exist_ok=True)
-    runtime_rows = []
-
-    def checkpoint(label: str, started: float) -> None:
-        runtime_rows.append({"stage": label, "seconds": perf_counter() - started})
 
     if progress:
-        print("Fingerprint Enhancement System - individual-method Mode A workflow", flush=True)
-        print(environment_report(), flush=True)
+        print("Fingerprint Enhancement System - Mode A", flush=True)
 
-    started = perf_counter()
     dataset_paths = discover_dataset(root_path)
     inventory, subject_counts = dataset_audit(dataset_paths)
     split_paths, split_manifest, split_audit = make_subject_disjoint_split(dataset_paths["Real"])
-    checkpoint("dataset audit and subject-disjoint split", started)
     if progress:
-        print("Dataset audit and subject-disjoint split complete", flush=True)
+        print("Dataset split ready", flush=True)
 
-    started = perf_counter()
     if progress:
-        print("Preparing P0/degraded caches for 500 development and 1000 validation images", flush=True)
+        print("Preparing P0 and degraded images", flush=True)
     development_pairs = prepare_pairs(split_paths["development"], NOISE_SEED_BASE)
     validation_pairs = prepare_pairs(split_paths["validation"], NOISE_SEED_BASE)
     development_baseline = baseline_metrics_table(development_pairs, "development")
     validation_baseline = baseline_metrics_table(validation_pairs, "validation")
-    checkpoint("P0 loading and controlled degradation cache", started)
 
     if progress:
         print("[1/6] Development parameter searches on 500 images", flush=True)
-    parameter_per_image, parameter_summaries, selected_parameters, parameter_runtime, diagnostic_tables = run_all_parameter_searches(development_pairs, progress)
-    runtime_rows.extend(parameter_runtime.to_dict("records"))
+    parameter_per_image, parameter_summaries, selected_parameters, diagnostic_tables = run_all_parameter_searches(development_pairs, progress)
     gabor_diagnostics = run_gabor_diagnostics(development_pairs, selected_parameters["M2 Modified Gabor"])
 
     if progress:
         print("[2/6] Development comparison with baseline control", flush=True)
-    development_metrics, development_comparison, elapsed = evaluate_members(development_pairs, selected_parameters, "development", progress)
-    runtime_rows.append({"stage": "development four-member comparison", "seconds": elapsed})
+    development_metrics, development_comparison = evaluate_members(development_pairs, selected_parameters, "development", progress)
     winner = select_development_winner(development_comparison)
     frozen_config = freeze_configuration(winner, selected_parameters)
 
@@ -1426,9 +1393,8 @@ def run_complete_workflow(
     }
 
     if progress:
-        print("[3/6] Frozen 1000-image validation of all four members", flush=True)
-    validation_metrics, validation_comparison, elapsed = evaluate_members(validation_pairs, selected_parameters, "validation", progress)
-    runtime_rows.append({"stage": "validation four-member comparison", "seconds": elapsed})
+        print("[3/6] Validation on 1000 images", flush=True)
+    validation_metrics, validation_comparison = evaluate_members(validation_pairs, selected_parameters, "validation", progress)
     validation_summary = {
         "frozen_development_winner": frozen_config.selected_method,
         "winner_not_changed_after_validation": True,
@@ -1439,8 +1405,7 @@ def run_complete_workflow(
 
     if progress:
         print("[4/6] Supplementary Altered structural evaluation", flush=True)
-    altered_metrics, altered_summary, elapsed = run_altered_structural_evaluation(dataset_paths, frozen_config, progress)
-    runtime_rows.append({"stage": "supplementary altered structural evaluation", "seconds": elapsed})
+    altered_metrics, altered_summary = run_altered_structural_evaluation(dataset_paths, frozen_config, progress)
 
     if progress:
         print("[5/6] Saving outputs and figures", flush=True)
@@ -1480,10 +1445,6 @@ def run_complete_workflow(
         figure_paths.append(plot_comparison(validation_comparison, "1000-image validation comparison", figures_dir / "validation_comparison.png"))
         figure_paths.append(plot_improvement(validation_comparison, "Validation improvement over degraded baseline", figures_dir / "baseline_vs_enhanced_improvement.png"))
 
-    runtime_rows.append({"stage": "complete workflow", "seconds": perf_counter() - workflow_start})
-    runtime = pd.DataFrame(runtime_rows)
-    save_csv(runtime, output_dir / "runtime_report.csv")
-
     if progress:
         print("[6/6] Workflow complete", flush=True)
         print(f"  Development images: {len(development_pairs)}", flush=True)
@@ -1515,7 +1476,6 @@ def run_complete_workflow(
         "validation_summary": validation_summary,
         "altered_metrics": altered_metrics,
         "altered_summary": altered_summary,
-        "runtime": runtime,
         "figure_paths": figure_paths,
         "output_dir": output_dir,
     }

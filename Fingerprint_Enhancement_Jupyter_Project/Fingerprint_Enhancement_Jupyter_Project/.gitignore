@@ -2,3 +2,9 @@
 .tools/
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.log
+outputs/**/archive/
+outputs/legacy_archive_*/
